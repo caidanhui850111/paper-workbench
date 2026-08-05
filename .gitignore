@@ -4,3 +4,4 @@ _shots/
 node_modules/
 .DS_Store
 Thumbs.db
+_pt2*.js
