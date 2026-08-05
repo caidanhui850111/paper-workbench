@@ -375,7 +375,7 @@ const AI_PATTERNS=[
  {re:/具有良好的应用前景|未来可期|前景广阔|发展空间广阔|大有可为/g,tip:'空洞积极结尾（humanizer 模式 24）：AI 爱用"前景广阔/未来可期"收尾，建议换成具体下一步或真实数据'},
  {re:/树立了[^，。]{0,8}榜样|开辟了[^，。]{0,8}新篇章|里程碑式|划时代/g,tip:'重要性膨胀（humanizer 模式 1）："树立榜样/新篇章/里程碑"是 AI 抬高意义的套话，建议直接陈述事实'},
  {re:/在一定程度上|可能或许|或许可能|似乎可能/g,tip:'过度模糊堆叠（humanizer 模式 23）："在一定程度上/可能或许"叠用是 AI 避险特征，建议明确判断或删减'},
- {re:/——/g,tip:'破折号滥用（humanizer 模式 13）：AI 爱用破折号制造"铿锵感"，学术论文建议每段不超过 1 处，多用逗号句号'},
+ {re:/[，。；][^。\n]{2,18}——[^。\n]{2,18}[。，；]/g,tip:'破折号滥用（humanizer 模式 13）：AI 爱用破折号制造"铿锵感"（实测对照 PaperPass：标题/小标题中的破折号属排版正常不算），仅检测正文句子内部、建议每段 ≤1 处，多用逗号句号'},
  {re:/充当着|扮演着[^，。]{0,6}角色/g,tip:'回避系动词（humanizer 模式 8）："充当/扮演…角色"替代简单的"是/作为"，AI 式绕弯，建议简化'},
  {re:/正如前文所述|如上所述|如前所述/g,tip:'公式化回指（humanizer 模式 6）："正如前文所述"是 AI 衔接套话，建议直接继续论述'},
  {re:/需要指出的是|应当指出|值得强调的是/g,tip:'公式化指出句（humanizer 模式 21/6）："需要指出的是"AI 高频，建议直接说要点'},
@@ -391,7 +391,22 @@ const AI_PATTERNS=[
  {re:/该(处理|设计|决策|选择)(体现|反映|印证)了|上述(选择|结果)印证了/g,tip:'被动分析套话（humanizer-academic-zh 模式 4）："该设计体现了/上述选择印证了"抽象被动分析腔，建议改为直接说明'},
  {re:/面临的(核心|主要)问题是|核心挑战在于|主要矛盾体现在/g,tip:'模板化问题陈述（humanizer-academic-zh 模式 5）："面临的核心问题是/主要矛盾体现在"抽象框架模板化，建议用具体表述'}
 ];
-function scanAI(text){let count=0;AI_PATTERNS.forEach(p=>{const m=String(text).match(p.re);count+=(m?m.length:0);});return{count};}
+/* AI 味检测（本地规则）：返回命中处数 + 密度 + 命中字数占比 + 估计疑似度区间
+   校准锚点：蔡老师文章 PaperPass AIGC 15.75% ↔ 平台命中 0.19 处/千字 → 低档
+   口径说明：本地规则仅覆盖"显性 AI 表达"，PaperPass 为语义模型检测，二者非线性 */
+function scanAI(text){
+  let count=0,hitChars=0;
+  const t=String(text);
+  AI_PATTERNS.forEach(p=>{const m=t.match(p.re);if(m){count+=m.length;m.forEach(x=>hitChars+=String(x).length);}});
+  const total=t.replace(/\s/g,'').length||1;
+  const rate=count/(total/1000);              // 每千字命中处数
+  const pct=Math.min(99.9,hitChars/total*100);// 命中字数占比
+  let level='低',est='0-15';
+  if(rate>=0.5&&rate<2){level='中';est='15-35';}
+  else if(rate>=2&&rate<5){level='偏高';est='35-60';}
+  else if(rate>=5){level='高';est='60-99';}
+  return{count,rate:+rate.toFixed(1),pct:+pct.toFixed(2),level,est};
+}
 /* 原文标注（借鉴 PaperPass 逐句可视化标注报告）：命中 AI 模式片段标红，title 显示修改建议 */
 function aiHighlight(text){
   if(!text)return '';
@@ -1422,9 +1437,18 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
     _toolHi('aicheck');
     const text=editor.value;const found=[];
     AI_PATTERNS.forEach(p=>{const m=text.match(p.re);if(m&&m.length)found.push({word:m[0],count:m.length,tip:p.tip});});
+    const ai=scanAI(text);
+    const pctColor=ai.level==='低'?'var(--ok)':(ai.level==='中'?'var(--warn)':'var(--danger)');
+    const banner=`<div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:${pctColor}">${ai.count}</div><div class="muted" style="font-size:11px">命中处数</div></div>
+      <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:${pctColor}">${ai.rate}</div><div class="muted" style="font-size:11px">处/千字</div></div>
+      <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:${pctColor}">${ai.pct}%</div><div class="muted" style="font-size:11px">命中字数占比</div></div>
+      <div style="flex:1;min-width:180px"><div style="font-weight:600;color:${pctColor}">AI 味等级：${ai.level}（估计 AIGC 疑似度 ${ai.est}%）</div>
+      <div class="muted" style="font-size:12px;line-height:1.6">本地规则估计，仅供参考；正式 AIGC 检测以学校/期刊工具（知网/维普/PaperPass）为准。</div></div>
+    </div>`;
     const noHit='<div class="muted" style="text-align:center;padding:16px">没有发现明显 AI 高频表达 ✓<br><span style="font-size:12px">（本地规则检查，仅供参考；正式 AIGC 检测请以学校/期刊工具为准）</span></div>';
     const list=found.length?found.map(f=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><div><span class="chip amber">${esc(f.word)} ×${f.count}</span></div><div class="muted" style="font-size:12px;margin-top:4px">${esc(f.tip)}</div></div>`).join(''):'';
-    const body=`<div class="muted" style="font-size:12px;margin-bottom:6px">① 原文标注（黄色为命中处，鼠标悬停看修改建议）</div>
+    const body=`${banner}<div class="muted" style="font-size:12px;margin-bottom:6px">① 原文标注（黄色为命中处，鼠标悬停看修改建议）</div>
     <div style="background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;line-height:1.9;max-height:200px;overflow:auto;white-space:pre-wrap">${found.length?aiHighlight(text):esc(text)}</div>
     ${found.length?`<div class="muted" style="font-size:12px;margin:10px 0 4px">② 命中明细</div>`+list:''}
     ${!found.length?noHit:''}
@@ -2017,12 +2041,19 @@ function deredupPage(root){
         r=await llmAsk('请对以下论文段落进行逐句精修。将段落按句拆分，对每一句给出：原文 / 改进后 / 一句话理由（如无可改，理由写"保留"）。用列表逐句对应输出：\n\n段落：\n"""'+text.slice(0,2000)+'"""');
       }else if(kind==='review'){
         if(!LLM.get().enabled){
-          const ai=scanAI(text).count;
-          show(`<div class="muted" style="font-size:12px;margin-bottom:6px">原文标注（黄色为 AI 味命中处，悬停看修改建议）</div>
-          <div style="background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;line-height:1.9;max-height:220px;overflow:auto;white-space:pre-wrap">${ai?aiHighlight(text):esc(text)}</div>
-          <div style="margin-top:8px;font-size:13px"><b>本地规则检查：</b>AI 味高频表达 ${ai} 处 · 文本 ${countWords(text).total} 字${countWords(text).total<200?'（偏短，可扩充论证）':''}<br><span class="muted" style="font-size:12px">建议配 LLM Key 后由 AI 以审稿人身份逐段挑刺</span></div>
+          const ai=scanAI(text);
+          const pctColor=ai.level==='低'?'var(--ok)':(ai.level==='中'?'var(--warn)':'var(--danger)');
+          show(`<div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:${pctColor}">${ai.count}</div><div class="muted" style="font-size:11px">命中处数</div></div>
+            <div style="text-align:center"><div style="font-size:20px;font-weight:700;color:${pctColor}">${ai.pct}%</div><div class="muted" style="font-size:11px">命中字数占比</div></div>
+            <div style="flex:1;min-width:160px"><div style="font-weight:600;color:${pctColor}">AI 味等级：${ai.level}（估计 AIGC 疑似度 ${ai.est}%）</div>
+            <div class="muted" style="font-size:12px">本地规则估计，仅供参考；正式检测以学校/期刊工具为准</div></div>
+          </div>
+          <div class="muted" style="font-size:12px;margin-bottom:6px">原文标注（黄色为 AI 味命中处，悬停看修改建议）</div>
+          <div style="background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;line-height:1.9;max-height:220px;overflow:auto;white-space:pre-wrap">${ai.count?aiHighlight(text):esc(text)}</div>
+          <div style="margin-top:8px;font-size:13px"><b>本地规则检查：</b>AI 味高频表达 ${ai.count} 处 · 文本 ${countWords(text).total} 字${countWords(text).total<200?'（偏短，可扩充论证）':''}<br><span class="muted" style="font-size:12px">建议配 LLM Key 后由 AI 以审稿人身份逐段挑刺</span></div>
           <div style="margin-top:8px"><button class="btn sm" id="o-copy">复制</button></div>`);
-          const c=$('#o-copy');if(c)c.onclick=()=>copyText('本地检查：AI味'+ai+'处，共'+countWords(text).total+'字');
+          const c=$('#o-copy');if(c)c.onclick=()=>copyText('本地检查：AI味'+ai.count+'处（等级'+ai.level+'，估计疑似度'+ai.est+'%），共'+countWords(text).total+'字');
           return;
         }
         r=await llmAsk('你是严格的学术审稿人。请针对以下文本挑毛病并给改进建议：\n\n文本：\n"""'+text.slice(0,1800)+'"""\n\n请指出：1.逻辑问题 2.论证不足 3.表述/规范问题 4.可操作的改进建议（2-4 条）。用列表输出，简洁犀利。');
