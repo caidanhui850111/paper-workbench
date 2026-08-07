@@ -10,7 +10,7 @@
 
 | 方式 | 链接 / 操作 | 适合 |
 |---|---|---|
-| ① 在线使用（国内·推荐） | https://caidanhui-d7g6xmyycae8f6862-1464332842.tcloudbaseapp.com/ | 国内同事手机/电脑日常用，腾讯云 CloudBase 静态托管，公开无需登录 |
+| ① 在线使用（国内·推荐） | https://paper-workbench-caidanhui-d7g6xmyycae8f6862.webapps.tcloudbase.com/ | 国内同事手机/电脑日常用，腾讯云 CloudBase 静态托管，公开无需登录 |
 | ② 在线使用（海外） | https://caidanhui850111.github.io/paper-workbench/ | 国外访问、永久备份链接（GitHub Pages） |
 | ③ 本地离线 | 下载 `index.html` 双击打开 | 无网环境、数据完全本地 |
 
