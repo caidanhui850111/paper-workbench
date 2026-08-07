@@ -249,7 +249,8 @@ const ICONS = {
   ai:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 1 4 4c0 .9-.3 1.7-.8 2.4C17.4 9.5 19 11.4 19 14a7 7 0 1 1-14 0c0-2.6 1.6-4.5 3.8-5.6A4 4 0 0 1 12 2z"/></svg>',
   review:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
   deredup:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg>',
-  set:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+  set:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+  feedback:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
 };
 /* ================= 工具函数 ================= */
 const $=s=>document.querySelector(s);
@@ -1042,9 +1043,10 @@ const NAV=[
  {id:'deredup',name:'AI 降重',icon:ICONS.deredup,desc:'AI 润色/逐句精修/审稿人挑刺/AI 率检查/AI 降重/去 AIGC 六大工具；含检测原理速查'},
  {id:'review',name:'AI 审稿',icon:ICONS.review,desc:'按类型（教科研/案例/期刊/毕业论文）五维审稿 + 7 模块报告（执行摘要/优点/不足/贡献/建议），可导出 MD/TXT/DOC'},
  {id:'assistant',name:'AI 助手',icon:ICONS.ai,desc:'通用 AI 对话（配 LLM Key 后用真模型，未配用本地模板）'},
- {id:'settings',name:'设置与说明',icon:ICONS.set,desc:'LLM Key 配置、主题、数据备份/恢复、平台功能与原理说明（24 项溯源）'}
+ {id:'settings',name:'设置与说明',icon:ICONS.set,desc:'LLM Key 配置、主题、数据备份/恢复、平台功能与原理说明（24 项溯源）'},
+ {id:'feedback',name:'问题反馈',icon:ICONS.feedback,desc:'使用问题提交（一键复制/一键发邮件）、扫微信二维码联系作者'}
 ];
-const PAGES={progress:progressPage,literature:literaturePage,frontier:frontierPage,writing:writingPage,submission:submissionPage,econ:econometricsPage,search:searchPage,deredup:deredupPage,review:reviewPage,assistant:assistantPage,settings:settingsPage};
+const PAGES={progress:progressPage,literature:literaturePage,frontier:frontierPage,writing:writingPage,submission:submissionPage,econ:econometricsPage,search:searchPage,deredup:deredupPage,review:reviewPage,assistant:assistantPage,settings:settingsPage,feedback:feedbackPage};
 const state={docId:null,chIdx:0,theme:'light',econStep:1,econDS:null,subTab:1};
 let currentPage='progress';
 function go(page,param){
@@ -2902,6 +2904,70 @@ function settingsPage(root){
   $('#set-import-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);let n=0;Object.entries(data).forEach(([k,v])=>{if(k.startsWith('paperwb_')){localStorage.setItem(k,JSON.stringify(v));n++;}});toast('已导入 '+n+' 组数据');settingsPage(root);}catch(err){toast('文件格式错误');}};rd.readAsText(f);};
   $('#set-clear').onclick=()=>confirm2('清空全部数据不可恢复！将先自动导出一份备份，确认清空？',()=>{download('职教中心写论文平台备份_清空前_'+todayStr()+'.json',JSON.stringify(Store.all(),null,2),'application/json');Object.values(K).forEach(k=>localStorage.removeItem(k));ensureData();settingsPage(root);toast('已清空并重置示例数据');});
   $('#set-clear-sample').onclick=()=>confirm2('清空示例数据（保留你手动添加的内容）？',()=>{Store.del(K.journals);Store.del(K.lits);Store.del(K.subs);ensureData();toast('示例数据已重置');});
+}
+
+/* ================= 问题反馈与联系作者 ================= */
+/* 作者信息：请作者把邮箱和微信二维码填入（微信二维码为 base64 图片数据，可用工具转换后填入） */
+const AUTHOR_NAME='蔡老师';
+const AUTHOR_EMAIL='caidanhui850111@qq.com'; /* ← 作者邮箱（占位，可改） */
+const AUTHOR_WECHAT_QR=''; /* ← 作者微信二维码图片（base64，留空则显示"待配置"提示） */
+
+function feedbackPage(root){
+  const mods=['论文完成度','文献阅读与笔记','检索与前沿','论文框架与写作','论文评比与投稿','计量分析','AI 降重','AI 审稿','AI 助手','设置与说明','其他'];
+  const qrHtml=AUTHOR_WECHAT_QR
+    ?`<img src="data:image/png;base64,${AUTHOR_WECHAT_QR}" alt="作者微信二维码" style="width:200px;max-width:100%;border-radius:10px;border:1px solid var(--line)">`
+    :`<div style="background:var(--card2);border:1px dashed var(--line);border-radius:10px;padding:20px;text-align:center;font-size:13px">微信二维码待配置（作者上传后显示）<br><span class="muted" style="font-size:12px">直接加微信：搜索手机号/微信名联系作者</span></div>`;
+  root.innerHTML=`
+  <div class="card">
+    <h3>💬 问题反馈</h3>
+    <div class="muted" style="font-size:12px;margin-bottom:10px">使用中遇到问题？填好下面内容，用「一键发邮件」或「复制后发微信」联系作者，作者看到后会尽快回复。</div>
+    <label class="muted">① 问题类型</label>
+    <select id="fb-mod" style="margin:4px 0 10px">${mods.map(m=>`<option>${m}</option>`).join('')}</select>
+    <label class="muted">② 问题描述（尽量写清楚：做了什么、期望什么、实际看到什么）</label>
+    <textarea id="fb-desc" placeholder="例：AI 审稿点了没反应 / 打开页面是旧版 / 数据不见了…" style="min-height:100px;margin:4px 0 10px"></textarea>
+    <label class="muted">③ 你的联系方式（选填，方便回复）</label>
+    <input id="fb-contact" placeholder="微信号 / 手机号 / 邮箱（选填）" style="margin:4px 0 10px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" id="fb-gen">生成反馈文本</button>
+      <button class="btn" id="fb-mail">📧 一键发邮件</button>
+      <button class="btn" id="fb-copy">📋 复制反馈内容</button>
+    </div>
+    <div id="fb-out" style="margin-top:10px;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;white-space:pre-wrap;display:none"></div>
+  </div>
+  <div class="card">
+    <h3>📱 联系作者</h3>
+    <div style="font-size:13px;line-height:1.9">
+      <div>· 邮箱：<b>${AUTHOR_EMAIL}</b></div>
+      <div>· 微信：扫下方二维码加作者（备注"论文平台问题"）</div>
+      <div style="margin-top:10px">${qrHtml}</div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>🔧 遇到问题的快速自查</h3>
+    <div style="font-size:12px;line-height:1.9">
+      1. <b>页面是旧版/没更新</b>：按 Ctrl+F5（手机清缓存或无痕模式）强制刷新<br>
+      2. <b>AI 功能没反应</b>：到「设置与说明」检查 Key 是否已启用、测试连接<br>
+      3. <b>数据不见了</b>：可能清过缓存——平时记得定期「导出 JSON 备份」<br>
+      4. <b>手机打不开</b>：换浏览器、或在微信里点右上角「在浏览器打开」<br>
+      5. 以上都不行 → 用上方「一键发邮件」或扫微信联系作者
+    </div>
+  </div>`;
+  const gen=()=>{
+    const mod=$('#fb-mod').value,d=$('#fb-desc').value.trim(),c=$('#fb-contact').value.trim();
+    if(!d)return toast('请先填写问题描述');
+    const txt=`【论文平台问题反馈】\n时间：${todayStr()} ${new Date().toTimeString().slice(0,5)}\n问题类型：${mod}\n问题描述：${d}\n联系方式：${c||'（未填）'}`;
+    const out=$('#fb-out');out.style.display='block';out.textContent=txt;return txt;
+  };
+  $('#fb-gen').onclick=()=>gen();
+  $('#fb-copy').onclick=()=>{const t=gen();if(t)copyText(t);};
+  $('#fb-mail').onclick=()=>{
+    const mod=$('#fb-mod').value,d=$('#fb-desc').value.trim(),c=$('#fb-contact').value.trim();
+    if(!d)return toast('请先填写问题描述');
+    const subject=encodeURIComponent('【论文平台问题反馈】'+mod);
+    const body=encodeURIComponent(`问题类型：${mod}\n问题描述：${d}\n联系方式：${c||'（未填）'}\n\n（来自论文写作工作台问题反馈页）`);
+    window.location.href=`mailto:${AUTHOR_EMAIL}?subject=${subject}&body=${body}`;
+    toast('已唤起邮件程序，点发送即可');
+  };
 }
 
 /* ================= 今日面板 ================= */
