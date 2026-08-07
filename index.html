@@ -8,7 +8,7 @@
 <meta http-equiv="Expires" content="0">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>职教中心写论文平台 · 试水版 v0.1</title>
+<title>职教辅助论文写作平台 · 试水版 v0.1</title>
 <style>
 :root{
   --bg:#f4f5f9; --card:#ffffff; --card2:#f9fafc; --text:#1c2333; --muted:#6b7280; --line:#e5e7eb;
@@ -216,7 +216,7 @@ table.data td.l,table.data th.l{text-align:left}
     <button id="hamburger" class="btn tip" aria-label="菜单" data-tip="打开全部功能菜单（10 个模块）">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span id="hb-label" style="display:none">菜单</span>
     </button>
-    <div class="page-title" id="page-title">职教中心写论文平台</div>
+    <div class="page-title" id="page-title">职教辅助论文写作平台</div>
     <div class="spacer"></div>
     <input id="search-input" placeholder="全局搜索…" autocomplete="off">
     <button id="today-btn" class="btn" title="今日待办">
@@ -1051,7 +1051,7 @@ const state={docId:null,chIdx:0,theme:'light',econStep:1,econDS:null,subTab:1};
 let currentPage='progress';
 function go(page,param){
   currentPage=page;state._p=param;
-  $('#page-title').textContent=(NAV.find(n=>n.id===page)||{}).name||'职教中心写论文平台';
+  $('#page-title').textContent=(NAV.find(n=>n.id===page)||{}).name||'职教辅助论文写作平台';
   renderNav();
   const c=$('#content');c.innerHTML='';
   PAGES[page](c,param);
@@ -1063,7 +1063,7 @@ window.addEventListener('popstate',()=>{
   const p=location.hash.replace('#','');
   if(p&&PAGES[p]){
     currentPage=p;
-    $('#page-title').textContent=(NAV.find(n=>n.id===p)||{}).name||'职教中心写论文平台';
+    $('#page-title').textContent=(NAV.find(n=>n.id===p)||{}).name||'职教辅助论文写作平台';
     renderNav();
     const c=$('#content');c.innerHTML='';
     PAGES[p](c,state._p);
@@ -1071,8 +1071,8 @@ window.addEventListener('popstate',()=>{
 });
 function renderNav(){
   const html=NAV.map(n=>`<button class="nav-item tip ${currentPage===n.id?'active':''}" data-page="${n.id}" data-tip="${esc(n.desc||'')}">${n.icon}<span>${n.name}</span></button>`).join('');
-  $('#sidebar').innerHTML=html+'<div class="side-foot">职教中心写论文平台 v0.1 · 试水版<br>数据保存在本浏览器 localStorage</div>';
-  $('#drawer').innerHTML='<div style="padding:8px 12px;font-weight:600;font-size:16px;margin-bottom:8px">职教中心写论文平台</div>'+html;
+  $('#sidebar').innerHTML=html+'<div class="side-foot">职教辅助论文写作平台 v0.1 · 试水版<br>数据保存在本浏览器 localStorage</div>';
+  $('#drawer').innerHTML='<div style="padding:8px 12px;font-weight:600;font-size:16px;margin-bottom:8px">职教辅助论文写作平台</div>'+html;
   $$('.nav-item').forEach(b=>b.onclick=()=>{closeDrawer();go(b.dataset.page);});
 }
 function openDrawer(){$('#drawer').classList.add('open');$('#drawer-mask').classList.add('open');}
@@ -2479,14 +2479,14 @@ function econExport(root,ds){
   $('#ex-csv').onclick=()=>{let csv=ds.headers.join(',')+'\n';ds.rows.forEach(r=>{csv+=ds.headers.map(h=>typeof r[h]==='number'?r[h]:String(r[h]??'')).join(',')+'\n';});download(ds.name+'_处理后.csv',csv,'text/csv;charset=utf-8');};
   $('#ex-do').onclick=()=>{
     const cols=numericCols(ds);
-    let dof='* 职教中心写论文平台生成 · 请用 Stata 复核\nclear\nimport delimited "data.csv", clear\n';
+    let dof='* 职教辅助论文写作平台生成 · 请用 Stata 复核\nclear\nimport delimited "data.csv", clear\n';
     cols.forEach(c=>dof+=`summarize ${c}\n`);
     if(ds._ols){const xs=ds._xNames.join(' ');dof+=`regress ${ds._yName} ${xs}\n`;}
     download(ds.name+'.do',dof);
   };
   $('#ex-r').onclick=()=>{
     const cols=numericCols(ds);
-    let rs='# 职教中心写论文平台生成 · 请用 R 复核\nlibrary(tidyverse)\n';
+    let rs='# 职教辅助论文写作平台生成 · 请用 R 复核\nlibrary(tidyverse)\n';
     rs+=`df <- read.csv("data.csv")\n`;
     rs+=`summary(df)\n`;
     if(ds._ols){rs+=`fit <- lm(${ds._yName} ~ ${ds._xNames.join(' + ')}, data=df)\nsummary(fit)\n`;}
@@ -2888,7 +2888,7 @@ function settingsPage(root){
   <div class="card">
     <h3>关于</h3>
     <div class="muted" style="font-size:13px;line-height:1.8">
-      职教中心写论文平台 v0.1 · 试水版（2026-08-03）<br>
+      职教辅助论文写作平台 v0.1 · 试水版（2026-08-03）<br>
       · 纯前端零依赖，数据存浏览器本地；<br>
       · 选刊为统计关键词匹配，计量计算在本地完成，正式投稿请用 Stata/R 复核；<br>
       · 配 LLM Key 后启用真 AI（默认 DeepSeek），未配则用本地模板；<br>
@@ -2899,10 +2899,10 @@ function settingsPage(root){
   $$('[data-theme]',root).forEach(b=>b.onclick=()=>{st.theme=b.dataset.theme;Settings.save(st);apply();});
   $('#set-save').onclick=()=>{cfg.provider=$('#set-prov').value;cfg.apiKey=$('#set-key').value.trim();cfg.baseUrl=$('#set-base').value.trim();cfg.model=$('#set-model').value.trim()||'deepseek-chat';cfg.enabled=!!cfg.apiKey;LLM.save(cfg);$('#set-state').textContent=cfg.enabled?'已启用':'未启用（模板模式）';toast('配置已保存'+(cfg.enabled?'，LLM 已启用':'，未启用'));};
   $('#set-test').onclick=async()=>{cfg.apiKey=$('#set-key').value.trim();cfg.baseUrl=$('#set-base').value.trim();cfg.model=$('#set-model').value.trim()||'deepseek-chat';LLM.save(cfg);const s=$('#set-state');s.textContent='测试中…';try{const r=await llmAsk('你好，请回复"连接正常"四个字。');s.textContent=r.includes('连接正常')?'连接正常 ✓':('返回：'+r.slice(0,20));toast('连接测试完成');}catch(e){s.textContent='连接失败：'+e.message;toast('连接失败');}};
-  $('#set-export').onclick=()=>{download('职教中心写论文平台备份_'+todayStr()+'.json',JSON.stringify(Store.all(),null,2),'application/json');toast('备份已导出');};
+  $('#set-export').onclick=()=>{download('职教辅助论文写作平台备份_'+todayStr()+'.json',JSON.stringify(Store.all(),null,2),'application/json');toast('备份已导出');};
   $('#set-import').onclick=()=>$('#set-import-file').click();
   $('#set-import-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);let n=0;Object.entries(data).forEach(([k,v])=>{if(k.startsWith('paperwb_')){localStorage.setItem(k,JSON.stringify(v));n++;}});toast('已导入 '+n+' 组数据');settingsPage(root);}catch(err){toast('文件格式错误');}};rd.readAsText(f);};
-  $('#set-clear').onclick=()=>confirm2('清空全部数据不可恢复！将先自动导出一份备份，确认清空？',()=>{download('职教中心写论文平台备份_清空前_'+todayStr()+'.json',JSON.stringify(Store.all(),null,2),'application/json');Object.values(K).forEach(k=>localStorage.removeItem(k));ensureData();settingsPage(root);toast('已清空并重置示例数据');});
+  $('#set-clear').onclick=()=>confirm2('清空全部数据不可恢复！将先自动导出一份备份，确认清空？',()=>{download('职教辅助论文写作平台备份_清空前_'+todayStr()+'.json',JSON.stringify(Store.all(),null,2),'application/json');Object.values(K).forEach(k=>localStorage.removeItem(k));ensureData();settingsPage(root);toast('已清空并重置示例数据');});
   $('#set-clear-sample').onclick=()=>confirm2('清空示例数据（保留你手动添加的内容）？',()=>{Store.del(K.journals);Store.del(K.lits);Store.del(K.subs);ensureData();toast('示例数据已重置');});
 }
 
