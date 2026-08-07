@@ -10,11 +10,12 @@
 
 | 方式 | 链接 / 操作 | 适合 |
 |---|---|---|
-| ① 在线使用（永久） | https://caidanhui850111.github.io/paper-workbench/ | 手机 / 电脑日常用，推荐 |
-| ② 在线使用（国内加速） | https://596c2e531c424c318e454da4f961a02f.bj4.agentos-app.net | 如果 ① 打开慢 |
+| ① 在线使用（国内·推荐） | https://caidanhui-d7g6xmyycae8f6862-1464332842.tcloudbaseapp.com/ | 国内同事手机/电脑日常用，腾讯云 CloudBase 静态托管，公开无需登录 |
+| ② 在线使用（海外） | https://caidanhui850111.github.io/paper-workbench/ | 国外访问、永久备份链接（GitHub Pages） |
 | ③ 本地离线 | 下载 `index.html` 双击打开 | 无网环境、数据完全本地 |
 
 > 手机使用：浏览器打开 → 右上角「···」→「添加到主屏幕」→ 像 APP 一样用。
+> 同事访问 CloudBase 链接：直接点击或扫 `平台二维码.png`，**无需账号、无需 token、无需登录**。
 
 ---
 
@@ -247,7 +248,11 @@
 
 ### 版本管理
 - 代码托管 GitHub：https://github.com/caidanhui850111/paper-workbench
-- 更新流程：改 `论文工作台_试水版.html` → 同步 `index.html`（或直接改 index.html）→ `git push` → Pages 自动更新，链接不变
+- 国内公开部署：腾讯云 CloudBase 静态托管（环境 `caidanhui-d7g6xmyycae8f6862`），域名 `caidanhui-d7g6xmyycae8f6862-1464332842.tcloudbaseapp.com`
+- 更新流程：改 `论文工作台_试水版.html` → 同步 `index.html`（或直接改 index.html）→ **同时双线推送**：
+  1. `git push` → GitHub Pages 自动更新
+  2. 用 CloudBase MCP（`manageHosting action=upload`）把 `index.html` 上传到托管根路径，**链接不变、内容秒级生效**
+- 同事访问：① CloudBase（国内推荐） ② GitHub Pages（海外/永久）
 
 ---
 
