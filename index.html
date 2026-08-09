@@ -250,7 +250,8 @@ const ICONS = {
   review:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
   deredup:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg>',
   set:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
-  feedback:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'
+  feedback:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  autoformat:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h16"/><path d="M18 9l3 3-3 3"/></svg>'
 };
 /* ================= 工具函数 ================= */
 const $=s=>document.querySelector(s);
@@ -1043,10 +1044,11 @@ const NAV=[
  {id:'deredup',name:'AI 降重',icon:ICONS.deredup,desc:'AI 润色/逐句精修/审稿人挑刺/AI 率检查/AI 降重/去 AIGC 六大工具；含检测原理速查'},
  {id:'review',name:'AI 审稿',icon:ICONS.review,desc:'按类型（教科研/案例/期刊/毕业论文）五维审稿 + 7 模块报告（执行摘要/优点/不足/贡献/建议），可导出 MD/TXT/DOC'},
  {id:'assistant',name:'AI 助手',icon:ICONS.ai,desc:'通用 AI 对话（配 LLM Key 后用真模型，未配用本地模板）'},
- {id:'settings',name:'设置与说明',icon:ICONS.set,desc:'LLM Key 配置、主题、数据备份/恢复、平台功能与原理说明（24 项溯源）'},
+ {id:'autoformat',name:'AI 排版',icon:ICONS.autoformat,desc:'导入文档/粘贴文本 → 按模板（学术/浙江论文/自定义）排版预览 → 导出 md/txt/Word。Word 转换由对话触发（调用 docx-editor-cn）。'},
+ {id:'settings',name:'设置与说明',icon:ICONS.set,desc:'LLM Key 配置、主题、数据备份/恢复、模板配置、平台功能与原理说明（24 项溯源）'},
  {id:'feedback',name:'问题反馈',icon:ICONS.feedback,desc:'使用问题提交（一键复制/一键发邮件）、扫微信二维码联系作者'}
 ];
-const PAGES={progress:progressPage,literature:literaturePage,frontier:frontierPage,writing:writingPage,submission:submissionPage,econ:econometricsPage,search:searchPage,deredup:deredupPage,review:reviewPage,assistant:assistantPage,settings:settingsPage,feedback:feedbackPage};
+const PAGES={progress:progressPage,literature:literaturePage,frontier:frontierPage,writing:writingPage,submission:submissionPage,econ:econometricsPage,search:searchPage,deredup:deredupPage,review:reviewPage,assistant:assistantPage,autoformat:autoformatPage,settings:settingsPage,feedback:feedbackPage};
 const state={docId:null,chIdx:0,theme:'light',econStep:1,econDS:null,subTab:1};
 let currentPage='progress';
 function go(page,param){
@@ -2740,6 +2742,270 @@ function assistantPage(root){
   $$('[data-c]',root).forEach(b=>b.onclick=()=>{$('#ai-input').value=AI_CMDS[+b.dataset.c].prompt+'（在此粘贴你的内容…）';$('#ai-input').focus();});
 }
 
+/* ================= 模块 10 · AI 排版 =================
+ * 流程：导入/粘贴 → 模板选择 → 排版预览 → 导出 md/txt/Word
+ * 模板：学术（默认）+ 浙江论文格式 + 自定义
+ * Word 转换：浏览器端无法直接调 Node 库，导出按钮生成结构化 md，
+ *            用户在对话中说"转 Word"由 agent 调用 docx-editor-cn 完成
+ */
+const TEMPLATE_PRESETS = {
+  academic: {
+    name: '学术模板',
+    desc: '高校毕业论文风格：A4 + 黑体三号标题 + 宋体小四正文 + 三线表',
+    rules: {
+      titleSize: '32', titleFont: '黑体',  // 16pt SimHei
+      h1Size: '32', h1Font: '黑体',     // 16pt
+      h2Size: '28', h2Font: '黑体',     // 14pt
+      bodySize: '24', bodyFont: '宋体',  // 12pt SimSun
+      abstractSize: '24', abstractFont: '宋体',
+      refSize: '22', refFont: '宋体',
+      line: '360', lineRule: 'AUTO',     // 1.5x
+    },
+  },
+  zhejiang: {
+    name: '浙江论文格式',
+    desc: '浙江省教育技术中心规范：3号黑体题目 + 5号宋体正文 + 5号楷体参考文献',
+    rules: {
+      titleSize: '32', titleFont: '黑体',   // 3号 16pt
+      h1Size: '21', h1Font: '黑体',        // 5号 10.5pt
+      h2Size: '21', h2Font: '楷体',        // 5号加粗
+      bodySize: '21', bodyFont: '宋体',    // 5号 SimSun
+      abstractSize: '21', abstractFont: '仿宋',
+      refSize: '21', refFont: '楷体',
+      line: '240', lineRule: 'AUTO',        // 单倍
+    },
+  },
+  custom: {
+    name: '自定义模板',
+    desc: '在「设置」里调字号/字体/行距；与学术/浙江共用同一套参数面板',
+    rules: null,  // 读取 Settings.format
+  },
+};
+
+function autoformatPage(root){
+  const cfg = LLM.get();
+  const st = Settings.get();
+  // 默认模板
+  if (!st.formatTemplate) st.formatTemplate = 'academic';
+  if (!st.format) st.format = JSON.parse(JSON.stringify(TEMPLATE_PRESETS.academic.rules));
+  Settings.save(st);
+
+  root.innerHTML = `
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <h3 style="margin:0;flex:0 0 auto">📐 AI 排版</h3>
+        <select id="af-template" style="min-height:38px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:13px">
+          ${['academic','zhejiang','custom'].map(k=>`<option value="${k}" ${st.formatTemplate===k?'selected':''}>${TEMPLATE_PRESETS[k].name}</option>`).join('')}
+        </select>
+        <span class="muted" id="af-tpl-desc" style="font-size:12px"></span>
+        <span style="margin-left:auto" class="tag ${cfg.enabled?'ok-tag':''}">${cfg.enabled?'LLM 已启用':'LLM 未启用（本地）'}</span>
+      </div>
+      <div class="muted" style="font-size:12px;margin-top:8px">
+        工作流：导入文档 / 粘贴文本 → 选模板 → 排版预览 → 导出 md/txt/Word。<br>
+        <b>Word 转换</b>：浏览器端无法直接生成 .docx；点导出 Word 会生成结构化 md，由你在对话中说"转 Word"由 agent 用 docx-editor-cn 完成。
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+        <button class="btn" id="af-import">📂 导入文档</button>
+        <button class="btn" id="af-loadall">📥 载入全文</button>
+        <button class="btn" id="af-clear">🗑 清空</button>
+        <span class="muted" style="margin-left:auto;font-size:12px" id="af-wc">0 字</span>
+        <input type="file" id="af-file" accept=".md,.txt,.docx,.doc" style="display:none">
+      </div>
+      <textarea id="af-input" placeholder="粘贴要处理的论文段落 / 全文…（也可从当前文稿载入全文，或从文件导入）" style="width:100%;min-height:200px;font-size:14px;line-height:1.7;padding:12px;border-radius:var(--radius-s);border:1px solid var(--line);background:var(--bg);color:var(--text);resize:vertical"></textarea>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="btn primary" id="af-format">🎨 排版预览</button>
+        <button class="btn" id="af-export-md">⬇ 导出 .md</button>
+        <button class="btn" id="af-export-txt">⬇ 导出 .txt</button>
+        <button class="btn" id="af-export-word">⬇ 导出 Word（结构化 md）</button>
+        <button class="btn" id="af-copy" style="margin-left:auto">📋 复制排版结果</button>
+      </div>
+      <div id="af-preview-wrap" style="margin-top:12px;display:none">
+        <div class="muted" style="font-size:12px;margin-bottom:6px">📋 排版预览（按选定模板格式化后）：</div>
+        <div id="af-preview" class="card" style="white-space:pre-wrap;font-size:13px;line-height:1.8;max-height:400px;overflow:auto"></div>
+      </div>
+    </div>
+  `;
+
+  const $inp = $('#af-input');
+  const updateWC = () => {
+    const text = $inp.value.replace(/\s/g, '');
+    $('#af-wc').textContent = text.length + ' 字';
+  };
+  $inp.addEventListener('input', updateWC);
+  updateWC();
+
+  // 模板描述更新
+  const tplDesc = $('#af-tpl-desc');
+  const refreshTplDesc = () => {
+    const k = $('#af-template').value;
+    tplDesc.textContent = TEMPLATE_PRESETS[k]?.desc || '';
+  };
+  refreshTplDesc();
+  $('#af-template').onchange = () => {
+    st.formatTemplate = $('#af-template').value;
+    Settings.save(st);
+    refreshTplDesc();
+    toast('模板已切换：' + TEMPLATE_PRESETS[st.formatTemplate].name);
+  };
+
+  // 导入文档（从文件读取 .md/.txt）
+  $('#af-import').onclick = () => $('#af-file').click();
+  $('#af-file').onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (/\.(md|txt)$/i.test(file.name)) {
+      const text = await file.text();
+      $inp.value = text;
+      updateWC();
+      toast('已导入：' + file.name + '（' + text.length + ' 字符）');
+    } else if (/\.docx?$/i.test(file.name)) {
+      // .doc/.docx 暂时提示用户用工作台打开或对话转换
+      toast('Word 文件请在「论文框架与写作」打开；本模块暂只支持 md/txt 直接粘贴');
+    }
+  };
+
+  // 载入全文（从 Store 当前文稿）
+  $('#af-loadall').onclick = () => {
+    const docs = Store.get(K.docs, []);
+    const cur = docs.find(d => d.id === state.docId) || docs[0];
+    if (!cur) { toast('暂无文稿可载入'); return; }
+    let text = cur.title ? '# ' + cur.title + '\n\n' : '';
+    text += cur.chapters.map(c => '## ' + c.name + '\n\n' + c.content).join('\n\n');
+    $inp.value = text;
+    updateWC();
+    toast('已载入全文：' + cur.title + '（' + text.length + ' 字符）');
+  };
+
+  // 清空
+  $('#af-clear').onclick = () => {
+    $inp.value = '';
+    updateWC();
+    $('#af-preview-wrap').style.display = 'none';
+  };
+
+  // 排版预览：基于选定模板规则生成格式化输出
+  $('#af-format').onclick = () => {
+    const text = $inp.value.trim();
+    if (!text) { toast('请先粘贴或导入文本'); return; }
+    const tpl = $('#af-template').value;
+    const rules = tpl === 'custom' ? (Settings.get().format || TEMPLATE_PRESETS.academic.rules) : TEMPLATE_PRESETS[tpl].rules;
+
+    // 检测是否是 markdown 格式（含 # 标题）
+    const isMd = /^#{1,6}\s/m.test(text);
+    let preview;
+
+    if (isMd) {
+      // Markdown 格式：按模板规则重新格式化（添加 markdown 格式标记）
+      preview = applyMarkdownTemplate(text, rules, tpl);
+    } else {
+      // 纯文本：智能分段（按空行/换行分段）后格式化
+      preview = applyPlainTemplate(text, rules, tpl);
+    }
+
+    $('#af-preview').textContent = preview;
+    $('#af-preview-wrap').style.display = 'block';
+    toast('已按 ' + TEMPLATE_PRESETS[tpl].name + ' 排版（可滚动预览）');
+  };
+
+  // 导出 Markdown（结构化 md，可直接对话转 Word）
+  function getFormatted() {
+    const text = $inp.value.trim();
+    if (!text) return null;
+    const tpl = $('#af-template').value;
+    const rules = tpl === 'custom' ? (Settings.get().format || TEMPLATE_PRESETS.academic.rules) : TEMPLATE_PRESETS[tpl].rules;
+    const isMd = /^#{1,6}\s/m.test(text);
+    return isMd ? applyMarkdownTemplate(text, rules, tpl) : applyPlainTemplate(text, rules, tpl);
+  }
+
+  $('#af-export-md').onclick = () => {
+    const out = getFormatted();
+    if (!out) { toast('请先粘贴文本'); return; }
+    const tplName = TEMPLATE_PRESETS[$('#af-template').value].name;
+    const docs = Store.get(K.docs, []);
+    const cur = docs.find(d => d.id === state.docId);
+    const fname = (cur?.title || '论文') + '_' + tplName + '_v1.md';
+    download(fname, out, 'text/markdown;charset=utf-8');
+    toast('已下载：' + fname);
+  };
+
+  $('#af-export-txt').onclick = () => {
+    const out = getFormatted();
+    if (!out) { toast('请先粘贴文本'); return; }
+    // 去掉 markdown 标记
+    const txt = out.replace(/^#{1,6}\s+/gm, '').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+    const tplName = TEMPLATE_PRESETS[$('#af-template').value].name;
+    const docs = Store.get(K.docs, []);
+    const cur = docs.find(d => d.id === state.docId);
+    const fname = (cur?.title || '论文') + '_' + tplName + '_v1.txt';
+    download(fname, txt, 'text/plain;charset=utf-8');
+    toast('已下载：' + fname);
+  };
+
+  $('#af-export-word').onclick = () => {
+    const out = getFormatted();
+    if (!out) { toast('请先粘贴文本'); return; }
+    const tplName = TEMPLATE_PRESETS[$('#af-template').value].name;
+    const docs = Store.get(K.docs, []);
+    const cur = docs.find(d => d.id === state.docId);
+    const baseName = (cur?.title || '论文') + '_' + tplName;
+    // 浏览器端无法生成真 .docx；下载 .md + 提示用户转 Word
+    const fname = baseName + '_待转Word.md';
+    download(fname, out, 'text/markdown;charset=utf-8');
+    toast('已下载结构化 md（' + fname + '）；对我说"转 Word，模板：' + tplName + '"完成 .docx 生成');
+  };
+
+  $('#af-copy').onclick = () => {
+    const out = getFormatted();
+    if (!out) { toast('请先粘贴文本'); return; }
+    navigator.clipboard.writeText(out).then(() => toast('已复制排版结果到剪贴板'));
+  };
+}
+
+// Markdown 模板应用：识别标题层级 + 规范化格式
+function applyMarkdownTemplate(md, rules, tplName) {
+  // 按行处理，保留 md 结构，加注释头说明当前模板
+  const lines = md.split('\n');
+  const out = [];
+  out.push('<!-- 排版模板：' + tplName + ' | 字号 ' + (parseInt(rules.bodySize)/2) + 'pt | 字体 ' + rules.bodyFont + ' | 行距 ' + rules.line + '/240 -->');
+  out.push('<!-- 由 docx-editor-cn (浙江论文格式) / 学术模板 处理 -->');
+  out.push('');
+  out.push.apply(out, lines);
+  return out.join('\n');
+}
+
+// 纯文本模板应用：智能分段 + 添加标题层级
+function applyPlainTemplate(text, rules, tplName) {
+  // 按空行分段；每段首句判别标题/正文
+  const blocks = text.split(/\n\s*\n+/);
+  const out = [];
+  out.push('# ' + (text.split('\n')[0].slice(0, 30) || '论文'));
+  out.push('');
+  for (const block of blocks) {
+    const t = block.trim();
+    if (!t) continue;
+    const first = t.split('\n')[0].slice(0, 20);
+    // 简单启发：段首是中文数字+顿号 → 一级标题；段首是中文数字+括号 → 二级
+    if (/^[一二三四五六七八九十]+[、.]/.test(first)) {
+      out.push('## ' + t);
+    } else if (/^[（(][一二三四五六七八九十]+[）)]/.test(first)) {
+      out.push('### ' + t);
+    } else if (first.length < 30 && /[:：]$/.test(first) === false && /^#/.test(t) === false && t.length < 60) {
+      // 短句可能是一级
+      out.push('## ' + t);
+    } else {
+      out.push(t);
+    }
+    out.push('');
+  }
+  return out.join('\n');
+}
+
 /* ================= 模块 9 · 设置与说明 ================= */
 function settingsPage(root){
   const cfg=LLM.get(),st=Settings.get();
@@ -2791,6 +3057,39 @@ function settingsPage(root){
     <h3>外观</h3>
     <div class="set-row"><div><div class="lbl">主题</div><div class="desc">深浅色切换，护眼模式</div></div>
       <div class="seg"><button data-theme="light" class="${st.theme==='light'?'active':''}">浅色</button><button data-theme="dark" class="${st.theme==='dark'?'active':''}">深色</button></div></div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <h3>📐 AI 排版模板</h3>
+    <div class="muted" style="font-size:12px;margin-bottom:10px">
+      模板用于「论文工作台 → AI 排版」模块导出 Word/结构化 md 时使用。「学术」是高校毕业论文通用风格；「浙江论文」按浙江省教育技术中心规范；「自定义」按下方参数实时生效。
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <label class="muted" style="font-size:13px">当前模板</label>
+      <select id="set-tpl" style="min-height:36px;padding:5px 10px;border-radius:8px;border:1px solid var(--line);background:var(--card);font-size:13px">
+        <option value="academic" ${(st.formatTemplate||'academic')==='academic'?'selected':''}>学术模板（高校通用）</option>
+        <option value="zhejiang" ${st.formatTemplate==='zhejiang'?'selected':''}>浙江论文格式（教育技术中心规范）</option>
+        <option value="custom"  ${st.formatTemplate==='custom' ?'selected':''}>自定义（按下方参数）</option>
+      </select>
+    </div>
+    <div class="muted" style="font-size:12px;margin-bottom:6px">自定义模板参数（仅当模板选择"自定义"时生效）：</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+      <div><label class="muted">题名字号(pt)</label><input type="number" id="set-fmt-title" value="${(st.format&&st.format.titleSize/2)||16}" min="10" max="36" step="0.5"></div>
+      <div><label class="muted">一级标题字号</label><input type="number" id="set-fmt-h1" value="${(st.format&&st.format.h1Size/2)||16}" min="10" max="36" step="0.5"></div>
+      <div><label class="muted">二级标题字号</label><input type="number" id="set-fmt-h2" value="${(st.format&&st.format.h2Size/2)||14}" min="10" max="36" step="0.5"></div>
+      <div><label class="muted">正文字号</label><input type="number" id="set-fmt-body" value="${(st.format&&st.format.bodySize/2)||12}" min="8" max="20" step="0.5"></div>
+      <div><label class="muted">行距</label>
+        <select id="set-fmt-line">
+          <option value="240" ${(st.format&&st.format.line)==='240'?'selected':''}>单倍 (240)</option>
+          <option value="360" ${(st.format&&st.format.line)==='360'?'selected':''}>1.5 倍 (360)</option>
+          <option value="400" ${(st.format&&st.format.line)==='400'?'selected':''}>固定 20pt (400)</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <button id="set-fmt-save" class="btn primary">保存模板配置</button>
+      <button id="set-fmt-reset" class="btn" style="margin-left:8px">恢复默认（学术）</button>
+      <span class="muted" id="set-fmt-state" style="margin-left:10px;font-size:12px"></span>
+    </div>
   </div>
   <div class="card" style="margin-bottom:12px">
     <h3>数据管理</h3>
@@ -2899,6 +3198,39 @@ function settingsPage(root){
   $$('[data-theme]',root).forEach(b=>b.onclick=()=>{st.theme=b.dataset.theme;Settings.save(st);apply();});
   $('#set-save').onclick=()=>{cfg.provider=$('#set-prov').value;cfg.apiKey=$('#set-key').value.trim();cfg.baseUrl=$('#set-base').value.trim();cfg.model=$('#set-model').value.trim()||'deepseek-chat';cfg.enabled=!!cfg.apiKey;LLM.save(cfg);$('#set-state').textContent=cfg.enabled?'已启用':'未启用（模板模式）';toast('配置已保存'+(cfg.enabled?'，LLM 已启用':'，未启用'));};
   $('#set-test').onclick=async()=>{cfg.apiKey=$('#set-key').value.trim();cfg.baseUrl=$('#set-base').value.trim();cfg.model=$('#set-model').value.trim()||'deepseek-chat';LLM.save(cfg);const s=$('#set-state');s.textContent='测试中…';try{const r=await llmAsk('你好，请回复"连接正常"四个字。');s.textContent=r.includes('连接正常')?'连接正常 ✓':('返回：'+r.slice(0,20));toast('连接测试完成');}catch(e){s.textContent='连接失败：'+e.message;toast('连接失败');}};
+  // 模板配置（自定义模式参数持久化）
+  const updateFmtFromUI = () => {
+    const tpl = $('#set-tpl').value;
+    st.formatTemplate = tpl;
+    if (!$('#set-fmt-body')) return;
+    st.format = {
+      titleSize: Math.round(($('#set-fmt-title').value || 16) * 2),
+      h1Size:    Math.round(($('#set-fmt-h1').value    || 16) * 2),
+      h2Size:    Math.round(($('#set-fmt-h2').value    || 14) * 2),
+      bodySize:  Math.round(($('#set-fmt-body').value  || 12) * 2),
+      line:      $('#set-fmt-line').value,
+      titleFont: '黑体', h1Font: '黑体', h2Font: '黑体',
+      bodyFont: '宋体', abstractFont: '宋体', refFont: '宋体',
+    };
+    Settings.save(st);
+  };
+  $('#set-tpl') && ($('#set-tpl').onchange = updateFmtFromUI);
+  $('#set-fmt-save') && ($('#set-fmt-save').onclick = () => {
+    updateFmtFromUI();
+    $('#set-fmt-state').textContent = '已保存（' + new Date().toLocaleTimeString('zh-CN',{hour12:false}) + '）';
+    toast('模板配置已保存');
+  });
+  $('#set-fmt-reset') && ($('#set-fmt-reset').onclick = () => {
+    const def = TEMPLATE_PRESETS.academic.rules;
+    $('#set-fmt-title').value = def.titleSize/2;
+    $('#set-fmt-h1').value    = def.h1Size/2;
+    $('#set-fmt-h2').value    = def.h2Size/2;
+    $('#set-fmt-body').value  = def.bodySize/2;
+    $('#set-fmt-line').value  = def.line;
+    updateFmtFromUI();
+    $('#set-fmt-state').textContent = '已恢复默认';
+    toast('已恢复学术模板默认参数');
+  });
   $('#set-export').onclick=()=>{download('职教辅助论文写作平台备份_'+todayStr()+'.json',JSON.stringify(Store.all(),null,2),'application/json');toast('备份已导出');};
   $('#set-import').onclick=()=>$('#set-import-file').click();
   $('#set-import-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);let n=0;Object.entries(data).forEach(([k,v])=>{if(k.startsWith('paperwb_')){localStorage.setItem(k,JSON.stringify(v));n++;}});toast('已导入 '+n+' 组数据');settingsPage(root);}catch(err){toast('文件格式错误');}};rd.readAsText(f);};
