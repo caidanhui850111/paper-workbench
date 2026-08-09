@@ -16,7 +16,16 @@
   --warn:#d97706; --warn-soft:#fffbeb; --danger:#dc2626; --danger-soft:#fef2f2;
   --shadow:0 1px 3px rgba(16,24,40,.06),0 1px 2px rgba(16,24,40,.04);
   --radius:14px; --radius-s:10px;
+  --card-pad:16px; --gap:10px; --content-w:960px; --card-gap:12px;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+[data-layout="compact"]{
+  --card-pad:10px; --gap:6px; --card-gap:8px; --content-w:1100px;
+  --radius:10px; --radius-s:7px;
+}
+[data-layout="spacious"]{
+  --card-pad:22px; --gap:14px; --card-gap:18px; --content-w:1080px;
+  --radius:18px; --radius-s:13px;
 }
 [data-theme="dark"]{
   --bg:#10121a; --card:#1a1d29; --card2:#20242f; --text:#e7e9f2; --muted:#9aa1b4; --line:#2a2f3d;
@@ -48,7 +57,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 #sidebar .nav-item.tip:hover::before{left:calc(100% + 2px);top:50%;bottom:auto;transform:translateY(-50%);border:6px solid transparent;border-right-color:var(--text);border-left:0}
 .ai-hit{background:rgba(245,158,11,.22);border-bottom:2px solid var(--warn);border-radius:3px;cursor:help}
 .ai-hit:hover{background:rgba(245,158,11,.35)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:var(--card-pad)}
 .card h3{font-size:15px;font-weight:600;margin-bottom:10px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:0 16px;border-radius:var(--radius-s);font-size:14px;font-weight:500;background:var(--card2);border:1px solid var(--line);transition:all .15s}
 .btn:hover{border-color:var(--accent);color:var(--accent)}
@@ -82,7 +91,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 #sidebar .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 #sidebar .nav-item svg{flex:0 0 auto}
 #sidebar .side-foot{margin-top:14px;padding:10px 12px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
-#content{padding:16px;max-width:960px;width:100%;margin:0 auto}
+#content{padding:var(--card-pad);max-width:var(--content-w);width:100%;margin:0 auto}
 #detail{display:none}
 /* 手机抽屉 */
 #drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:90;opacity:0;pointer-events:none;transition:opacity .2s}
@@ -99,7 +108,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .dash .dash-sub{font-size:13px;opacity:.85;margin-top:4px}
 .dash .dash-ring{position:absolute;right:24px;top:24px}
 .dash .dash-badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
-.ch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.ch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:var(--gap)}
 .ch-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-s);padding:12px;cursor:pointer;transition:all .15s}
 .ch-card:hover{border-color:var(--accent);transform:translateY(-1px)}
 .ch-card .dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px}
@@ -218,6 +227,11 @@ table.data td.l,table.data th.l{text-align:left}
     </button>
     <div class="page-title" id="page-title">职教辅助论文写作平台</div>
     <div class="spacer"></div>
+    <select id="layout-select" title="页面风格" style="width:auto;min-height:38px;padding:0 10px;border-radius:999px;font-size:13px;flex:0 0 auto">
+      <option value="standard">标准风格</option>
+      <option value="compact">紧凑风格</option>
+      <option value="spacious">宽松风格</option>
+    </select>
     <input id="search-input" placeholder="全局搜索…" autocomplete="off">
     <button id="today-btn" class="btn" title="今日待办">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3v4M15 3v4M4 10h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/></svg>
@@ -315,7 +329,7 @@ const Store={
   del(k){localStorage.removeItem(k);},
   all(){const o={};for(const k in K){const v=localStorage.getItem(K[k]);if(v){try{o[K[k]]=JSON.parse(v);}catch(e){}}}return o;}
 };
-const Settings={get:()=>Store.get(K.settings,{theme:'light',saturK:0.8}),save:s=>Store.set(K.settings,s)};
+const Settings={get:()=>Store.get(K.settings,{theme:'light',saturK:0.8,layout:'standard'}),save:s=>Store.set(K.settings,s)};
 const DEFAULT_LLM={provider:'deepseek',apiKey:'sk-82eaa61435f0482da9b72329f7e04ea0',baseUrl:'',model:'deepseek-chat',enabled:true};
 const LLM={get:()=>Store.get(K.llm,null)||DEFAULT_LLM,save:c=>Store.set(K.llm,c)};
 
@@ -705,7 +719,7 @@ function renderReviewResult(el,data,typeName,doc,type,overrideTarget,fmt,extra){
     </div>`).join('')}</div>
   ${data.strengths&&data.strengths.length?`<div class="card" style="background:var(--ok-soft);border-color:var(--ok);margin-bottom:10px"><b style="font-size:13px;color:var(--ok)">✅ 优点</b><ul style="margin:6px 0 0 18px;font-size:13px">${data.strengths.map(s=>`<li style="margin-bottom:3px">${esc(s)}</li>`).join('')}</ul></div>`:''}
   ${data.weaknesses&&data.weaknesses.length?`<div class="card" style="background:var(--warn-soft);border-color:var(--warn);margin-bottom:10px"><b style="font-size:13px;color:var(--warn)">⚠️ 不足与风险（按严重度）</b><ul style="margin:6px 0 0 18px;font-size:13px">${data.weaknesses.map(w=>`<li style="margin-bottom:3px"><span class="chip ${w.severity==='high'?'red':w.severity==='mid'?'amber':'gray'}" style="margin-right:4px">${w.severity==='high'?'高':w.severity==='mid'?'中':'低'}</span>【${esc(w.area||'论证')}】${esc(w.issue)}</li>`).join('')}</ul></div>`:''}
-  ${data.contribution||data.literaturePos?`<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+  ${data.contribution||data.literaturePos?`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:10px">
     ${data.contribution?`<div class="card" style="background:var(--card2);margin-bottom:0"><b style="font-size:13px">🎯 贡献评估</b><div style="font-size:13px;margin-top:4px;white-space:pre-wrap">${esc(data.contribution)}</div></div>`:''}
     ${data.literaturePos?`<div class="card" style="background:var(--card2);margin-bottom:0"><b style="font-size:13px">📚 文献定位</b><div style="font-size:13px;margin-top:4px;white-space:pre-wrap">${esc(data.literaturePos)}</div></div>`:''}
   </div>`:''}
@@ -855,7 +869,7 @@ function reviewPage(root){
 
     <div style="margin-bottom:12px">
       <div style="font-size:13px;font-weight:600;margin-bottom:6px">评审参数</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px">
         <div><label class="muted" style="display:block;margin-bottom:3px">审稿类型</label><select id="rv-type" style="width:100%">${Object.entries(REVIEW_TYPES).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('')}</select></div>
         <div><label class="muted" style="display:block;margin-bottom:3px">审稿范围</label><select id="rv-scope" style="width:100%"><option value="full">全文</option><option value="cur">当前章节</option></select></div>
         <div><label class="muted" style="display:block;margin-bottom:3px">字数要求（字）</label><input id="rv-target" type="number" min="1000" step="500" placeholder="空=按文稿默认" style="width:100%"></div>
@@ -1080,6 +1094,7 @@ function renderNav(){
 function openDrawer(){$('#drawer').classList.add('open');$('#drawer-mask').classList.add('open');}
 function closeDrawer(){$('#drawer').classList.remove('open');$('#drawer-mask').classList.remove('open');}
 function applyTheme(){document.documentElement.dataset.theme=Settings.get().theme;state.theme=Settings.get().theme;}
+function applyLayout(){const st=Settings.get();const l=st.layout||'standard';document.documentElement.dataset.layout=l;const sel=$('#layout-select');if(sel)sel.value=l;}
 
 /* ================= 模块 1 · 论文完成度 ================= */
 function progressPage(root){
@@ -1241,7 +1256,7 @@ function writingPage(root,param){
   $('#btn-casemake').onclick=()=>{
     modalBox({title:'🎓 教学案例素材 → 论文（AI 提炼）',wide:true,body:`
     <div class="muted" style="font-size:12px;margin-bottom:12px;line-height:1.7">把<strong>课堂实录 / 教案片段 / 学生作品 / 教学反思</strong>等原始素材粘贴进来，AI 会按浙江省教学案例评比要求，提炼为「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构。<br><span style="color:var(--accent)">💡 素材越具体（数据、案例、学生作品、成绩对比）提炼效果越好；缺失数据 AI 会标 [待补充：XXX]，不编造。</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px">
       <div><label class="muted" style="display:block;margin-bottom:3px">学科</label>
         <select id="cm-subject" style="width:100%">
           <option value="">不限</option>
@@ -3332,7 +3347,8 @@ function init(){
     }
     localStorage.setItem('wb_version',APP_VERSION);
   }catch(e){}
-  ensureData();Settings.get();applyTheme();renderNav();
+  ensureData();Settings.get();applyTheme();applyLayout();renderNav();
+  $('#layout-select').onchange=()=>{const st=Settings.get();st.layout=$('#layout-select').value;Settings.save(st);applyLayout();toast('页面风格：'+({'standard':'标准','compact':'紧凑','spacious':'宽松'}[st.layout]||st.layout));};
   $('#hamburger').onclick=openDrawer;
   $('#drawer-mask').onclick=closeDrawer;
   $('#search-input').addEventListener('keydown',e=>{if(e.key==='Enter'){const q=e.target.value.trim();if(q){state._sq=q;e.target.value='';go('search');}}});
