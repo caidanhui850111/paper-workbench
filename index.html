@@ -2591,12 +2591,8 @@ function autoWritePage(){
           <option value="">不限</option><option>中职</option><option>高职</option><option>本科</option><option>研究生</option><option>中学</option><option>小学</option>
         </select>
       </div>
-      <div><label class="muted" style="display:block;margin-bottom:3px">目标字数</label>
-        <select id="aw-len" style="width:100%">
-          <option value="3000">3000-5000 字（短篇）</option>
-          <option value="5000" selected>5000-8000 字（标准 · 教科研/浙江评比）</option>
-          <option value="8000">8000-12000 字（长篇/毕业设计）</option>
-        </select>
+      <div><label class="muted" style="display:block;margin-bottom:3px">目标字数（自由输入）</label>
+        <input id="aw-len" type="number" min="2000" max="30000" step="500" value="6000" style="width:100%" title="全文目标字数（字），生成时按章节比例分配">
       </div>
     </div>
     <div style="margin-bottom:10px"><label class="muted" style="display:block;margin-bottom:3px">论文题目（必填）</label>
@@ -2735,7 +2731,8 @@ function autoWritePage(){
 
   $('#aw-gen').onclick=async()=>{
     const subject=$('#aw-subject').value,stage=$('#aw-stage').value,topic=$('#aw-topic').value.trim();
-    const lenSel=$('#aw-len').value;
+    const lenInput=parseInt($('#aw-len').value)||6000;
+    const lenClamped=Math.min(30000,Math.max(2000,lenInput));
     let source=$('#aw-source').value.trim();
     if(extraSource) source=source?source+'\n\n'+extraSource:extraSource;
     if(!topic)return toast('请填写论文题目');
@@ -2744,8 +2741,8 @@ function autoWritePage(){
     const btn=$('#aw-gen');btn.disabled=true;btn.textContent='🤖 生成中…';
     const prog=$('#aw-progress');prog.style.display='block';
     renderEmpty();
-    const lenDesc={3000:'3000-5000 字',5000:'5000-8000 字',8000:'8000-12000 字'}[lenSel]||'5000-8000 字';
-    const meta=[subject?'学科：'+subject:'',stage?'学段：'+stage:'',topic?'论文题目：'+topic:'','目标字数：'+lenDesc+'（全文）+ 章节按比例：引言15%/概念框架10%/实施策略55%/成效12%/结语4%'].filter(Boolean).join('\n');
+    const lenDesc=lenClamped+' 字';
+    const meta=[subject?'学科：'+subject:'',stage?'学段：'+stage:'',topic?'论文题目：'+topic:'','目标字数：'+lenDesc+'（全文，正文 500-8000 字要求内）+ 章节按比例：引言15%/概念框架10%/实施策略55%/成效12%/结语4%'].filter(Boolean).join('\n');
     const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
     try{
       for(let i=0;i<AUTOWRITE_PROMPTS.length;i++){
