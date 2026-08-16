@@ -1074,7 +1074,7 @@ const NAV=[
  {id:'progress',name:'论文完成度',icon:ICONS.progress,desc:'总览各文稿写作进度：章节完成情况、总字数、目标字数差距，点击章节直达写作'},
  {id:'literature',name:'文献阅读与笔记',icon:ICONS.lit,desc:'管理文献条目；创新点挖掘、结构化笔记（AI 精读）、多篇文献对比'},
  {id:'frontier',name:'检索与前沿',icon:ICONS.frontier,desc:'官方数据库/查重入口直达；前沿方向挖掘；主题综述生成（背景→现状→空白→启示）'},
- {id:'writing',name:'论文框架与写作',icon:ICONS.write,desc:'核心写作区：分类型模板（教科研/案例/期刊/毕业论文）、章节编辑、AI 工具（提炼摘要/研究设计/创新点/课程思政/数据图表/大纲导图）'},
+ {id:'writing',name:'AI写论文',icon:ICONS.write,desc:'核心写作区：分类型模板（教科研/案例/期刊/毕业论文）、章节编辑、AI 工具（提炼摘要/研究设计/创新点/课程思政/数据图表/大纲导图）'},
  {id:'submission',name:'论文评比与投稿',icon:ICONS.submit,desc:'评比任务管理（按浙江评比要求）、投稿追踪、期刊库、智能选刊'},
  {id:'econ',name:'计量分析',icon:ICONS.econ,desc:'导入数据→预处理→描述统计/相关→OLS 回归→导出，全本地计算（教师问卷/成绩数据分析）'},
  {id:'deredup',name:'AI 降重',icon:ICONS.deredup,desc:'AI 润色/逐句精修/审稿人挑刺/AI 率检查/AI 降重/去 AIGC 六大工具；含检测原理速查'},
@@ -1203,10 +1203,8 @@ function writingPage(root,param){
   </div>
   <div style="margin-bottom:10px;padding:10px 12px;background:var(--card2);border-radius:var(--radius-s);border:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <span style="font-size:13px;font-weight:600">🎓 快速开始：</span>
-    <button id="btn-autowrite" class="btn sm primary tip" data-tip="配 Key 后用 LLM 按平台写作技巧（13 章节喂饭指令 + 浙江获奖经验）自动生成完整教科研论文全文，可编辑后一键创建文稿">🤖 AI 按 SKILL 自动写论文</button>
-    <button id="btn-casemake" class="btn sm primary tip" data-tip="把课堂实录/教案/学生作品/教学反思贴进来，AI 按浙江评比要求提炼成 4 章教学案例（也可用本地模板）">📝 案例素材 → 论文（AI 提炼）</button>
-    <span class="muted" style="font-size:12px">贴素材 · AI 提炼成「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构</span>
-    <span style="font-size:12px;color:var(--accent)">｜ 🤖 AI 按 SKILL 自动写论文：输入学科/学段/题目/资料，AI 按 13 章节喂饭指令生成全文</span>
+    <button id="btn-autowrite" class="btn sm primary tip" data-tip="配 Key 后用 LLM 按平台写作技巧（13 章节喂饭指令 + 浙江获奖经验）自动生成完整教科研论文全文，可编辑后一键填入下方章节">🤖 AI写全文（需连API）</button>
+    <span style="font-size:12px;color:var(--accent)">｜ 🤖 AI写全文：输入学科/学段/题目/资料，AI 按 13 章节喂饭指令生成全文</span>
   </div>
   <div class="write-head" style="margin-top:-4px">
     <span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span>
@@ -1246,6 +1244,9 @@ function writingPage(root,param){
     <button id="btn-edu-chart" class="btn sm tip" data-tip="教学数据怎么配图：成绩/问卷/出勤等 5 场景 → 推荐图型 + WPS/Excel 作图步骤 + 本地预览图">数据图表</button>
     <button id="btn-mindmap" class="btn sm tip" data-tip="章节结构树状导图，AI 优化 / 生成大纲（JSON 渲染）">大纲导图</button>
     <button id="btn-insert-econ" class="btn sm tip" data-tip="把「计量分析」里跑好的结果（描述统计/回归表）一键插入当前章节">插入实证分析结果</button>
+
+    <button id="btn-casemake" class="btn sm primary tip" data-tip="把课堂实录/教案/学生作品/教学反思贴进来，AI 按浙江评比要求提炼成 4 章教学案例（也可用本地模板）">📝 案例素材 → 论文（AI 提炼）</button>
+    <span class="muted" style="font-size:12px">贴素材 · AI 提炼成「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构</span>
   </div>`;
   const editor=$('#ch-editor');
   const saveState=$('#save-state'),chWc=$('#ch-wc');
@@ -2650,13 +2651,59 @@ function autoWritePage(){
     html+=`<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="aw-create" disabled>📄 创建文稿并打开（生成完成后可用）</button><button class="btn" id="aw-regen" style="display:none">🔄 重新生成</button></div>`;
     $('#aw-out').innerHTML=html;
     $('#aw-create').onclick=()=>{
-      const title=$('#aw-topic').value.trim()||'AI 自动写作文稿';
+      const title=$('#aw-topic').value.trim();
       const names=['一、封面','二、中英文摘要','三、目录','四、引言','五、文献综述','六、理论框架与研究方法','七、研究结果与分析','八、讨论','九、结论与建议','十、参考文献','十一、致谢','十二、附录','十三、整合说明'];
       const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
-      const chapters=keys.map((k,i)=>({id:uid(),name:names[i],content:$('#aw-out-'+k).value.trim()}));
-      const ds=getDocs();const nd=sampleDoc('research');nd.title=title;nd.chapters=chapters;
-      ds.push(nd);saveDocs(ds);state.docId=nd.id;closeModal();go('writing',{ch:0});
-      toast('已创建 13 章节文稿并进入写作页');
+      // 13 章 → 期望章节名映射（关键词匹配；封面/目录不填正文，整合说明追加）
+      const map=[
+        null, // cover 跳过
+        ['摘要','摘 要'],
+        null, // toc 跳过
+        ['引言','绪论','问题的提出'],
+        ['文献综述','文献回顾'],
+        ['方法','研究方法','理论框架与研究方法','理论框架'],
+        ['结果','研究结果','研究结果与分析','结果与分析'],
+        ['讨论'],
+        ['结论','结论与建议','结论与讨论'],
+        ['参考文献'],
+        ['致谢'],
+        ['附录'],
+        null  // integration 追加为新章节
+      ];
+      const ds=getDocs();
+      const d=ds.find(x=>x.id===state.docId)||ds[0];
+      if(!d)return toast('未找到当前文档');
+      if(title)d.title=title;
+      let matched=0,added=0;
+      keys.forEach((k,i)=>{
+        const content=$('#aw-out-'+k).value.trim();
+        if(!content)return;
+        const alts=map[i];
+        if(alts===null){
+          // 封面/目录/整合说明 → 整合说明追加为新章节，其余丢弃
+          if(k==='integration'){
+            d.chapters.push({id:uid(),name:names[i],content});
+            added++;
+          }
+          return;
+        }
+        // 找匹配的章节
+        const idx=d.chapters.findIndex(ch=>{
+          const n=(ch.name||'').replace(/\s/g,'');
+          return alts.some(a=>n.includes(a.replace(/\s/g,'')));
+        });
+        if(idx>=0){
+          d.chapters[idx].content=(d.chapters[idx].content||'')+(d.chapters[idx].content?'\n\n':'')+content;
+          matched++;
+        }else{
+          d.chapters.push({id:uid(),name:names[i],content});
+          added++;
+        }
+      });
+      saveDocs(ds);
+      closeModal();
+      go('writing',{ch:0});
+      toast('已填入下方章节：覆盖 '+matched+' 章、追加 '+added+' 章；打开写作页继续打磨');
     };
     $('#aw-regen').onclick=()=>$('#aw-gen').click();
   };
