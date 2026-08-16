@@ -1203,7 +1203,10 @@ function writingPage(root,param){
   </div>
   <div style="margin-bottom:10px;padding:10px 12px;background:var(--card2);border-radius:var(--radius-s);border:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
     <span style="font-size:13px;font-weight:600">🎓 快速开始：</span>
+    <button id="btn-autowrite" class="btn sm primary tip" data-tip="配 Key 后用 LLM 按平台写作技巧（13 章节喂饭指令 + 浙江获奖经验）自动生成完整教科研论文全文，可编辑后一键创建文稿">🤖 AI 按 SKILL 自动写论文</button>
     <button id="btn-casemake" class="btn sm primary tip" data-tip="把课堂实录/教案/学生作品/教学反思贴进来，AI 按浙江评比要求提炼成 4 章教学案例（也可用本地模板）">📝 案例素材 → 论文（AI 提炼）</button>
+    <span class="muted" style="font-size:12px">贴素材 · AI 提炼成「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构</span>
+    <span style="font-size:12px;color:var(--accent)">｜ 🤖 AI 按 SKILL 自动写论文：输入学科/学段/题目/资料，AI 按 13 章节喂饭指令生成全文</span>    <button id="btn-casemake" class="btn sm primary tip" data-tip="把课堂实录/教案/学生作品/教学反思贴进来，AI 按浙江评比要求提炼成 4 章教学案例（也可用本地模板）">📝 案例素材 → 论文（AI 提炼）</button>
     <span class="muted" style="font-size:12px">贴素材 · AI 提炼成「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构</span>
   </div>
   <div class="write-head" style="margin-top:-4px">
@@ -1275,6 +1278,7 @@ function writingPage(root,param){
   $('#doc-target').addEventListener('change',e=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];const v=parseInt(e.target.value);d.target=(v&&v>0)?v:undefined;saveDocs(docs);toast('目标字数已更新：'+(d.target||DOC_TARGETS[d.type]||30000));});
   $('#btn-new-doc').onclick=()=>{modalBox({title:'新建文稿',body:'<input id="m-doc-title" placeholder="文稿标题，如：我的教科研论文"><div class="muted" style="margin-top:6px">类型（决定默认章节结构）：<select id="m-doc-type" style="width:100%;margin-top:4px">'+DOC_TYPE_ORDER.map(k=>`<option value="${k}" ${k==='research'?'selected':''}>${DOC_TYPE_LABEL(k)}</option>`).join('')+'</select></div><div id="m-doc-preview" class="muted" style="margin-top:6px;font-size:12px">'+DOC_TYPE_PREVIEW.research+'</div>',buttons:[{label:'取消'},{label:'创建',cls:'primary',onClick:()=>{const t=$('#m-doc-type').value;const d=sampleDoc(t);d.title=$('#m-doc-title').value.trim();const ds=getDocs();ds.push(d);saveDocs(ds);state.docId=d.id;go('writing');toast('已创建新文稿');}}]});$('#m-doc-type').onchange=()=>{const pv=$('#m-doc-preview');if(pv)pv.textContent=DOC_TYPE_PREVIEW[$('#m-doc-type').value]||'';};};
   $('#btn-reset-chapters').onclick=()=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];if(!d)return toast('暂无文稿');confirm2('按当前类型「'+DOC_TYPES[d.type]+'」重建章节模板（将清空所有章节内容，建议先导出备份），确认继续？',()=>{const names=d.type==='case'?CHAPTER_TEMPLATES.case:CHAPTER_TEMPLATES.research;d.chapters=names.map(name=>({id:uid(),name,content:''}));saveDocs(docs);go('writing',{ch:0});toast('已重建 '+names.length+' 章');});};
+  $('#btn-autowrite').onclick=autoWritePage;
   $('#btn-casemake').onclick=()=>{
     modalBox({title:'🎓 教学案例素材 → 论文（AI 提炼）',wide:true,body:`
     <div class="muted" style="font-size:12px;margin-bottom:12px;line-height:1.7">把<strong>课堂实录 / 教案片段 / 学生作品 / 教学反思</strong>等原始素材粘贴进来，AI 会按浙江省教学案例评比要求，提炼为「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构。<br><span style="color:var(--accent)">💡 素材越具体（数据、案例、学生作品、成绩对比）提炼效果越好；缺失数据 AI 会标 [待补充：XXX]，不编造。</span></div>
@@ -2546,6 +2550,178 @@ async function llmAsk(prompt,system){
 }
 
 /* ================= 模块 2 · 文献阅读与笔记 ================= */
+/* ===== AI 按 SKILL 自动写论文（教科研论文全文）===== */
+/* 13 章节喂饭指令（王老师实战版） */
+const AUTOWRITE_PROMPTS = [
+ {h:'封面',w:'封面（约 100 字）',p:'生成本科毕业论文封面：学校[XX大学]、学院[XX学院]、专业[XX专业]、标题《[论文题目]》、作者[XXX]、学号[XXXXX]、指导教师[XXXXX]、日期[20XX 年 X 月]。格式清晰，信息对齐。'},
+ {h:'中英文摘要',w:'摘要 300 字 + Abstract',p:'撰写 300 字中文摘要+英文摘要：①研究背景；②研究方法（问卷/实验/案例）；③主要发现或结果；④研究意义。附 3-5 个关键词，术语准确。'},
+ {h:'目录',w:'目录（8 章）',p:'生成三级标题目录（页码 P1、P2 代替）：引言、文献综述、研究方法、研究结果与分析、讨论、结论与建议、参考文献、附录。'},
+ {h:'引言/绪论',w:'引言约 15%',p:'撰写引言：①研究背景（领域现状+问题）；②研究问题（具体）；③研究目的与意义；④研究方法；⑤论文结构。逻辑清晰、语言简洁。'},
+ {h:'文献综述',w:'综述约 10%',p:'撰写文献综述：①分类总结近 5 年成果（≥10 篇权威）；②现有研究不足；③本研究创新点。按主题/时间组织，有深度。'},
+ {h:'理论框架与研究方法',w:'方法约 10%',p:'撰写理论框架与研究方法：①支撑理论及适用性（选一个讲透）；②数据来源与样本量（如 N=200）；③研究设计步骤；④分析工具（SPSS/Python）；⑤科学性与可执行性。'},
+ {h:'研究结果与分析',w:'结果约 55%（主战场）',p:'撰写研究结果与分析（全文重点）：①数据呈现（图表+说明）；②数据描述（趋势/显著差异）；③理论结合（用文献综述中理论解释）；④图表编号（图 1-1、表 2-3）。仅陈述客观结果，缺数据用 [待补充：XXX]。'},
+ {h:'讨论',w:'讨论约 12%',p:'撰写讨论：①结果是否支持假设（与已有研究比较）；②可能解释（数据误差/理论局限）；③实践启示（行业/政策建议）；④不足与未来方向。批判性分析，不重复结果部分。'},
+ {h:'结论与建议',w:'结论约 4%',p:'撰写结论与建议：①核心结论 3-5 条（与研究目的呼应）；②实践建议 2-3 条（针对具体场景）；③未来研究方向。'},
+ {h:'参考文献',w:'参考文献 ≥17 篇',p:'生成参考文献列表（GB/APA）：≥5 篇英文（近 5 年）+≥10 篇中文核心+2-3 本专著。文献需真实存在，信息完整准确。'},
+ {h:'致谢',w:'致谢 200 字以内',p:'撰写致谢：感谢导师（具体帮助）、同学/实验室支持、家人朋友。语言真挚自然，避免浮夸。'},
+ {h:'附录',w:'附录（问卷+数据）',p:'生成附录：①调查问卷原文（10 个问题）；②实验原始数据（示例）；③补充图表。与正文互补。'},
+ {h:'整合说明',w:'整合 + 自查',p:'整合全文为完整论文：章节逻辑连贯、图表编号与引用一致、文献格式统一、语言流畅无重复。缺数据统一 [待补充：XXX]。'}
+];
+/* 写作技巧精华（教科研论文写作技巧模块 · 生成风格约束） */
+const AUTOWRITE_SKILLS = [
+ '硬性指标：摘要 200 字以上且含 3-5 关键词；语言要像人写的（避免 AI 套话）。',
+ '字数配比（浙江一等奖经验）：引言/问题提出约 15%、概念阐释与框架建构约 10%、实施策略/实践路径约 55%（主战场，每条"说理+案例"）、实施成效约 12%、结语约 4%。',
+ '理论框架：真正用理论搭建骨架（如 UbD 逆向设计、TPACK、SOLO 分类、自我决定理论等，选一个与问题最匹配的讲透并贯穿全文），不堆砌名词。',
+ '"三真"原则：问题真实（一线教学痛点）、数据扎实（可核实，缺数据用 [待补充：XXX]）、创新显著（理论/方法/技术/实践有明确创新点）。',
+ '2026 评审趋势：回答"做法/技术带来了什么改变、解决了什么问题"，不罗列"我用了什么工具"；尽量含实证支撑（调查/实验/案例）。'
+];
+const AUTOWRITE_NOHIT = 'AI 味规避（平台 27 条本地规则）：禁止套话——"随着…的发展""综上所述""具有重要意义""不仅…而且""在当前…背景下""有研究表明（无出处）""众所周知""不难发现""由此可见""在当今社会""静待花开"等；程度副词堆砌（极大地/显著提升）少用；正文破折号每段≤1 处；连接词密度适中（此外/同时/另外不连用）；用数据与具体做法代替空洞评价。';
+
+function autoWritePage(){
+  modalBox({title:'🤖 AI 按 SKILL 自动写论文（教科研论文全文）',wide:true,body:`
+    <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">按平台写作技巧 + 王老师 13 章节喂饭指令 + 27 条 AI 味规避规则，输入学科/学段/题目/资料，AI 逐章自动生成完整论文初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label class="muted" style="display:block;margin-bottom:3px">学科</label>
+        <select id="aw-subject" style="width:100%">
+          <option value="">不限</option><option>建筑类</option><option>电子信息类</option><option>机械类</option><option>财经商贸类</option><option>医药卫生类</option><option>学前教育</option><option>语文</option><option>数学</option><option>英语</option><option>物理</option><option>化学</option><option>生物</option><option>历史</option><option>政治</option><option>信息技术</option><option>其他</option>
+        </select>
+      </div>
+      <div><label class="muted" style="display:block;margin-bottom:3px">学段</label>
+        <select id="aw-stage" style="width:100%">
+          <option value="">不限</option><option>中职</option><option>高职</option><option>本科</option><option>研究生</option><option>中学</option><option>小学</option>
+        </select>
+      </div>
+      <div><label class="muted" style="display:block;margin-bottom:3px">目标字数</label>
+        <select id="aw-len" style="width:100%">
+          <option value="3000">3000-5000 字（短篇）</option>
+          <option value="5000" selected>5000-8000 字（标准 · 教科研/浙江评比）</option>
+          <option value="8000">8000-12000 字（长篇/毕业设计）</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:10px"><label class="muted" style="display:block;margin-bottom:3px">论文题目（必填）</label>
+      <input id="aw-topic" placeholder="如：基于项目化教学的中职建筑构造课程实践研究" style="width:100%">
+    </div>
+    <div style="margin-bottom:10px"><label class="muted" style="display:block;margin-bottom:3px">其他资料（必填 ≥200 字；可粘贴课题方案/教学反思/数据/学生作品，或上传 txt/md/word）</label>
+      <textarea id="aw-source" placeholder="例如：课题方案摘要、本人教学实践数据（成绩对比、学生作品）、已发表论文/案例片段、参考文献列表等。资料越具体，生成质量越好。" style="min-height:140px"></textarea>
+      <div style="margin-top:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input type="file" id="aw-files" multiple accept=".txt,.md,.docx,.doc" style="display:none">
+        <button class="btn sm" id="aw-upbtn">📎 上传文件（txt/md/word）</button>
+        <span class="muted" style="font-size:11px">多个文件内容自动拼接到资料</span><span id="aw-flist" class="muted" style="font-size:11px"></span>
+      </div>
+    </div>
+    <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <button class="btn primary" id="aw-gen">🚀 一键生成全文（逐章）</button>
+      <button class="btn" id="aw-tpl">📋 用本地模板（无需 Key）</button>
+      <span class="muted" style="font-size:11px">约 3-6 分钟，13 章逐章生成</span>
+    </div>
+    <div id="aw-progress" style="display:none;margin:10px 0;padding:10px;background:var(--card2);border-radius:8px;font-size:12px"></div>
+    <div id="aw-out"></div>
+  `,buttons:[{label:'关闭'}]});
+
+  let extraSource='';
+  $('#aw-upbtn').onclick=()=>$('#aw-files').click();
+  $('#aw-files').onchange=async e=>{
+    const files=[...e.target.files];if(!files.length)return;
+    $('#aw-flist').textContent='已选 '+files.length+' 个，正在读取…';
+    const parts=[];
+    for(const f of files){
+      try{
+        if(/\.(txt|md)$/i.test(f.name)) parts.push('【'+f.name+'】\n'+await f.text());
+        else if(/\.docx?$/i.test(f.name)){
+          const buf=await f.arrayBuffer();
+          const zip=await JSZip.loadAsync(buf);
+          const xml=await zip.file('word/document.xml').async('string');
+          parts.push('【'+f.name+'】\n'+xml.replace(/<w:p[^>]*>/g,'\n').replace(/<[^>]+>/g,' ').replace(/[ \t]+/g,' ').replace(/\n{2,}/g,'\n').trim());
+        }
+        else parts.push('【'+f.name+'】（不支持格式已跳过）');
+      }catch(err){parts.push('【'+f.name+' 读取失败】');}
+    }
+    extraSource=parts.join('\n\n');
+    $('#aw-flist').textContent='已附加 '+files.length+' 个文件内容';
+  };
+
+  const renderEmpty=()=>{
+    const titles=['封面','中英文摘要','目录','引言/绪论','文献综述','理论框架与研究方法','研究结果与分析','讨论','结论与建议','参考文献','致谢','附录','整合说明'];
+    const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
+    let html='<div class="muted" style="font-size:12px;margin:8px 0">13 个章节编辑区（生成中会逐章填充）：</div>';
+    keys.forEach((k,i)=>{
+      html+=`<div style="margin-bottom:8px"><label class="muted">${titles[i]}</label><textarea id="aw-out-${k}" style="min-height:${i===6?200:90};font-size:13px;line-height:1.7"></textarea></div>`;
+    });
+    html+=`<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="aw-create" disabled>📄 创建文稿并打开（生成完成后可用）</button><button class="btn" id="aw-regen" style="display:none">🔄 重新生成</button></div>`;
+    $('#aw-out').innerHTML=html;
+    $('#aw-create').onclick=()=>{
+      const title=$('#aw-topic').value.trim()||'AI 自动写作文稿';
+      const names=['一、封面','二、中英文摘要','三、目录','四、引言','五、文献综述','六、理论框架与研究方法','七、研究结果与分析','八、讨论','九、结论与建议','十、参考文献','十一、致谢','十二、附录','十三、整合说明'];
+      const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
+      const chapters=keys.map((k,i)=>({id:uid(),name:names[i],content:$('#aw-out-'+k).value.trim()}));
+      const ds=getDocs();const nd=sampleDoc('research');nd.title=title;nd.chapters=chapters;
+      ds.push(nd);saveDocs(ds);state.docId=nd.id;closeModal();go('writing',{ch:0});
+      toast('已创建 13 章节文稿并进入写作页');
+    };
+    $('#aw-regen').onclick=()=>$('#aw-gen').click();
+  };
+
+  const tpl=()=>{
+    const title=$('#aw-topic').value.trim()||'论文题目';
+    renderEmpty();
+    const fills={
+      cover:'学校：[XX大学]　学院：[XX学院]　专业：[XX专业]\n标题：《'+title+'》\n作者：[XXX]　学号：[XXXXX]　指导教师：[XXXXX]　日期：[20XX 年 X 月]',
+      abstract:'[占位] 摘要 300 字（研究背景/方法/结果/意义）+ 3-5 关键词。用「🚀 一键生成全文」由 AI 生成完整内容。',
+      toc:'一、封面 → P1\n二、中英文摘要 → P3\n三、目录 → P5\n四、引言 → P6\n五、文献综述 → P15\n六、理论框架与研究方法 → P22\n七、研究结果与分析 → P28\n八、讨论 → P45\n九、结论与建议 → P52\n十、参考文献 → P55\n十一、致谢 → P58\n十二、附录 → P59',
+      intro:'[占位] 引言：研究背景/研究问题/目的意义/研究方法/论文结构（按目标字数 15%）。',
+      literature:'[占位] 文献综述：分类总结（≥10 篇）/现有不足/创新点（按目标字数 10%）。',
+      method:'[占位] 理论框架与研究方法：理论适用性/数据来源/研究设计/分析工具/可行性（10%）。',
+      results:'[占位] 研究结果与分析（约 55% 主战场）：数据呈现/描述/理论结合/图表编号。',
+      discussion:'[占位] 讨论（约 12%）：结果支持/可能解释/实践启示/不足与未来。',
+      conclusion:'[占位] 结论（约 4%）：核心结论 3-5 条/实践建议 2-3 条/未来方向。',
+      references:'[占位] 参考文献 ≥17 篇：英文 ≥5 + 中文核心 ≥10 + 专著 2-3。建议用 Zotero/百度学术生成真实文献。',
+      acknowledgement:'[占位] 致谢 200 字以内：导师/同学/家人。',
+      appendix:'[占位] 附录：问卷（10 题）/原始数据/补充图表。',
+      integration:'[占位] 整合全文 + 自查（连贯性/编号/格式统一）。'
+    };
+    Object.keys(fills).forEach(k=>{const el=$('#aw-out-'+k);if(el)el.value=fills[k];});
+    $('#aw-progress').style.display='none';
+    const c=$('#aw-create');if(c)c.disabled=false;
+    toast('本地模板已填充，可手动编辑；配 Key 后点「🚀 一键生成全文」让 AI 生成完整内容');
+  };
+  $('#aw-tpl').onclick=tpl;
+
+  $('#aw-gen').onclick=async()=>{
+    const subject=$('#aw-subject').value,stage=$('#aw-stage').value,topic=$('#aw-topic').value.trim();
+    const lenSel=$('#aw-len').value;
+    let source=$('#aw-source').value.trim();
+    if(extraSource) source=source?source+'\n\n'+extraSource:extraSource;
+    if(!topic)return toast('请填写论文题目');
+    if(!source||source.length<200)return toast('资料至少 200 字，请补充或上传文件');
+    if(!LLM.get().enabled)return toast('请先在「设置与说明」配置 LLM Key（默认 DeepSeek）');
+    const btn=$('#aw-gen');btn.disabled=true;btn.textContent='🤖 生成中…';
+    const prog=$('#aw-progress');prog.style.display='block';
+    renderEmpty();
+    const lenDesc={3000:'3000-5000 字',5000:'5000-8000 字',8000:'8000-12000 字'}[lenSel]||'5000-8000 字';
+    const meta=[subject?'学科：'+subject:'',stage?'学段：'+stage:'',topic?'论文题目：'+topic:'','目标字数：'+lenDesc+'（全文）+ 章节按比例：引言15%/概念框架10%/实施策略55%/成效12%/结语4%'].filter(Boolean).join('\n');
+    const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
+    try{
+      for(let i=0;i<AUTOWRITE_PROMPTS.length;i++){
+        const s=AUTOWRITE_PROMPTS[i];
+        prog.innerHTML='<div>⏳ 正在生成 <b>第 '+(i+1)+'/13 章：'+s.h+'</b>（'+s.w+'）…</div>';
+        const chPrompt='你是浙江省教育领域资深论文指导专家，熟悉浙江获奖论文风格与教科研论文写作规范。\n【论文信息】\n'+meta+'\n\n【资料来源】\n'+source.slice(0,2500)+'\n\n【本章任务·'+s.h+'（'+s.w+'）】\n'+s.p+'\n\n【写作技巧参考（必须遵守）】\n'+AUTOWRITE_SKILLS.join('\n')+'\n'+AUTOWRITE_NOHIT+'\n\n【输出要求】仅输出本章正文内容（中文），不要标题、不要解释、不要 JSON；按目标字数与比例控制篇幅；如素材缺数据用 [待补充：XXX] 标注，不编造。';
+        const r=await llmAsk(chPrompt);
+        const el=$('#aw-out-'+keys[i]);if(el)el.value=(r||'').replace(/^【[^】]*】/,'').trim();
+        prog.innerHTML='<div style="color:var(--ok)">✓ 第 '+(i+1)+'/13 章完成：'+s.h+'</div>';
+      }
+      prog.innerHTML+='<div style="color:var(--ok);margin-top:6px">✅ 全部 13 章生成完毕！可编辑后点「创建文稿并打开」</div>';
+      const c=$('#aw-create');if(c)c.disabled=false;
+      $('#aw-regen').style.display='inline-flex';
+      btn.disabled=false;btn.textContent='🚀 一键生成全文（逐章）';
+    }catch(err){
+      btn.disabled=false;btn.textContent='🚀 一键生成全文（逐章）';
+      prog.innerHTML='<div style="color:var(--danger)">生成中断：'+esc(err.message||err)+'。已完成的章节保留，可重试剩余或手动编辑。</div>';
+    }
+  };
+}
+
+
 function literaturePage(root){
   const lits=Store.get(K.lits,[]);
   root.innerHTML=`
