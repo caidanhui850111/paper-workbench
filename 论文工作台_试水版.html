@@ -1395,7 +1395,7 @@ function writingPage(root,param){
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
       <div class="lit-feat-card sum" id="btn-mindmap" data-act="mindmap">
-        <div class="lit-feat-top"><span class="lit-feat-icon">🧠</span><span class="lit-feat-title">大纲思维导图</span></div>
+        <div class="lit-feat-top"><span class="lit-feat-icon">🧠</span><span class="lit-feat-title">思维导图绘制</span></div>
         <div class="lit-feat-desc">粘贴内容 → AI 按标题/章节/小节三层结构生成思维导图。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
@@ -1949,7 +1949,7 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
     const b=$('#mm-ai');if(b)b.onclick=async()=>{
       b.disabled=true;b.textContent='生成中…';
       try{
-        const r=await llmAsk('请把以下内容整理成大纲思维导图，只输出 JSON，不要任何其他文字，格式：{"topic":"标题","children":[{"name":"章节名","children":[{"name":"小节名"}]}]}。\n【结构参考（浙江省教科研论文一等奖经验）】若为教科研/评奖论文，请按字数配比规划章节详略：问题的提出/引言约 15%、概念阐释与理论框架约 10%、实施策略/实践路径约 55%（主战场，应拆分为多个小节含具体做法与案例）、实施成效约 12%、结语约 4%——避免头重脚轻或实施策略单薄。\n内容：\n'+$('#mm-content').value.trim().slice(0,4000));
+        const r=await llmAsk('请把以下内容整理成思维导图（三层结构：标题 / 章节 / 小节），只输出 JSON，不要任何其他文字，格式：{"topic":"标题","children":[{"name":"章节名","children":[{"name":"小节名"}]}]}。\n【结构参考（浙江省教科研论文一等奖经验）】若为教科研/评奖论文，请按字数配比规划章节详略：问题的提出/引言约 15%、概念阐释与理论框架约 10%、实施策略/实践路径约 55%（主战场，应拆分为多个小节含具体做法与案例）、实施成效约 12%、结语约 4%——避免头重脚轻或实施策略单薄。\n内容：\n'+$('#mm-content').value.trim().slice(0,4000));
         const obj=safeParseJSON(r);
         if(obj&&obj.topic){renderMindMap($('#mm-root'),{name:obj.topic,children:(obj.children||[]).map(c=>({name:c.name,note:c.children&&c.children.length?c.children.length+' 小节':'',children:(c.children||[]).map(x=>({name:x.name}))}))});toast('思维导图已生成');}
         else{toast('AI 返回格式异常，请重试');}
@@ -3490,7 +3490,7 @@ function settingsPage(root){
     {f:'去 AIGC',s:'cn-humanizer-academic ★全文级（ranranrannervous）',p:'5 大重写策略（打破工整结构/破坏过度流畅/抽象转具体/研究者口吻/词级清扫）+ 7 条硬约束（引用守界/内容守界/字数≤1.2倍等）'},
     {f:'AI 审稿',s:'citation-check-skill + Nature-Paper-Skills 思路 + v2 视频方法论；「毕业论文」维度依据教育部教督〔2020〕5号抽检办法；报告结构升级借鉴 academic-paper-review（字节 DeerFlow 77k★）7 模块审稿规范',p:'4 种类型×5 维度差异化打分（毕业论文=选题意义/写作安排/逻辑构建/专业能力/学术规范，官方文件对齐；评奖重实践支撑，教学案例不催参考文献）；引用核验（[n] 与参考文献比对）；投稿预检清单（按文稿类型动态生成）；期刊匹配（n-gram 画像）；报告含 7 模块：执行摘要/优点/不足（按严重度分级）/贡献评估/文献定位/可操作建议（必须改-建议改-可选）/维度评分'},
     {f:'创新点设计',s:'RW Research Skill（rw-research-novelty）★全文级',p:'证据问题卡（区分没研究/没找到/没报告/没测量/真冲突/假冲突）→ 头脑风暴 → 硬性反驳 → 新颖性四状态 → 7 维分开打分'},
-    {f:'大纲思维导图',s:'LLM',p:'粘贴内容 → AI 生成三层大纲（标题/章节/小节，JSON 渲染）'},
+    {f:'思维导图绘制',s:'LLM',p:'粘贴内容 → AI 生成三层思维导图（标题/章节/小节，JSON 渲染）'},
     {f:'AI 助手',s:'LLM 对话（默认 DeepSeek）',p:'未配 Key 时走本地模板，不联网'},
     {f:'全局搜索',s:'自有实现',p:'跨模块关键词全文检索 + 点击跳转'},
     {f:'教学案例 → 论文转化器',s:'自有 + LLM 提炼；格式对齐浙江省教学案例评比要求',p:'素材（课堂实录/教案/反思/学生作品）→ 按「背景与现状/特色与创新/成果与影响/经验与启示」4 章提炼；双模式：AI 提炼（JSON 4 章可编辑）或本地模板（[待补充：XXX] 骨架，无需 Key）；一键创建案例文稿；缺失数据标 [待补充] 不编造'},
