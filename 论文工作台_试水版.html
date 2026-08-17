@@ -1172,8 +1172,8 @@ const state={docId:null,chIdx:0,theme:'light',econStep:1,econDS:null,subTab:1};
 let currentPage='progress';
 function go(page,param){
   currentPage=page;state._p=param;
-  // progress 已从侧边栏移除，顶部 page-title 仍直接显示全名
-  const _title=page==='progress'?'论文完成度 和 API 设置':((NAV.find(n=>n.id===page)||{}).name||'职教辅助论文写作平台');
+  // progress 已从侧边栏移除；页内已有「论文完成度」dash 看板 + 「智能体 API 设置」卡，page-title 简化为同义短名避免重复
+  const _title=page==='progress'?'论文完成度':((NAV.find(n=>n.id===page)||{}).name||'职教辅助论文写作平台');
   $('#page-title').textContent=_title;
   renderNav();
   const c=$('#content');c.innerHTML='';
@@ -1186,7 +1186,7 @@ window.addEventListener('popstate',()=>{
   const p=location.hash.replace('#','');
   if(p&&PAGES[p]){
     currentPage=p;
-    const _title=p==='progress'?'论文完成度 和 API 设置':((NAV.find(n=>n.id===p)||{}).name||'职教辅助论文写作平台');
+    const _title=p==='progress'?'论文完成度':((NAV.find(n=>n.id===p)||{}).name||'职教辅助论文写作平台');
     $('#page-title').textContent=_title;
     renderNav();
     const c=$('#content');c.innerHTML='';
