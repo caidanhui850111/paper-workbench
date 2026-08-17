@@ -188,14 +188,34 @@ table.data td.l,table.data th.l{text-align:left}
   .lit-item .l-title{font-weight:600;font-size:14px;margin-bottom:4px}
   .lit-item .l-meta{font-size:12px;color:var(--muted);margin-bottom:8px}
   .lit-item .lit-open-hint{font-size:11px;color:var(--accent);font-weight:500}
-  /* 4 张功能卡：2×2 网格 + 卡片悬浮动效 */
+  /* ====== 顶部 banner：深蓝渐变（仿论文完成度 dash） ====== */
+  .lit-banner{position:relative;overflow:hidden;border-radius:var(--radius);background:linear-gradient(135deg,#1e2547 0%,#28305e 45%,#3b2f6b 100%);color:#fff;padding:16px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;min-height:78px}
+  .lit-banner-main{flex:1;min-width:0}
+  .lit-banner-title{font-size:20px;font-weight:700;letter-spacing:.5px}
+  .lit-banner-sub{font-size:12.5px;opacity:.85;line-height:1.55;margin-top:4px;max-width:520px}
+  .lit-banner-ring{flex:0 0 auto;opacity:.85}
+  /* ====== 4 张功能卡：图标+标题一行 + 每卡不同颜色（蓝/紫/橙/绿） ====== */
   .lit-feat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .lit-feat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 12px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
-  .lit-feat-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.08);border-color:var(--accent)}
-  .lit-feat-icon{font-size:22px;margin-bottom:6px}
-  .lit-feat-title{font-size:14px;font-weight:600;margin-bottom:5px}
+  .lit-feat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+  .lit-feat-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+  .lit-feat-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .lit-feat-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-size:17px;flex-shrink:0}
+  .lit-feat-title{font-size:14px;font-weight:600;line-height:1.3}
   .lit-feat-desc{font-size:11.5px;color:var(--muted);line-height:1.55;margin-bottom:8px;min-height:42px}
   .lit-feat-go{font-size:12px;color:var(--accent);font-weight:500}
+  /* 4 卡配色：sum 蓝 / gen 紫 / note 橙 / deep 绿 */
+  .lit-feat-card.sum  .lit-feat-icon{background:#dbeafe;color:#2563eb}
+  .lit-feat-card.sum  {border-top:3px solid #2563eb}
+  .lit-feat-card.gen  .lit-feat-icon{background:#ede9fe;color:#7c3aed}
+  .lit-feat-card.gen  {border-top:3px solid #7c3aed}
+  .lit-feat-card.note .lit-feat-icon{background:#fef3c7;color:#d97706}
+  .lit-feat-card.note {border-top:3px solid #d97706}
+  .lit-feat-card.deep .lit-feat-icon{background:#dcfce7;color:#16a34a}
+  .lit-feat-card.deep {border-top:3px solid #16a34a}
+  .lit-feat-card.sum:hover{border-color:#2563eb}
+  .lit-feat-card.gen:hover{border-color:#7c3aed}
+  .lit-feat-card.note:hover{border-color:#d97706}
+  .lit-feat-card.deep:hover{border-color:#16a34a}
   @media (max-width:600px){.lit-feat-cards{grid-template-columns:1fr !important}}
 /* ---------- 今日弹层 ---------- */
 #today-panel{position:fixed;right:14px;top:60px;width:320px;max-width:calc(100vw - 28px);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);z-index:80;padding:14px;display:none}
@@ -2826,14 +2846,21 @@ function autoWritePage(){
 function literaturePage(root){
   const lits=Store.get(K.lits,[]);
   root.innerHTML=`
-  <div style="margin-bottom:14px">
-    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">📖 文献阅读与笔记</h3>
-    <div class="muted" style="font-size:13px;line-height:1.6">粘一段论文笔记/摘要，配合左侧 4 个功能卡做深度分析，右侧汇总文献清单。</div>
+  <div class="lit-banner">
+    <div class="lit-banner-main">
+      <div class="lit-banner-title">📖 文献阅读与笔记</div>
+      <div class="lit-banner-sub">粘一段论文笔记/摘要，配合 4 个功能卡深度分析，右侧汇总文献清单</div>
+    </div>
+    <svg class="lit-banner-ring" width="56" height="56" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+      <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+    </svg>
   </div>
   <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <span class="muted" style="font-size:12px;margin-right:auto">共 <b>${lits.length}</b> 篇文献</span>
     <button id="lit-upload" class="btn sm" title="上传 PDF / Word / txt / md 文件，自动提取文本并建文献条目（需联网加载解析库）">📄 上传 PDF/Word</button>
     <input type="file" id="lit-file" accept=".pdf,.docx,.doc,.txt,.md" style="display:none">
-    <button id="lit-add" class="btn primary sm">+ 新增文献 <span class="chip gray" style="margin-left:6px">${lits.length} 篇</span></button>
+    <button id="lit-add" class="btn sm" title="手动录入元数据（补作者/期刊/年份/DOI）—— 上传文件后通常还要点这个补全">✏️ 补全信息</button>
   </div>
   <div class="lit-layout" style="display:grid;grid-template-columns:3fr 2fr;gap:14px;align-items:start">
     <div class="lit-left">
@@ -2846,27 +2873,23 @@ function literaturePage(root){
       <span class="muted" id="lit-llm-state" style="font-size:11px"></span>
     </div>
     <div class="lit-feat-cards" style="margin-top:10px">
-      <div class="lit-feat-card" data-act="sum">
-        <div class="lit-feat-icon">📋</div>
-        <div class="lit-feat-title">总结本文创新点</div>
+      <div class="lit-feat-card sum" data-act="sum">
+        <div class="lit-feat-top"><span class="lit-feat-icon">📋</span><span class="lit-feat-title">总结本文创新点</span></div>
         <div class="lit-feat-desc">快速提炼文献已提出的创新点 3-5 条，学术表述，适合写文献综述参考。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
-      <div class="lit-feat-card" data-act="gen">
-        <div class="lit-feat-icon">💡</div>
-        <div class="lit-feat-title">提出3-5点创新方向</div>
+      <div class="lit-feat-card gen" data-act="gen">
+        <div class="lit-feat-top"><span class="lit-feat-icon">💡</span><span class="lit-feat-title">提出3-5点创新方向</span></div>
         <div class="lit-feat-desc">基于文献挖掘新方向，每方向一句话理由，为你自己的研究找突破口。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
-      <div class="lit-feat-card" data-act="note">
-        <div class="lit-feat-icon">🗂️</div>
-        <div class="lit-feat-title">文献整理归档</div>
+      <div class="lit-feat-card note" data-act="note">
+        <div class="lit-feat-top"><span class="lit-feat-icon">🗂️</span><span class="lit-feat-title">文献整理归档</span></div>
         <div class="lit-feat-desc">按结构化模板整理（含基本信息/核心贡献/方法/与我研究关联），可保存到文献库。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
-      <div class="lit-feat-card" data-act="deep">
-        <div class="lit-feat-icon">🎯</div>
-        <div class="lit-feat-title">文献AI精读</div>
+      <div class="lit-feat-card deep" data-act="deep">
+        <div class="lit-feat-top"><span class="lit-feat-icon">🎯</span><span class="lit-feat-title">文献AI精读</span></div>
         <div class="lit-feat-desc">针对具体问题精读，含原文引用+批判性分析+一句话回答，防幻觉不编造。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
@@ -2881,12 +2904,8 @@ function literaturePage(root){
     <div class="lit-item" data-open="${l.id}" style="cursor:pointer" title="点击查看完整笔记">
       <div class="l-title">${esc(l.title)}</div>
       <div class="l-meta">${esc((l.authors||'').split(/[,，;；]/)[0].trim()||'未知作者')} · ${esc(l.venue||'未填写期刊')} · ${l.year||'未知年份'}</div>
-      <div style="margin-bottom:6px">${(l.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${l.readMinutes?`<span class="chip green" style="margin-left:6px">已读 ${l.readMinutes} 分钟</span>`:''}</div>
-      <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
-        <span class="muted" style="font-size:11px">${l.notes?'📝 有笔记':'🆕 仅基本信息'}</span>
-        <span class="lit-open-hint">查看详情 →</span>
-      </div>
-    </div>`).join('')||'<div class="empty"><div class="big">📖</div>还没有文献，点「+ 新增文献」添加</div>'}</div>
+      <div style="margin-top:6px;display:flex;justify-content:flex-end"><span class="lit-open-hint">查看详情 →</span></div>
+    </div>`).join('')||'<div class="empty"><div class="big">📖</div>还没有文献，点「📄 上传 PDF/Word」导入</div>'}</div>
     </div>
   </div>`;
   $('#lit-llm-state').textContent=LLM.get().enabled?'LLM 已启用':'未配 Key，使用本地模板';
