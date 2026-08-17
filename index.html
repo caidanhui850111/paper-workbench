@@ -183,9 +183,20 @@ table.data td.l,table.data th.l{text-align:left}
 .msg .bubble .who{font-size:11px;color:var(--muted);margin-bottom:2px}
 .msg.me .bubble .who{color:rgba(255,255,255,.75)}
 .quick-cmds{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.lit-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px}
-.lit-item .l-title{font-weight:600;font-size:14px;margin-bottom:4px}
-.lit-item .l-meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .lit-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;transition:transform .15s,box-shadow .15s}
+  .lit-item:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.08);border-color:var(--accent)}
+  .lit-item .l-title{font-weight:600;font-size:14px;margin-bottom:4px}
+  .lit-item .l-meta{font-size:12px;color:var(--muted);margin-bottom:8px}
+  .lit-item .lit-open-hint{font-size:11px;color:var(--accent);font-weight:500}
+  /* 4 张功能卡：2×2 网格 + 卡片悬浮动效 */
+  .lit-feat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .lit-feat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 12px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+  .lit-feat-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.08);border-color:var(--accent)}
+  .lit-feat-icon{font-size:22px;margin-bottom:6px}
+  .lit-feat-title{font-size:14px;font-weight:600;margin-bottom:5px}
+  .lit-feat-desc{font-size:11.5px;color:var(--muted);line-height:1.55;margin-bottom:8px;min-height:42px}
+  .lit-feat-go{font-size:12px;color:var(--accent);font-weight:500}
+  @media (max-width:600px){.lit-feat-cards{grid-template-columns:1fr !important}}
 /* ---------- 今日弹层 ---------- */
 #today-panel{position:fixed;right:14px;top:60px;width:320px;max-width:calc(100vw - 28px);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);z-index:80;padding:14px;display:none}
 #today-panel.open{display:block}
@@ -2815,9 +2826,12 @@ function autoWritePage(){
 function literaturePage(root){
   const lits=Store.get(K.lits,[]);
   root.innerHTML=`
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <h3 style="font-size:15px;font-weight:600">📚 我的文献 <span class="chip gray">${lits.length} 篇</span></h3>
-    <button id="lit-add" class="btn primary sm">+ 新增文献</button>
+  <div style="margin-bottom:14px">
+    <h3 style="font-size:18px;font-weight:700;margin-bottom:6px">📖 文献阅读与笔记</h3>
+    <div class="muted" style="font-size:13px;line-height:1.6">粘一段论文笔记/摘要，配合左侧 4 个功能卡做深度分析，右侧汇总文献清单。</div>
+  </div>
+  <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <button id="lit-add" class="btn primary sm">+ 新增文献 <span class="chip gray" style="margin-left:6px">${lits.length} 篇</span></button>
   </div>
   <div class="lit-layout" style="display:grid;grid-template-columns:3fr 2fr;gap:14px;align-items:start">
     <div class="lit-left">
@@ -2825,12 +2839,35 @@ function literaturePage(root){
     <h3>💡 创新点挖掘</h3>
     <div class="muted" style="font-size:12px;margin-bottom:8px">粘贴论文笔记 / 摘要 / 链接内容，生成可用创新点（配 LLM Key 用大模型，未配用模板）</div>
     <textarea id="lit-mine" placeholder="粘贴一段论文笔记或摘要内容…" style="min-height:90px"></textarea>
-    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
-      <button id="lit-gen" class="btn primary">给我创新点</button>
-      <button id="lit-sum" class="btn">总结本文创新点</button>
-      <button id="lit-note" class="btn" title="按结构化模板整理文献笔记（借鉴 research-writing-skill #18 + Paper-Agent Reader）">📝 结构化笔记</button>
-      <button id="lit-deep" class="btn" title="针对具体问题精读：原文引用 + 批判性分析（借鉴 paper-quick-reader 精读协议）">🎯 AI 精读</button>
-      <span class="muted" id="lit-llm-state"></span>
+    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
+      <span class="muted" style="font-size:11px">点击卡片触发对应 AI 分析</span>
+      <span class="muted" id="lit-llm-state" style="font-size:11px"></span>
+    </div>
+    <div class="lit-feat-cards" style="margin-top:10px">
+      <div class="lit-feat-card" data-act="sum">
+        <div class="lit-feat-icon">📋</div>
+        <div class="lit-feat-title">总结本文创新点</div>
+        <div class="lit-feat-desc">快速提炼文献已提出的创新点 3-5 条，学术表述，适合写文献综述参考。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card" data-act="gen">
+        <div class="lit-feat-icon">💡</div>
+        <div class="lit-feat-title">提出3-5点创新方向</div>
+        <div class="lit-feat-desc">基于文献挖掘新方向，每方向一句话理由，为你自己的研究找突破口。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card" data-act="note">
+        <div class="lit-feat-icon">🗂️</div>
+        <div class="lit-feat-title">文献整理归档</div>
+        <div class="lit-feat-desc">按结构化模板整理（含基本信息/核心贡献/方法/与我研究关联），可保存到文献库。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card" data-act="deep">
+        <div class="lit-feat-icon">🎯</div>
+        <div class="lit-feat-title">文献AI精读</div>
+        <div class="lit-feat-desc">针对具体问题精读，含原文引用+批判性分析+一句话回答，防幻觉不编造。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
     </div>
     <div id="lit-q" style="margin-top:8px;display:none"><input id="lit-q-input" placeholder="针对这篇文献提一个具体问题，如：这个方法能用到我的课堂上吗？"></div>
     <div id="lit-mine-out" style="margin-top:10px"></div>
@@ -2839,14 +2876,13 @@ function literaturePage(root){
     <div class="lit-right">
   <h3 style="font-size:14px;font-weight:600;margin:0 0 10px">📖 文献列表</h3>
   <div id="lit-list">${lits.map(l=>`
-    <div class="lit-item">
+    <div class="lit-item" data-open="${l.id}" style="cursor:pointer" title="点击查看完整笔记">
       <div class="l-title">${esc(l.title)}</div>
-      <div class="l-meta">${esc(l.authors||'')} · ${esc(l.venue||'')} · ${l.year||''}${l.doi?' · DOI:'+esc(l.doi):''}</div>
-      <div style="margin-bottom:6px">${(l.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${l.readMinutes?`<span class="chip green" style="margin-left:6px">已读 ${l.readMinutes} 分钟</span>`:''}</div>
-      <div class="muted" style="font-size:13px">${esc(l.notes||'')}</div>
-      <div style="margin-top:8px;display:flex;gap:8px">
-        <button class="btn sm" data-edit="${l.id}">编辑</button>
-        <button class="btn sm" data-del="${l.id}">删除</button>
+      <div class="l-meta">${esc((l.authors||'').split(/[,，;；]/)[0].trim()||'未知作者')} · ${esc(l.venue||'未填写期刊')} · ${l.year||'未知年份'}</div>
+      <div style="margin-bottom:6px">${(l.tags||[]).slice(0,3).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}${l.readMinutes?`<span class="chip green" style="margin-left:6px">已读 ${l.readMinutes} 分钟</span>`:''}</div>
+      <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+        <span class="muted" style="font-size:11px">${l.notes?'📝 有笔记':'🆕 仅基本信息'}</span>
+        <span class="lit-open-hint">查看详情 →</span>
       </div>
     </div>`).join('')||'<div class="empty"><div class="big">📖</div>还没有文献，点「+ 新增文献」添加</div>'}</div>
     </div>
@@ -2897,14 +2933,39 @@ function literaturePage(root){
       };
     }catch(e){out.innerHTML='<div class="muted">'+esc(e.message)+'</div>';}
   };
-  $('#lit-gen').onclick=()=>doMine('new');
-  $('#lit-sum').onclick=()=>doMine('sum');
-  $('#lit-note').onclick=()=>doMine('note');
-  $('#lit-deep').onclick=()=>{
-    const q=$('#lit-q');q.style.display=q.style.display==='none'?'block':'none';
-    if(q.style.display==='block')$('#lit-q-input').focus();
-    else if(!$('#lit-mine').value.trim())toast('请先粘贴文献内容');
-  };
+  // 4 个功能卡点击事件（顺序 sum/gen/note/deep）
+  $$('.lit-feat-card',root).forEach(c=>c.onclick=()=>{
+    const act=c.dataset.act;
+    if(act==='sum')doMine('sum');
+    else if(act==='gen')doMine('new');
+    else if(act==='note')doMine('note');
+    else if(act==='deep'){
+      const q=$('#lit-q');q.style.display=q.style.display==='none'?'block':'none';
+      if(q.style.display==='block')$('#lit-q-input').focus();
+      else if(!$('#lit-mine').value.trim())toast('请先粘文献内容');
+    }
+  });
+  // 右栏文献整行点击 → 弹出详情 modal（含完整笔记+编辑/删除）
+  $$('[data-open]',root).forEach(el=>el.onclick=()=>{
+    const l=Store.get(K.lits,[]).find(x=>x.id===el.dataset.open);if(!l)return;
+    modalBox({
+      title:esc(l.title),
+      body:'<div class="muted" style="font-size:12px;line-height:1.7;margin-bottom:10px">'
+        +'<b>作者</b>：'+esc(l.authors||'—')+'<br>'
+        +'<b>期刊</b>：'+esc(l.venue||'—')+'<br>'
+        +'<b>年份</b>：'+esc(l.year||'—')+(l.doi?'<br><b>DOI</b>：'+esc(l.doi):'')
+        +'<br><b>标签</b>：'+((l.tags||[]).map(t=>'<span class="tag" style="margin-right:4px">'+esc(t)+'</span>').join('')||'—')
+        +(l.readMinutes?'<br><b>阅读</b>：已读 '+l.readMinutes+' 分钟':'')
+        +'</div>'
+        +'<div style="margin-bottom:6px;font-weight:600">📝 完整笔记</div>'
+        +'<div style="padding:12px;background:var(--card2);border-radius:8px;font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:300px;overflow-y:auto">'+esc(l.notes||'暂无笔记')+'</div>',
+      buttons:[{label:'关闭'},{label:'编辑笔记',onClick:()=>{
+        modalBox({title:'编辑笔记',body:'<textarea id="m-ln2" style="min-height:180px">'+esc(l.notes||'')+'</textarea>',buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{l.notes=$('#m-ln2').value;Store.set(K.lits,Store.get(K.lits,[]).map(x=>x.id===l.id?l:x));literaturePage(root);toast('已保存');}}]});
+      }},{label:'删除',cls:'danger',onClick:()=>{
+        confirm2('删除这篇文献？此操作不可撤销。',()=>{Store.set(K.lits,Store.get(K.lits,[]).filter(x=>x.id!==l.id));literaturePage(root);toast('已删除');});
+      }}]
+    });
+  });
   $('#lit-q-input').addEventListener('keydown',e=>{if(e.key==='Enter'){doMine('deep');}});
 }
 
