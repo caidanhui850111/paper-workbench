@@ -193,9 +193,7 @@ table.data td.l,table.data th.l{text-align:left}
   .lit-banner-main{flex:1;min-width:0}
   .lit-banner-title{font-size:20px;font-weight:700;letter-spacing:.5px}
   .lit-banner-sub{font-size:12.5px;opacity:.85;line-height:1.55;margin-top:4px;max-width:520px}
-  .lit-banner-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-  .lit-banner-btn{background:#fff!important;color:#3b2f6b!important;border:1px solid rgba(255,255,255,.6)!important;font-size:13px!important;padding:6px 12px!important;font-weight:500}
-  .lit-banner-btn:hover{background:#f3f0ff!important;transform:translateY(-1px);box-shadow:0 4px 10px rgba(0,0,0,.15)}
+
   /* ====== 4 张功能卡：图标+标题一行 + 每卡不同颜色（蓝/紫/橙/绿） ====== */
   .lit-feat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .lit-feat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
@@ -2875,14 +2873,10 @@ function literaturePage(root){
       <div class="lit-banner-title">📖 文献阅读与笔记</div>
       <div class="lit-banner-sub">粘一段论文笔记/摘要，配合 4 个功能卡深度分析，右侧汇总文献清单</div>
     </div>
-    <div class="lit-banner-right" style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-      <button id="lit-upload" class="btn lit-banner-btn" title="上传 PDF / Word / txt / md 文件，自动提取文本并建文献条目">📄 上传 PDF/Word</button>
-      <input type="file" id="lit-file" accept=".pdf,.docx,.doc,.txt,.md" style="display:none">
-      <svg width="48" height="48" viewBox="0 0 36 36">
-        <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
-        <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/>
-      </svg>
-    </div>
+    <svg class="lit-banner-ring" width="56" height="56" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+      <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+    </svg>
   </div>
 
   <div class="lit-layout" style="display:grid;grid-template-columns:3fr 2fr;gap:14px;align-items:start">
@@ -2891,6 +2885,11 @@ function literaturePage(root){
     <h3 style="display:flex;align-items:center;gap:6px"><span>💡</span><span>粘贴论文笔记 / 摘要 / 链接内容</span></h3>
     <div class="muted" style="font-size:12px;margin-bottom:8px">点击卡片触发对应 AI 分析 <span class="muted" style="font-size:11px">（配 LLM Key 用大模型，未配采用本地模板）</span><span id="lit-llm-state" class="llm-state-chip"></span></div>
     <textarea id="lit-mine" placeholder="粘贴一段论文笔记或摘要内容…" style="min-height:90px"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button id="lit-upload" class="btn sm primary" title="上传 PDF / Word / txt / md 文件，自动提取文本并建文献条目（需联网加载解析库）">📄 上传 PDF / Word</button>
+      <input type="file" id="lit-file" accept=".pdf,.docx,.doc,.txt,.md" style="display:none">
+      <span class="muted" style="font-size:11px">支持 PDF / Word / txt / md 格式 · 在线解析前 20 页</span>
+    </div>
     <div class="lit-feat-cards" style="margin-top:10px">
       <div class="lit-feat-card sum" data-act="sum">
         <div class="lit-feat-top"><span class="lit-feat-icon">📋</span><span class="lit-feat-title">总结本文创新点</span></div>
