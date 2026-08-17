@@ -122,11 +122,11 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .ch-card .ch-name{font-size:13px;font-weight:500}
 .ch-card .ch-wc{font-size:12px;color:var(--muted);margin-top:2px}
 /* ---------- 写作 ---------- */
-  .write-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .write-head{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:0}
   .write-head .spacer{flex:1}
   /* 顶部功能区元素统一字号 14px（btn sm 原本 13px 提上来与 input/select 一致） */
-  .write-head>input,.write-head>select{font-size:14px;min-height:36px;padding:4px 10px}
-  .write-head>.btn{font-size:14px;padding:6px 12px}
+  .write-head>input,.write-head>select{font-size:14px;min-height:32px;padding:3px 8px}
+  .write-head>.btn{font-size:13.5px;padding:4px 10px}
 .ch-list{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px}
 .ch-tab{flex:0 0 auto;min-height:40px;padding:8px 14px;border-radius:999px;background:var(--card2);border:1px solid var(--line);font-size:13px;color:var(--muted)}
 .ch-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -1323,32 +1323,24 @@ function writingPage(root,param){
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
-  <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:10px">
+  <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:6px;padding:8px 12px">
     <div class="sec-head" style="margin:0">
       <span class="sec-head-l"><span class="sec-head-t">🛠 顶部功能区（内容选择）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 标题 / 目标字数，以及新建/导入/重置/版本/导出等操作）</span></span>
+      <span class="sec-head-r" style="display:flex;align-items:center;gap:10px;font-size:12px"><span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span><span class="chip green">章节 ${docDoneCount(doc)}/${doc.chapters.length}</span><span class="chip gray">总字数 ${wc}</span><span class="muted" id="save-state">每 1.2 秒自动保存</span></span>
     </div>
     <div class="write-head">
       <select id="doc-type" style="width:auto" title="切换本文稿的类型（变化不会自动重建章节）">
         ${DOC_TYPE_ORDER.map(k=>`<option value="${k}" ${doc.type===k?'selected':''}>🏷 ${DOC_TYPE_LABEL(k)}</option>`).join('')}
       </select>
-      <input id="doc-title" placeholder="论文标题（必填）" value="${esc(doc.title)}" style="flex:1;min-width:160px">
-      <input id="doc-target" type="number" min="1000" step="500" value="${doc.target||DOC_TARGETS[doc.type]||30000}" style="width:88px" title="目标字数：按评比/征稿要求调整，影响完成度与审稿评分">
+      <input id="doc-target" type="number" min="1000" step="500" value="${doc.target||DOC_TARGETS[doc.type]||30000}" style="width:78px" title="目标字数：按评比/征稿要求调整，影响完成度与审稿评分">
       <button id="btn-new-doc" class="btn sm tip" data-tip="新建文稿：选类型（教科研/案例/期刊/毕业论文）→ 自动生成对应章节模板">+ 新建文稿</button>
       <button id="btn-import-doc" class="btn sm tip" data-tip="导入已有论文：粘贴全文或上传 txt/md/docx，自动按章节拆分">导入文稿</button>
       <button id="btn-reset-chapters" class="btn sm tip" data-tip="按当前类型重建章节模板（会清空内容，建议先导出）">重置章节</button>
-      <div class="spacer"></div>
       <button id="btn-snap" class="btn sm tip" data-tip="保存当前版本快照，可随时恢复">保存版本</button>
       <button id="btn-versions" class="btn sm tip" data-tip="查看历史版本快照，一键恢复">历史版本</button>
-    </div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;width:100%">
+      <div class="spacer"></div>
       <button id="btn-autowrite" class="btn primary tip" data-tip="按所选论文类型（教科研/案例/期刊/毕业论文）逐章生成完整初稿">🤖 AI 写全文</button>
       <button id="btn-export-doc" class="btn primary tip" data-tip="导出整篇文稿为 Markdown 文件">导出</button>
-    </div>
-    <div class="write-head" style="gap:12px">
-      <span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span>
-      <span class="chip green">章节 ${docDoneCount(doc)}/${doc.chapters.length}</span>
-      <span class="chip gray">总字数 ${wc}</span>
-      <span class="muted" id="save-state">内容每 1.2 秒自动保存</span>
     </div>
   </div>
   <div class="ch-list">
@@ -1440,7 +1432,8 @@ function writingPage(root,param){
         apply);
     }else{apply();}
   });
-  $('#doc-title').addEventListener('change',e=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];d.title=e.target.value;saveDocs(docs);});
+  // 论文标题输入框已删（与 select 类型重复）—— 用户在「新建文稿」modal 里填 title（见 btn-new-doc）
+  const _titleIn=document.getElementById('doc-title');if(_titleIn)_titleIn.addEventListener('change',e=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];d.title=e.target.value;saveDocs(docs);});
   $('#doc-target').addEventListener('change',e=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];const v=parseInt(e.target.value);d.target=(v&&v>0)?v:undefined;saveDocs(docs);toast('目标字数已更新：'+(d.target||DOC_TARGETS[d.type]||30000));});
   $('#btn-new-doc').onclick=()=>{modalBox({title:'新建文稿',body:'<input id="m-doc-title" placeholder="文稿标题，如：我的教科研论文"><div class="muted" style="margin-top:6px">类型（决定默认章节结构）：<select id="m-doc-type" style="width:100%;margin-top:4px">'+DOC_TYPE_ORDER.map(k=>`<option value="${k}" ${k==='research'?'selected':''}>${DOC_TYPE_LABEL(k)}</option>`).join('')+'</select></div><div id="m-doc-preview" class="muted" style="margin-top:6px;font-size:12px">'+DOC_TYPE_PREVIEW.research+'</div>',buttons:[{label:'取消'},{label:'创建',cls:'primary',onClick:()=>{const t=$('#m-doc-type').value;const d=sampleDoc(t);d.title=$('#m-doc-title').value.trim();const ds=getDocs();ds.push(d);saveDocs(ds);state.docId=d.id;go('writing');toast('已创建新文稿');}}]});$('#m-doc-type').onchange=()=>{const pv=$('#m-doc-preview');if(pv)pv.textContent=DOC_TYPE_PREVIEW[$('#m-doc-type').value]||'';};};
   $('#btn-reset-chapters').onclick=()=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];if(!d)return toast('暂无文稿');confirm2('按当前类型「'+DOC_TYPES[d.type]+'」重建章节模板（将清空所有章节内容，建议先导出备份），确认继续？',()=>{const names=d.type==='case'?CHAPTER_TEMPLATES.case:CHAPTER_TEMPLATES.research;d.chapters=names.map(name=>({id:uid(),name,content:''}));saveDocs(docs);go('writing',{ch:0});toast('已重建 '+names.length+' 章');});};
