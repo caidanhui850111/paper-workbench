@@ -217,6 +217,11 @@ table.data td.l,table.data th.l{text-align:left}
   .lit-feat-card.note:hover{border-color:#d97706}
   .lit-feat-card.deep:hover{border-color:#16a34a}
   @media (max-width:600px){.lit-feat-cards{grid-template-columns:1fr !important}}
+  /* LLM 状态 chip（创新点挖掘区行末用） */
+  .llm-state-chip{margin-left:6px;display:inline-block;vertical-align:middle}
+  .llm-chip{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;font-weight:500;letter-spacing:.3px}
+  .llm-chip.on{background:#dcfce7;color:#15803d;border:1px solid #86efac}
+  .llm-chip.off{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
 /* ---------- 今日弹层 ---------- */
 #today-panel{position:fixed;right:14px;top:60px;width:320px;max-width:calc(100vw - 28px);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);z-index:80;padding:14px;display:none}
 #today-panel.open{display:block}
@@ -2857,21 +2862,16 @@ function literaturePage(root){
     </svg>
   </div>
   <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
-    <span class="muted" style="font-size:12px;margin-right:auto">共 <b>${lits.length}</b> 篇文献</span>
+    <span class="muted" style="font-size:12px;margin-right:auto">共（<b>${lits.length}</b>）篇文献</span>
     <button id="lit-upload" class="btn sm" title="上传 PDF / Word / txt / md 文件，自动提取文本并建文献条目（需联网加载解析库）">📄 上传 PDF/Word</button>
     <input type="file" id="lit-file" accept=".pdf,.docx,.doc,.txt,.md" style="display:none">
-    <button id="lit-add" class="btn sm" title="手动录入元数据（补作者/期刊/年份/DOI）—— 上传文件后通常还要点这个补全">✏️ 补全信息</button>
   </div>
   <div class="lit-layout" style="display:grid;grid-template-columns:3fr 2fr;gap:14px;align-items:start">
     <div class="lit-left">
   <div class="card" style="margin-bottom:12px">
     <h3>💡 创新点挖掘</h3>
-    <div class="muted" style="font-size:12px;margin-bottom:8px">粘贴论文笔记 / 摘要 / 链接内容，生成可用创新点（配 LLM Key 用大模型，未配用模板）</div>
+    <div class="muted" style="font-size:12px;margin-bottom:8px">粘贴论文笔记 / 摘要 / 链接内容，点击卡片触发对应 AI 分析 <span class="muted" style="font-size:11px">（配 LLM Key 用大模型，未配采用本地模板）</span><span id="lit-llm-state" class="llm-state-chip"></span></div>
     <textarea id="lit-mine" placeholder="粘贴一段论文笔记或摘要内容…" style="min-height:90px"></textarea>
-    <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-      <span class="muted" style="font-size:11px">点击卡片触发对应 AI 分析</span>
-      <span class="muted" id="lit-llm-state" style="font-size:11px"></span>
-    </div>
     <div class="lit-feat-cards" style="margin-top:10px">
       <div class="lit-feat-card sum" data-act="sum">
         <div class="lit-feat-top"><span class="lit-feat-icon">📋</span><span class="lit-feat-title">总结本文创新点</span></div>
@@ -2908,7 +2908,7 @@ function literaturePage(root){
     </div>`).join('')||'<div class="empty"><div class="big">📖</div>还没有文献，点「📄 上传 PDF/Word」导入</div>'}</div>
     </div>
   </div>`;
-  $('#lit-llm-state').textContent=LLM.get().enabled?'LLM 已启用':'未配 Key，使用本地模板';
+  $('#lit-llm-state').innerHTML=LLM.get().enabled?'<span class="llm-chip on">● LLM 已启用</span>':'<span class="llm-chip off">○ 未配 Key · 模板模式</span>';
   // ===== PDF / Word / txt / md 上传解析 =====
   const _loadLib=url=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=()=>rej(new Error('解析库加载失败（需联网）'));document.head.appendChild(s);});
   const _parseDocx=async buf=>{
@@ -2955,7 +2955,6 @@ function literaturePage(root){
   };
   $('#lit-upload').onclick=()=>$('#lit-file').click();
   $('#lit-file').onchange=e=>{const f=e.target.files[0];if(f)_litUpload(f);e.target.value='';};
-  $('#lit-add').onclick=()=>modalBox({title:'新增文献',body:'<input id="m-lt" placeholder="论文标题"><input id="m-la" placeholder="作者" style="margin-top:8px"><input id="m-lv" placeholder="期刊/会议" style="margin-top:8px"><input id="m-ly" type="number" placeholder="年份" style="margin-top:8px"><input id="m-ld" placeholder="DOI" style="margin-top:8px"><textarea id="m-ln" placeholder="阅读笔记" style="margin-top:8px;min-height:70px"></textarea><input id="m-ltag" placeholder="标签，逗号分隔" style="margin-top:8px">',buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{const ls=Store.get(K.lits,[]);ls.unshift({id:uid(),title:$('#m-lt').value||'未命名文献',authors:$('#m-la').value,venue:$('#m-lv').value,year:$('#m-ly').value,doi:$('#m-ld').value,notes:$('#m-ln').value,tags:$('#m-ltag').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean)});Store.set(K.lits,ls);literaturePage(root);}}]});
   $$('[data-del]',root).forEach(b=>b.onclick=()=>confirm2('删除这篇文献？',()=>{Store.set(K.lits,Store.get(K.lits,[]).filter(x=>x.id!==b.dataset.del));literaturePage(root);}));
   $$('[data-edit]',root).forEach(b=>b.onclick=()=>{const l=Store.get(K.lits,[]).find(x=>x.id===b.dataset.edit);if(!l)return;modalBox({title:'编辑笔记',body:'<textarea id="m-ln2" style="min-height:120px">'+esc(l.notes||'')+'</textarea>',buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{l.notes=$('#m-ln2').value;Store.set(K.lits,Store.get(K.lits,[]).map(x=>x.id===l.id?l:x));literaturePage(root);}}]});});
   const out=$('#lit-mine-out');
@@ -3026,7 +3025,26 @@ function literaturePage(root){
         +'</div>'
         +'<div style="margin-bottom:6px;font-weight:600">📝 完整笔记</div>'
         +'<div style="padding:12px;background:var(--card2);border-radius:8px;font-size:13px;line-height:1.7;white-space:pre-wrap;max-height:300px;overflow-y:auto">'+esc(l.notes||'暂无笔记')+'</div>',
-      buttons:[{label:'关闭'},{label:'编辑笔记',onClick:()=>{
+      buttons:[{label:'关闭'},{label:'✏️ 编辑全部信息',onClick:()=>{
+        modalBox({title:'编辑文献信息',body:`
+          <label class="muted" style="display:block;margin-top:4px">标题</label><input id="m-lt2" value="${esc(l.title)}" style="width:100%">
+          <label class="muted" style="display:block;margin-top:8px">作者</label><input id="m-la2" value="${esc(l.authors||'')}" style="width:100%" placeholder="多作者用 , 分隔">
+          <label class="muted" style="display:block;margin-top:8px">期刊/会议</label><input id="m-lv2" value="${esc(l.venue||'')}" style="width:100%">
+          <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px">
+            <div><label class="muted" style="display:block;margin-top:8px">年份</label><input id="m-ly2" type="number" value="${esc(l.year||'')}" style="width:100%"></div>
+            <div><label class="muted" style="display:block;margin-top:8px">DOI</label><input id="m-ld2" value="${esc(l.doi||'')}" style="width:100%"></div>
+          </div>
+          <label class="muted" style="display:block;margin-top:8px">标签（逗号分隔）</label><input id="m-ltag2" value="${esc((l.tags||[]).join('，'))}" style="width:100%">
+          <label class="muted" style="display:block;margin-top:8px">完整笔记</label><textarea id="m-ln2" style="min-height:160px;width:100%">${esc(l.notes||'')}</textarea>
+        `,buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{
+          l.title=$('#m-lt2').value||'未命名文献';
+          l.authors=$('#m-la2').value;l.venue=$('#m-lv2').value;l.year=$('#m-ly2').value;l.doi=$('#m-ld2').value;
+          l.tags=$('#m-ltag2').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean);
+          l.notes=$('#m-ln2').value;
+          Store.set(K.lits,Store.get(K.lits,[]).map(x=>x.id===l.id?l:x));
+          literaturePage(root);toast('已保存全部信息');
+        }}]});
+      }},{label:'编辑笔记',onClick:()=>{
         modalBox({title:'编辑笔记',body:'<textarea id="m-ln2" style="min-height:180px">'+esc(l.notes||'')+'</textarea>',buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{l.notes=$('#m-ln2').value;Store.set(K.lits,Store.get(K.lits,[]).map(x=>x.id===l.id?l:x));literaturePage(root);toast('已保存');}}]});
       }},{label:'删除',cls:'danger',onClick:()=>{
         confirm2('删除这篇文献？此操作不可撤销。',()=>{Store.set(K.lits,Store.get(K.lits,[]).filter(x=>x.id!==l.id));literaturePage(root);toast('已删除');});
