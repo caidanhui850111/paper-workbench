@@ -421,7 +421,7 @@ const DOC_TARGETS={graduation:15000,journal:8000,research:5000,case:3000,master:
 const DOC_TYPES={'graduation':'毕业论文','journal':'期刊论文','research':'教科研论文','case':'教学案例','bachelor':'毕业论文','master':'硕士论文','teaching':'教科研论文'};
 const DOC_TYPE_ORDER=['graduation','journal','research','case'];
 /* 类型标注：平台定位中小学/中职教师论文为主，毕业论文（本/硕）为次要辅助 */
-const DOC_TYPE_MARKS={'graduation':'（本科/硕士辅助）','journal':'','research':'','case':''};
+const DOC_TYPE_MARKS={'journal':'','research':'','case':''};
 const DOC_TYPE_LABEL=k=>(DOC_TYPES[k]||k)+(DOC_TYPE_MARKS[k]||'');
 const DOC_TYPE_PREVIEW={
   graduation:'毕业论文 8 章：摘要 / 第一章绪论 / 第二章文献综述 / 第三章研究方法 / 第四章实验分析 / 第五章讨论 / 第六章结论 / 参考文献',
@@ -1320,32 +1320,33 @@ function writingPage(root,param){
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
-  <div class="sec-head" style="margin-bottom:6px">
-    <span class="sec-head-l"><span class="sec-head-t">🛠 顶部功能区（内容选择）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 标题 / 目标字数，以及新建/导入/重置/版本/导出等操作）</span></span>
-  </div>
-  <div class="toolbar-card">
-  <div class="write-head">
-    <button id="btn-autowrite" class="btn primary sm tip" data-tip="按所选论文类型（教科研/案例/期刊/毕业论文）逐章生成完整初稿">🤖 AI 写全文</button>
-    <select id="doc-type" style="width:auto" title="切换本文稿的类型（变化不会自动重建章节）">
-      ${DOC_TYPE_ORDER.map(k=>`<option value="${k}" ${doc.type===k?'selected':''}>🏷 ${DOC_TYPE_LABEL(k)}</option>`).join('')}
-    </select>
-    <input id="doc-title" placeholder="${DOC_TYPES[doc.type]}" value="${esc(doc.title)}" style="flex:1;min-width:160px">
-    <input id="doc-target" type="number" min="1000" step="500" value="${doc.target||DOC_TARGETS[doc.type]||30000}" style="width:88px" title="目标字数：按评比/征稿要求调整，影响完成度与审稿评分">
-    <button id="btn-new-doc" class="btn primary sm tip" data-tip="新建文稿：选类型（教科研/案例/期刊/毕业论文）→ 自动生成对应章节模板">+ 新建文稿</button>
-    <button id="btn-import-doc" class="btn sm tip" data-tip="导入已有论文：粘贴全文或上传 txt/md/docx，自动按章节拆分">导入文稿</button>
-    <button id="btn-reset-chapters" class="btn sm tip" data-tip="按当前类型重建章节模板（会清空内容，建议先导出）">重置章节</button>
-    <div class="spacer"></div>
-    <button id="btn-snap" class="btn sm tip" data-tip="保存当前版本快照，可随时恢复">保存版本</button>
-    <button id="btn-versions" class="btn sm tip" data-tip="查看历史版本快照，一键恢复">历史版本</button>
-    <button id="btn-export-doc" class="btn sm tip" data-tip="导出整篇文稿为 Markdown 文件">导出</button>
-  </div>
-
-  <div class="write-head" style="margin-top:2px">
-    <span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span>
-    <span class="chip green">章节 ${docDoneCount(doc)}/${doc.chapters.length}</span>
-    <span class="chip gray">总字数 ${wc}</span>
-    <span class="muted" id="save-state">内容每 1.2 秒自动保存</span>
-  </div>
+  <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:10px">
+    <div class="sec-head" style="margin:0">
+      <span class="sec-head-l"><span class="sec-head-t">🛠 顶部功能区（内容选择）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 标题 / 目标字数，以及新建/导入/重置/版本/导出等操作）</span></span>
+    </div>
+    <div class="write-head">
+      <select id="doc-type" style="width:auto" title="切换本文稿的类型（变化不会自动重建章节）">
+        ${DOC_TYPE_ORDER.map(k=>`<option value="${k}" ${doc.type===k?'selected':''}>🏷 ${DOC_TYPE_LABEL(k)}</option>`).join('')}
+      </select>
+      <input id="doc-title" placeholder="论文标题（必填）" value="${esc(doc.title)}" style="flex:1;min-width:160px">
+      <input id="doc-target" type="number" min="1000" step="500" value="${doc.target||DOC_TARGETS[doc.type]||30000}" style="width:88px" title="目标字数：按评比/征稿要求调整，影响完成度与审稿评分">
+      <button id="btn-new-doc" class="btn sm tip" data-tip="新建文稿：选类型（教科研/案例/期刊/毕业论文）→ 自动生成对应章节模板">+ 新建文稿</button>
+      <button id="btn-import-doc" class="btn sm tip" data-tip="导入已有论文：粘贴全文或上传 txt/md/docx，自动按章节拆分">导入文稿</button>
+      <button id="btn-reset-chapters" class="btn sm tip" data-tip="按当前类型重建章节模板（会清空内容，建议先导出）">重置章节</button>
+      <div class="spacer"></div>
+      <button id="btn-snap" class="btn sm tip" data-tip="保存当前版本快照，可随时恢复">保存版本</button>
+      <button id="btn-versions" class="btn sm tip" data-tip="查看历史版本快照，一键恢复">历史版本</button>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;width:100%">
+      <button id="btn-autowrite" class="btn primary tip" data-tip="按所选论文类型（教科研/案例/期刊/毕业论文）逐章生成完整初稿">🤖 AI 写全文</button>
+      <button id="btn-export-doc" class="btn primary tip" data-tip="导出整篇文稿为 Markdown 文件">导出</button>
+    </div>
+    <div class="write-head" style="gap:12px">
+      <span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span>
+      <span class="chip green">章节 ${docDoneCount(doc)}/${doc.chapters.length}</span>
+      <span class="chip gray">总字数 ${wc}</span>
+      <span class="muted" id="save-state">内容每 1.2 秒自动保存</span>
+    </div>
   </div>
   <div class="ch-list">
     ${doc.chapters.map((c,i)=>{const cw=countWords(c.content).total;return `<button class="ch-tab ${i===state.chIdx?'active':''}" data-i="${i}">${esc(c.name)}<span class="wc">${cw}</span></button>`;}).join('')}
@@ -1428,7 +1429,7 @@ function writingPage(root,param){
     const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];
     const newType=e.target.value;
     const typeChanged=d.type!==newType;
-    d.type=newType;d.title=DOC_TYPES[newType];d.target=undefined;
+    d.type=newType;d.target=undefined;  // 切类型不重置 title（避免与 select label 重复显示）
     const apply=()=>{saveDocs(docs);go('writing',{ch:state.chIdx});};
     if(typeChanged&&!chaptersMatch(d)){
       confirm2('类型已改为「'+DOC_TYPES[newType]+'」，但当前章节是旧模板（'+d.chapters.length+' 章），新模板为 '+(newType==='case'?4:8)+' 章。是否立即重建为新模板？将清空所有章节内容，建议先导出备份。',
