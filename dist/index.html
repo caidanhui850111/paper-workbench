@@ -300,7 +300,7 @@ table.data td.l,table.data th.l{text-align:left}
     <button id="hamburger" class="btn tip" aria-label="菜单" data-tip="打开全部功能菜单（10 个模块）">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span id="hb-label" style="display:none">菜单</span>
     </button>
-    <div class="page-title" id="page-title">职教辅助论文写作平台</div>
+    <div class="page-title" id="page-title" title="点击返回「论文完成度 和 API 设置」首页" style="cursor:pointer">职教辅助论文写作平台</div>
     <div class="spacer"></div>
     <select id="layout-select" title="页面风格" style="width:auto;min-height:38px;padding:0 10px;border-radius:999px;font-size:13px;flex:0 0 auto">
       <option value="standard">标准风格</option>
@@ -4033,6 +4033,8 @@ function init(){
   $('#search-input').addEventListener('keydown',e=>{if(e.key==='Enter'){const q=e.target.value.trim();if(q){state._sq=q;e.target.value='';go('search');}}});
   $('#layout-select').onchange=()=>{const st=Settings.get();st.layout=$('#layout-select').value;Settings.save(st);applyLayout();toast('页面风格：'+({'standard':'标准','compact':'紧凑','spacious':'宽松'}[st.layout]||st.layout));};
   $('#today-btn').onclick=toggleToday;
+  // 点击顶部标题 → 回「论文完成度」首页（progress 已从侧边栏移除，靠此入口返回）
+  $('#page-title').onclick=()=>{if(currentPage!=='progress')go('progress');};
   // 初始页：支持 #page 直达（如 #writing），也兼容旧 #/page
   const hp=location.hash.replace('#/','').replace('#','');
   const hpClean=hp.replace(/^\//,'');
