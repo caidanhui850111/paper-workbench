@@ -3959,33 +3959,63 @@ function autoformatPage(root){
     toast('模板已切换：' + TEMPLATE_PRESETS[st.formatTemplate].name);
   };
 
-  // ⚙️ 自定义模板规则（弹窗编辑当前模板的 rules JSON）
+  // ⚙️ 自定义模板规则（弹窗：中文字段表单，编辑当前模板的排版规则）
   $('#af-customize').onclick=()=>{
     const key=st.formatTemplate;
     const presetName=TEMPLATE_PRESETS[key]?.name||key;
-    const currentRules=st.format||JSON.parse(JSON.stringify(TEMPLATE_PRESETS[key]?.rules||{}));
-    const prettyJson=JSON.stringify(currentRules,null,2);
-    modalBox({title:'⚙️ 自定义模板：'+presetName,wides:true||true,body:`
-      <div class="muted" style="font-size:12px;margin-bottom:8px;line-height:1.7">编辑当前模板的排版规则（<b>${presetName}</b>）。可改：标题字体/正文字号/行距/页边距/表格样式/编号格式等。改完点「保存」生效；点「恢复默认」还原平台预设；切换 select 不影响已保存的自定义规则（会新建一条独立版本）。<br><span style="color:var(--accent)">💡 3 个模板（学术/浙江/自定义）都可独立编辑各自的规则。编辑后立即用于「🎨 排版预览」生成结果。</span></div>
-      <div style="margin-bottom:8px"><label class="muted" style="display:block;margin-bottom:3px">规则 JSON（可编辑）</label>
-        <textarea id="afc-json" style="width:100%;min-height:380px;font-family:Menlo,Consolas,monospace;font-size:12.5px;line-height:1.5;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)">${esc(prettyJson)}</textarea></div>
+    const cur=st.format||JSON.parse(JSON.stringify(TEMPLATE_PRESETS[key]?.rules||{}));
+    // 中文字段定义（key → label，内部仍存英文 key，渲染逻辑不变）
+    const FIELDS=[
+      {k:'titleSize',l:'论文标题字号',ph:'如 32（三号）'},
+      {k:'titleFont',l:'论文标题字体',t:'font'},
+      {k:'h1Size',l:'一级标题字号',ph:'如 32'},
+      {k:'h1Font',l:'一级标题字体',t:'font'},
+      {k:'h2Size',l:'二级标题字号',ph:'如 28'},
+      {k:'h2Font',l:'二级标题字体',t:'font'},
+      {k:'bodySize',l:'正文字号',ph:'如 24（小四）'},
+      {k:'bodyFont',l:'正文字体',t:'font'},
+      {k:'abstractSize',l:'摘要字号',ph:'如 24'},
+      {k:'abstractFont',l:'摘要字体',t:'font'},
+      {k:'refSize',l:'参考文献字号',ph:'如 22'},
+      {k:'refFont',l:'参考文献字体',t:'font'},
+      {k:'line',l:'行距（磅值）',ph:'如 360（1.5 倍）'},
+      {k:'lineRule',l:'行距规则',t:'lineRule'}
+    ];
+    const FONTS=['黑体','宋体','楷体','仿宋','微软雅黑','等线','Times New Roman','Arial'];
+    const LINE_RULES=[['AUTO','自动'],['SINGLE','单倍'],['1.5','1.5 倍'],['DOUBLE','双倍']];
+    const escV=v=>esc(String(v==null?'':v));
+    const fieldHtml=FIELDS.map(f=>{
+      const v=cur[f.k];
+      let input;
+      if(f.t==='font'){
+        input=`<select id="afc-${f.k}" style="width:100%;min-height:32px;padding:3px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:13px">${FONTS.map(x=>`<option value="${x}" ${String(v)===x?'selected':''}>${x}</option>`).join('')}</select>`;
+      }else if(f.t==='lineRule'){
+        input=`<select id="afc-${f.k}" style="width:100%;min-height:32px;padding:3px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:13px">${LINE_RULES.map(([val,lab])=>`<option value="${val}" ${String(v)===val?'selected':''}>${lab}</option>`).join('')}</select>`;
+      }else{
+        input=`<input id="afc-${f.k}" value="${escV(v)}" placeholder="${f.ph||''}" style="width:100%;min-height:32px;padding:3px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);font-size:13px">`;
+      }
+      return `<div style="display:grid;grid-template-columns:120px 1fr;align-items:center;gap:8px;padding:3px 0"><label class="muted" style="font-size:13px">${f.l}</label>${input}</div>`;
+    }).join('');
+    modalBox({title:'⚙️ 自定义模板：'+presetName,wide:true,body:`
+      <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">编辑当前模板的排版规则（<b>${presetName}</b>）：论文标题/一级标题/二级标题/正文/摘要/参考文献的字号与字体，以及行距。改完点「保存」生效；点「恢复默认」还原平台预设。<br><span style="color:var(--accent)">💡 3 个模板（学术/浙江/自定义）都可独立编辑各自的规则，编辑后立即用于「🎨 排版预览」。</span></div>
+      <div style="max-height:430px;overflow-y:auto;padding-right:4px">
+        ${fieldHtml}
+      </div>
     `,buttons:[
       {label:'取消'},
       {label:'恢复默认',cls:'',onClick:()=>{
         const def=TEMPLATE_PRESETS[key]?.rules;
         if(!def)return toast('该模板无默认规则');
-        $('#afc-json').value=JSON.stringify(def,null,2);
+        FIELDS.forEach(f=>{const el=document.getElementById('afc-'+f.k);if(el)el.value=def[f.k]==null?'':String(def[f.k]);});
         toast('已恢复默认（未保存，点保存生效）');
       }},
       {label:'保存',cls:'primary',onClick:()=>{
-        const txt=$('#afc-json').value.trim();
-        try{
-          const obj=JSON.parse(txt);
-          st.format=obj;
-          Settings.save(st);
-          toast('已保存「'+presetName+'」自定义规则，排版预览会立即使用新规则');
-          closeModal();
-        }catch(e){toast('JSON 格式错误：'+e.message);}
+        const obj={};
+        FIELDS.forEach(f=>{const el=document.getElementById('afc-'+f.k);if(el)obj[f.k]=el.value;});
+        st.format=obj;
+        Settings.save(st);
+        toast('已保存「'+presetName+'」自定义规则，排版预览会立即使用新规则');
+        closeModal();
       }}
     ]});
   };
