@@ -238,7 +238,8 @@ table.data td.l,table.data th.l{text-align:left}
   .llm-state-chip{margin-left:6px;display:inline-block;vertical-align:middle}
   .llm-chip{display:inline-block;font-size:11px;padding:1px 7px;border-radius:10px;font-weight:500;letter-spacing:.3px}
   .llm-chip.on{background:#dcfce7;color:#15803d;border:1px solid #86efac}
-  .llm-chip.off{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb}
+  .llm-chip.off{background:#dcfce7;color:#15803d;border:1px solid #86efac;cursor:pointer}  /* off 也绿色，引导点击配置 */
+  .llm-chip.on{background:#dcfce7;color:#15803d;border:1px solid #86efac}
 /* ---------- 今日弹层 ---------- */
 #today-panel{position:fixed;right:14px;top:60px;width:320px;max-width:calc(100vw - 28px);background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.15);z-index:80;padding:14px;display:none}
 #today-panel.open{display:block}
@@ -3097,6 +3098,16 @@ const FRONTIER_PLAGIARISM_LINKS=[
 function frontierPage(root){
   const hist=Store.get(K.sHist,[]);
   root.innerHTML=`
+  <div class="lit-banner" style="margin-bottom:14px">
+    <div class="lit-banner-main">
+      <div class="lit-banner-title">🔭 检索与前沿</div>
+      <div class="lit-banner-sub">官方数据库/查重入口直达；前沿方向挖掘（关键词+新闻 → AI 生成 3-5 方向）；主题综述生成（背景→现状→热点→空白→启示）</div>
+    </div>
+    <svg class="lit-banner-ring" width="56" height="56" viewBox="0 0 36 36">
+      <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
+      <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/>
+    </svg>
+  </div>
   <div class="card" style="margin-bottom:12px">
     <h3 style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px"><span>官方数据库检索入口</span><span class="muted" style="font-size:11.5px;font-weight:400">点击跳转官方数据库（新窗口打开），检索后可将结果粘贴回本工作台</span></h3>
     <div class="db-group-title db-cn">中文数据库（4）</div>
@@ -3117,11 +3128,12 @@ function frontierPage(root){
     </div>
   </div>
   <div class="card">
-    <h3>🚀 前沿方向挖掘</h3>
-    <div class="muted" style="font-size:12px;margin-bottom:10px">结合国家/国际大新闻 + 企业/社会痛点，生成前沿研究方向（配 LLM Key 用大模型，未配用模板）</div>
-    <input id="fr-key" placeholder="方向关键词，如：智能建造 / 数字化转型">
-    <textarea id="fr-news" placeholder="最新国家/国际大新闻（粘贴）" style="margin-top:8px;min-height:70px"></textarea>
-    <textarea id="fr-pain" placeholder="企业/社会/人类痛点（粘贴）" style="margin-top:8px;min-height:70px"></textarea>
+    <h3 style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:8px"><span>🚀 前沿方向挖掘</span><span class="muted" style="font-size:12px;font-weight:400">（配 LLM Key 用大模型，未配采用本地模板）</span><span id="fr-llm-state" class="llm-state-chip"></span></h3>
+    <div class="muted" style="font-size:12px;margin-bottom:10px">基于方向关键词 + 最新新闻（可粘贴链接），生成 3-5 个值得研究的前沿方向</div>
+    <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:8px">
+      <input id="fr-key" placeholder="方向关键词，如：智能建造 / 数字化转型">
+      <textarea id="fr-news" placeholder="最新国家/国际大新闻（粘贴文字或链接）" style="min-height:60px;line-height:1.5"></textarea>
+    </div>
     <div style="margin-top:8px"><button id="fr-gen" class="btn primary">生成前沿方向</button></div>
     <div id="fr-out" style="margin-top:10px"></div>
   </div>
@@ -3133,8 +3145,13 @@ function frontierPage(root){
     <div id="fr-review-out" style="margin-top:10px"></div>
   </div>`;
   $$('[data-h]',root).forEach(b=>b.onclick=()=>{const h=b.dataset.h;Store.set(K.sHist,hist.filter(x=>x!==h));frontierPage(root);});
+  // LLM 状态 chip
+  const _frCfg=LLM.get();
+  $('#fr-llm-state').innerHTML=_frCfg.enabled?'<span class="llm-chip on">● LLM 已启用</span>':'<span class="llm-chip off">○ 未配 Key（点此配）</span>';
   $('#fr-gen').onclick=async()=>{
     const key=$('#fr-key').value.trim();
+    const news=$('#fr-news').value.trim();
+    if(!key&&!news)return toast('请填关键词或粘新闻');
     const out=$('#fr-out');out.innerHTML='<div class="muted">生成中…</div>';
     try{
       let res;
