@@ -1325,7 +1325,7 @@ function writingPage(root,param){
   </div>
   <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:6px;padding:8px 12px">
     <div class="sec-head" style="margin:0">
-      <span class="sec-head-l"><span class="sec-head-t">🛠 顶部功能区（内容选择）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 标题 / 目标字数，以及新建/导入/重置/版本/导出等操作）</span></span>
+      <span class="sec-head-l"><span class="sec-head-t">🛠 顶部功能区（内容选择和 AI 写全文）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 目标字数 / 新建/导入/重置/版本/导出 / AI 写全文）</span></span>
       <span class="sec-head-r" style="display:flex;align-items:center;gap:10px;font-size:12px"><span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span><span class="chip green">章节 ${docDoneCount(doc)}/${doc.chapters.length}</span><span class="chip gray">总字数 ${wc}</span><span class="muted" id="save-state">每 1.2 秒自动保存</span></span>
     </div>
     <div class="write-head">
