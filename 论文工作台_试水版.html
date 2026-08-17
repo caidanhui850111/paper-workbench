@@ -2814,11 +2814,22 @@ async function llmAsk(prompt,system){
 /* ================= 模块 2 · 文献阅读与笔记 ================= */
 /* ===== AI 按 SKILL 自动写论文（教科研论文全文）===== */
 /* 13 章节喂饭指令（王老师实战版） */
-// 按论文类型差异化生成章节（教科研/毕业 13 章 · 期刊 8 章 · 案例 5 章）
+// 按论文类型差异化生成章节（教科研 8 章 · 毕业论文 13 章 · 期刊 8 章 · 案例 5 章）
 const AUTOWRITE_PROMPTS = {
-  // 教科研论文/本科/硕：完整 13 章（封面→摘要→目录→6 章正文→参考文献→致谢→附录→整合）
+  // 教科研论文：8 章（不需要封面/目录/致谢/附录这些学位论文专属的）· 浙江省一等奖经验
   research: [
-    {h:'封面',w:'封面（约 100 字）',p:'生成本科毕业论文封面：学校[XX大学]、学院[XX学院]、专业[XX专业]、标题《[论文题目]》、作者[XXX]、学号[XXXXX]、指导教师[XXXXX]、日期[20XX 年 X 月]。格式清晰，信息对齐。'},
+    {h:'摘要',w:'摘要 300 字 + 关键词',p:'撰写教科研论文摘要：①研究背景（领域现状+问题）；②研究方法（问卷/实验/案例/行动研究）；③主要做法（核心创新点）；④实践成效（数据/获奖/推广）。300 字左右，附 3-5 个关键词。中英文各一份。'},
+    {h:'问题提出 / 引言',w:'引言约 15%',p:'撰写"问题提出"或"引言"：①研究背景（领域现状+实践痛点，一线教学真问题）；②研究问题（具体明确）；③研究目的与意义（理论+实践）；④研究方法概述；⑤论文结构安排。逻辑清晰、语言精炼。'},
+    {h:'概念界定与理论框架',w:'概念框架约 10%',p:'撰写"概念界定与理论框架"：①核心概念界定（如课程思政/项目化教学/混合式学习等）；②所依据的理论（如 UbD 逆向设计/TPACK/SOLO 分类/自我决定理论/认知学徒制等，选一个与问题最匹配的讲透并贯穿全文）；③理论对本研究的指导意义。不堆砌名词，要真用理论搭建骨架。'},
+    {h:'实施策略 / 实践路径',w:'实施策略约 40-55%（主战场）',p:'撰写"实施策略 / 实践路径"（全文重点）：①核心做法（用上述理论框架串起）；②具体实施步骤（分 3-5 个阶段，每阶段"理论-做法-案例"）；③关键创新点（教法/技术/评价/资源哪方面有突破）；④差异化设计（同行没有或做得不够的）。用数据与具体案例代替空洞评价。'},
+    {h:'实施成效 / 案例分析',w:'成效约 15%',p:'撰写"实施成效 / 案例分析"：①学生层面（成绩对比/作品/能力/兴趣前后变化，含数据）；②教师层面（教学能力/科研/获奖/课题）；③学校层面（教研氛围/辐射推广/制度）；④数据与证据（图表/学生作品/同行评价/获奖证书）。数据要真实扎实，缺数据用 [待补充：XXX]。'},
+    {h:'结语与讨论',w:'结语约 5%',p:'撰写"结语与讨论"：①核心结论 3-5 条（与研究目的呼应）；②理论贡献（对所选理论的应用/补充）；③实践启示（可推广的场景与条件）；④研究局限与未来方向。批判性、坦诚。'},
+    {h:'参考文献',w:'参考文献 ≥15 篇',p:'生成参考文献列表（GB/T 7714 或 APA 格式）：≥5 篇英文（近 5 年）+≥10 篇中文核心+2-3 本专著。文献需真实存在、信息完整（作者/年份/期刊/卷期/页码/DOI）。'},
+    {h:'附录',w:'附录（问卷+工具+数据）',p:'生成附录：①调查问卷原文（10 个问题）；②教学工具/评价量表/教案样例；③实验/实践原始数据（示例）；④补充图表/照片/学生作品。'}
+  ],
+  // 毕业论文（本/硕）：13 章（完整学位论文格式：封面+摘要+目录+8 章正文+参考文献+致谢+附录+整合）
+  graduation: [
+    {h:'封面',w:'封面（约 100 字）',p:'生成本科/硕士毕业论文封面：学校[XX大学]、学院[XX学院]、专业[XX专业]、标题《[论文题目]》、作者[XXX]、学号[XXXXX]、指导教师[XXXXX]、日期[20XX 年 X 月]。格式清晰，信息对齐。'},
     {h:'中英文摘要',w:'摘要 300 字 + Abstract',p:'撰写 300 字中文摘要+英文摘要：①研究背景；②研究方法（问卷/实验/案例）；③主要发现或结果；④研究意义。附 3-5 个关键词，术语准确。'},
     {h:'目录',w:'目录（8 章）',p:'生成三级标题目录（页码 P1、P2 代替）：引言、文献综述、研究方法、研究结果与分析、讨论、结论与建议、参考文献、附录。'},
     {h:'引言/绪论',w:'引言约 15%',p:'撰写引言：①研究背景（领域现状+问题）；②研究问题（具体）；③研究目的与意义；④研究方法；⑤论文结构。逻辑清晰、语言简洁。'},
@@ -2852,8 +2863,6 @@ const AUTOWRITE_PROMPTS = {
     {h:'经验与启示',w:'启示约 10%',p:'撰写「经验与启示」：①核心经验（可复制的 3-5 条）；②普适性（适合推广的场景与条件）；③反思与不足（坦诚）；④后续研究/实践方向。给同行可借鉴的真东西。'}
   ]
 };
-// 兼容：graduation 复用 research 的 13 章
-AUTOWRITE_PROMPTS.graduation = AUTOWRITE_PROMPTS.research;
 /* 写作技巧精华（教科研论文写作技巧模块 · 生成风格约束） */
 const AUTOWRITE_SKILLS = [
  '硬性指标：摘要 200 字以上且含 3-5 关键词；语言要像人写的（避免 AI 套话）。',
@@ -2868,7 +2877,6 @@ function autoWritePage(){
   modalBox({title:'🤖 AI写论文',wide:true,body:`
     <div class="sec-head" style="margin-bottom:8px">
       <span class="sec-head-l"><span class="sec-head-t">AI 写论文</span><span class="muted" style="font-size:12px;font-weight:400">（4 类论文 SKILL 提示已预置，按所选类型差异化生成）</span><span id="aw-llm-state" class="llm-state-chip"></span></span>
-      <button id="aw-gen-top" class="btn primary sm" style="margin:0;padding:5px 12px;font-size:12.5px">开始生成</button>
     </div>
     <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">先选<b>论文类型</b>（4 选 1，决定写作风格/章节结构/字数配比），再输入学科/学段/目标字数/题目/资料 → AI 按 13 章节喂饭指令逐章生成完整初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
@@ -2906,19 +2914,17 @@ function autoWritePage(){
     </div>
     <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn primary" id="aw-gen">AI 写论文（按所选类型生成）</button>
-      <span class="muted" style="font-size:11px">教科研/毕业 13 章 · 期刊 8 章 · 案例 5 章（按所选类型差异化）</span>
+      <span class="muted" style="font-size:11px">教科研 8 章 · 毕业论文 13 章 · 期刊 8 章 · 案例 5 章（按所选类型差异化）</span>
     </div>
     <div id="aw-progress" style="display:none;margin:10px 0;padding:10px;background:var(--card2);border-radius:8px;font-size:12px"></div>
     <div id="aw-out"></div>
   `,buttons:[{label:'关闭'}]});
 
   let extraSource='';
-  // LLM 状态 chip（仿检索页 fr-llm-state）+ 顶部"开始生成"按钮触发原 aw-gen
+  // LLM 状态 chip（仿检索页 fr-llm-state）— 顶部"开始生成"按钮已删（底部"AI 写论文（按所选类型生成）"已足够）
   const _awCfg=LLM.get();
   const _chipEl=document.getElementById('aw-llm-state');
   if(_chipEl)_chipEl.innerHTML=_awCfg.enabled?'<span class="llm-chip on">● LLM 已启用</span>':'<span class="llm-chip off">○ 未配 Key（点此配）</span>';
-  const _genTop=document.getElementById('aw-gen-top');
-  if(_genTop)_genTop.onclick=()=>{const b=document.getElementById('aw-gen');if(b)b.click();};
   $('#aw-upbtn').onclick=()=>$('#aw-files').click();
   $('#aw-files').onchange=async e=>{
     const files=[...e.target.files];if(!files.length)return;
