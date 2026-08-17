@@ -199,12 +199,17 @@ table.data td.l,table.data th.l{text-align:left}
 
   /* ====== 4 张功能卡：图标+标题一行 + 每卡不同颜色（蓝/紫/橙/绿） ====== */
   .lit-feat-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .w-tools{grid-template-columns:repeat(3,1fr)}
+  @media (max-width:900px){.w-tools{grid-template-columns:repeat(2,1fr) !important}}
+  @media (max-width:600px){.w-tools{grid-template-columns:1fr !important}}
   .lit-feat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
   .lit-feat-card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.08)}
   .lit-feat-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
   .lit-feat-icon{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;font-size:17px;flex-shrink:0}
   .lit-feat-title{font-size:14px;font-weight:600;line-height:1.3}
   .lit-feat-desc{font-size:11.5px;color:var(--muted);line-height:1.55;margin-bottom:8px;min-height:42px}
+  .w-tools .lit-feat-title{font-size:13.5px}
+  .w-tools .lit-feat-desc{font-size:11.5px;min-height:38px}
   .lit-feat-go{font-size:12px;color:var(--accent);font-weight:500}
   /* 4 卡配色：sum 蓝 / gen 紫 / note 橙 / deep 绿 */
   .lit-feat-card.sum  .lit-feat-icon{background:#dbeafe;color:#2563eb}
@@ -597,7 +602,7 @@ function genLocalComment(type,di,score,metrics){
       '实践性/可操作性':practiceHits>=3?'实践支撑充分（全文含 '+practiceHits+' 类实践关键词：课堂/实训/案例/调研等），措施具体可落地':'实践支撑不足（仅 '+practiceHits+' 类实践关键词），建议补充本人教学实践的真实做法、实施过程与成效数据',
       '成果与价值':wcScore>=80?'成果呈现充实，具备一定的推广应用价值':'成果呈现单薄（字数达标率 '+wcScore+'%），建议补充成效数据与推广价值论证',
       '论证逻辑':doneScore>=80&&refOk>=80?'问题-原因-对策链条完整，论证有据':'论证链条'+(doneScore>=60?'基本完整':'待补全')+'，参考文献支撑'+(refOk>=80?'充分':'偏弱'),
-      '语言规范':aiCount<=2?'语言规范，AI 痕迹少（'+aiCount+' 处）':'检测到 '+aiCount+' 处 AI 高频表达，建议用「检查 AI 味」清理'
+      '语言规范':aiCount<=2?'语言规范，AI 痕迹少（'+aiCount+' 处）':'检测到 '+aiCount+' 处 AI 高频表达，建议用「AI 降重」清理'
     };
     return c[di]||(score>=80?'表现良好':score>=60?'基本达标':'需重点改进');
   }
@@ -651,7 +656,7 @@ function localReview(doc,type,overrideTarget,extra){
   const suggestions=[];
   if(wc<target*0.6)suggestions.push('总字数仅 '+wc+'，未达目标 '+target+' 字的 60%，请扩充实证/论述内容。');
   if(emptyCh)suggestions.push('有 '+emptyCh+' 个章节为空，请补齐后再投稿/送审。');
-  if(aiCount>3)suggestions.push('检测到 '+aiCount+' 处 AI 高频表达，建议用「检查 AI 味」逐一修改，降低机器痕迹。');
+  if(aiCount>3)suggestions.push('检测到 '+aiCount+' 处 AI 高频表达，建议用「AI 降重」模块逐一修改，降低机器痕迹。');
   if(refOk<100&&doc.type!=='case')suggestions.push('参考文献为空或过少，请规范整理（GB/T 7714），并确保正文一一对应引用。');
   if(type==='research'&&practiceHits<3)suggestions.push('教科研论文重实践支撑：全文实践/课堂/案例/调研类关键词偏少，建议补充自己教学实践的真实做法、实施过程与成效数据。');
   if(extra)suggestions.push('附加要求：'+extra+'（本地模板无法自动判断此项，请人工对照复核）');
@@ -1137,7 +1142,7 @@ const NAV=[
  {id:'progress',name:'论文完成度和 API 设置',icon:ICONS.progress,desc:'总览各文稿写作进度 + 智能体 API 设置（配 Key 即用 AI，未配则本地模板离线可用）'},
  {id:'literature',name:'文献阅读与笔记',icon:ICONS.lit,desc:'管理文献条目；创新点挖掘、结构化笔记（AI 精读）、多篇文献对比'},
  {id:'frontier',name:'检索与前沿',icon:ICONS.frontier,desc:'官方数据库/查重入口直达；前沿方向挖掘；主题综述生成（背景→现状→空白→启示）'},
- {id:'writing',name:'AI写论文',icon:ICONS.write,desc:'核心写作区：分类型模板（教科研/案例/期刊/毕业论文）、章节编辑、AI 工具（提炼摘要/研究设计/创新点/课程思政/数据图表/大纲导图）'},
+ {id:'writing',name:'AI写论文',icon:ICONS.write,desc:'核心写作区：分类型模板（教科研/案例/期刊/毕业论文）、章节编辑、AI 工具（提炼摘要/创新点/课程思政/数据图表/思维导图/案例素材）'},
  {id:'submission',name:'论文评比与投稿',icon:ICONS.submit,desc:'评比任务管理（按浙江评比要求）、投稿追踪、期刊库、智能选刊'},
  {id:'econ',name:'计量分析',icon:ICONS.econ,desc:'导入数据→预处理→描述统计/相关→OLS 回归→导出，全本地计算（教师问卷/成绩数据分析）'},
  {id:'deredup',name:'AI 降重',icon:ICONS.deredup,desc:'AI 润色/逐句精修/审稿人挑刺/AI 率检查/AI 降重/去 AIGC 六大工具；含检测原理速查'},
@@ -1309,10 +1314,15 @@ function writingPage(root,param){
     <button id="btn-versions" class="btn sm tip" data-tip="查看历史版本快照，一键恢复">历史版本</button>
     <button id="btn-export-doc" class="btn sm tip" data-tip="导出整篇文稿为 Markdown 文件">导出</button>
   </div>
-  <div style="margin-bottom:10px;padding:10px 12px;background:var(--card2);border-radius:var(--radius-s);border:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <span style="font-size:13px;font-weight:600">🎓 快速开始：</span>
-    <button id="btn-autowrite" class="btn sm primary tip" data-tip="配 Key 后用 LLM 按平台写作技巧（13 章节喂饭指令 + 浙江获奖经验）自动生成完整教科研论文全文，可编辑后一键填入下方章节">🤖 AI写全文（需连API）</button>
-    <span style="font-size:12px;color:var(--accent)">｜ 🤖 AI写全文：输入学科/学段/题目/资料，AI 按 13 章节喂饭指令生成全文</span>
+  <div style="margin-bottom:14px;background:linear-gradient(135deg,#f0f4ff 0%,var(--card) 65%);border:1px solid #d6e4ff;border-radius:12px;padding:14px 16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px">
+      <span style="font-size:14px;font-weight:700">🤖 AI 写全文（自动生成整篇）</span>
+      <button id="btn-autowrite" class="btn primary sm" data-tip="配 Key 后用 LLM 按平台写作技巧（13 章节喂饭指令 + 浙江获奖经验）自动生成完整教科研论文全文，可编辑后一键填入下方章节">🚀 开始生成</button>
+    </div>
+    <div class="muted" style="font-size:12px;line-height:1.7">
+      输入<b>学科 / 学段 / 论文题目 / 目标字数 / 资料</b>（支持上传 Word / PDF / txt / md），AI 按 <b>13 章节喂饭指令</b>逐章生成完整初稿（封面→摘要→目录→引言→文献综述→方法→结果→讨论→结论→参考文献→致谢→附录→整合），生成后自动按章节名<b>填入下方文稿各章</b>。
+      <span style="color:var(--accent)">参考：浙江获奖经验（字数配比）+ 27 条 AI 味规避规则 · 缺数据标 [待补充]，不编造</span>
+    </div>
   </div>
   <div class="write-head" style="margin-top:-4px">
     <span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span>
@@ -1328,6 +1338,7 @@ function writingPage(root,param){
     <button id="btn-del-ch" class="btn sm danger">删除当前章节</button>
     <span class="muted" style="font-size:12px;align-self:center">教科研/案例等类型可自由增删章节</span>
   </div>
+  <div style="margin-bottom:8px;padding:8px 12px;background:var(--card2);border-left:3px solid var(--accent);border-radius:8px;font-size:13px;font-weight:600">🛠 AI 工具（对当前章节/全文辅助写作）</div>
   ${!chaptersMatch(doc)?`<div style="margin-top:8px;padding:10px 12px;background:var(--warn-soft);border:1px solid var(--warn);border-radius:8px;font-size:13px">⚠️ 当前文稿（${DOC_TYPES[doc.type]}）的章节是旧模板（${doc.chapters.length} 章），新模板应为 ${doc.type==='case'?4:8} 章结构。点「重置章节」一键更新为新模板（会清空内容，建议先导出）。</div>`:''}
   <div class="w-tips">
     <div class="t-title">
@@ -1344,17 +1355,43 @@ function writingPage(root,param){
     <span>当前章节字数：<b id="ch-wc">${countWords(ch.content).total}</b></span>
     <span class="muted">中文 ${countWords(ch.content).cn} · 英文单词 ${countWords(ch.content).en}</span>
     <span class="spacer" style="flex:1"></span>
-    <button id="btn-ai-check" class="btn sm primary tip" data-tip="本地规则扫描 AI 高频表达（无需 LLM Key），命中处原文标黄 + 修改建议，可导出检测报告">检查 AI 味（本地规则）</button>
-    <button id="btn-abstract" class="btn sm tip" data-tip="从全文提炼规范摘要+关键词（按类型差异化），可一键填入摘要章节">提炼摘要</button>
-    <button id="btn-design" class="btn sm tip" data-tip="五步搭建论文骨架：研究问题→核心理论→变量关系→推导假设→检验方法">研究设计引导</button>
-    <button id="btn-novelty" class="btn sm tip" data-tip="证据驱动创新点设计：热点方向库（含浙江本地热点）+ 文献证据 → 硬性反驳 → 新颖性判定 → 7 维打分">创新点设计</button>
-    <button id="btn-sizheng" class="btn sm tip" data-tip="按学科/章节生成课程思政融入建议（10 个思政维度，教育部要求各课程融入）">课程思政</button>
-    <button id="btn-edu-chart" class="btn sm tip" data-tip="教学数据怎么配图：成绩/问卷/出勤等 5 场景 → 推荐图型 + WPS/Excel 作图步骤 + 本地预览图">数据图表</button>
-    <button id="btn-mindmap" class="btn sm tip" data-tip="章节结构树状导图，AI 优化 / 生成大纲（JSON 渲染）">大纲导图</button>
-    <button id="btn-insert-econ" class="btn sm tip" data-tip="把「计量分析」里跑好的结果（描述统计/回归表）一键插入当前章节">插入实证分析结果</button>
-
-    <button id="btn-casemake" class="btn sm primary tip" data-tip="把课堂实录/教案/学生作品/教学反思贴进来，AI 按浙江评比要求提炼成 4 章教学案例（也可用本地模板）">📝 案例素材 → 论文（AI 提炼）</button>
-    <span class="muted" style="font-size:12px">贴素材 · AI 提炼成「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构</span>
+    <div class="lit-feat-cards w-tools" style="margin-top:6px">
+      <div class="lit-feat-card sum" id="btn-abstract" data-act="abstract">
+        <div class="lit-feat-top"><span class="lit-feat-icon">📋</span><span class="lit-feat-title">提炼摘要</span></div>
+        <div class="lit-feat-desc">从全文提炼规范摘要+关键词（按类型差异化），可一键填入摘要章节。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card gen" id="btn-novelty" data-act="novelty">
+        <div class="lit-feat-top"><span class="lit-feat-icon">💡</span><span class="lit-feat-title">创新点设计</span></div>
+        <div class="lit-feat-desc">9 步证据驱动设计：热点方向库+文献证据→硬性反驳→新颖性判定→7 维打分。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card note" id="btn-sizheng" data-act="sizheng">
+        <div class="lit-feat-top"><span class="lit-feat-icon">🇨🇳</span><span class="lit-feat-title">课程思政</span></div>
+        <div class="lit-feat-desc">10 个思政维度，弹窗粘贴本章内容生成具体融合点（教育部要求融入）。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card deep" id="btn-edu-chart" data-act="educhart">
+        <div class="lit-feat-top"><span class="lit-feat-icon">📊</span><span class="lit-feat-title">数据图表</span></div>
+        <div class="lit-feat-desc">5 场景推荐图型 + WPS/Excel 作图步骤 + 本地预览图（教学数据配图）。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card sum" id="btn-mindmap" data-act="mindmap">
+        <div class="lit-feat-top"><span class="lit-feat-icon">🧠</span><span class="lit-feat-title">大纲思维导图</span></div>
+        <div class="lit-feat-desc">粘贴内容 → AI 按标题/章节/小节三层结构生成思维导图。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card gen" id="btn-insert-econ" data-act="insertecon">
+        <div class="lit-feat-top"><span class="lit-feat-icon">📈</span><span class="lit-feat-title">插入实证分析</span></div>
+        <div class="lit-feat-desc">把「计量分析」跑好的描述统计/回归表一键插入当前章节。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+      <div class="lit-feat-card note" id="btn-casemake" data-act="casemake" style="grid-column:1/-1">
+        <div class="lit-feat-top"><span class="lit-feat-icon">📝</span><span class="lit-feat-title">案例素材 → 论文</span></div>
+        <div class="lit-feat-desc">粘贴课堂实录/教案/反思，或上传 Word/PDF/txt/md 文件自动读取 → AI 按浙江评比要求提炼成「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构。</div>
+        <div class="lit-feat-go">进入操作 ↗</div>
+      </div>
+    </div>
   </div>`;
   const editor=$('#ch-editor');
   const saveState=$('#save-state'),chWc=$('#ch-wc');
@@ -1408,8 +1445,13 @@ function writingPage(root,param){
       <div><label class="muted" style="display:block;margin-bottom:3px">主题（可选）</label>
         <input id="cm-topic" placeholder="如：3D 可视化在建筑识图教学中的应用"></div>
     </div>
-    <div><label class="muted" style="display:block;margin-bottom:3px">素材内容（500-3000 字为宜）</label>
-      <textarea id="cm-source" placeholder="例如：&#10;我今年在中职建筑识图课上尝试了 3D 可视化教学……&#10;学生 A 原本对梁平法很困惑，用 3D 拆分后……&#10;期末成绩对比：实验班 82 分，对照班 71 分……" style="min-height:180px"></textarea></div>
+    <div><label class="muted" style="display:block;margin-bottom:3px">素材内容（500-3000 字为宜；可粘贴文字，也可上传 Word / PDF / txt / md 文件自动读取）</label>
+      <textarea id="cm-source" placeholder="例如：&#10;我今年在中职建筑识图课上尝试了 3D 可视化教学……&#10;学生 A 原本对梁平法很困惑，用 3D 拆分后……&#10;期末成绩对比：实验班 82 分，对照班 71 分……" style="min-height:180px"></textarea>
+      <div style="margin-top:6px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn sm" id="cm-up">📎 上传素材文件（PDF/Word/txt/md）</button>
+        <input type="file" id="cm-file" accept=".pdf,.docx,.doc,.txt,.md" style="display:none">
+        <span class="muted" style="font-size:11px">文件内容会自动填入上方素材框</span>
+      </div></div>
     <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="btn primary" id="cm-gen">🤖 AI 提炼（生成 4 章）</button>
       <button class="btn" id="cm-tpl" title="不用 AI，用本地模板快速生成 4 章骨架">用本地模板生成</button>
@@ -1417,6 +1459,25 @@ function writingPage(root,param){
     </div>
     <div id="cm-out" style="margin-top:14px"></div>`,buttons:[{label:'关闭'}]});
 
+    // 上传素材文件 → 解析 → 填入素材框
+    const cmUp=$('#cm-up'),cmFile=$('#cm-file');
+    cmUp.onclick=()=>cmFile.click();
+    cmFile.onchange=async e=>{
+      const f=e.target.files[0];if(!f)return;
+      const ext=(f.name.split('.').pop()||'').toLowerCase();
+      const btn=$('#cm-up');btn.disabled=true;btn.textContent='读取中…';
+      try{
+        let text='';
+        if(ext==='txt'||ext==='md')text=(await f.text()).trim();
+        else if(ext==='docx')text=await _parseDocx(await f.arrayBuffer());
+        else if(ext==='pdf')text=await _parsePdf(await f.arrayBuffer());
+        else{toast('不支持：.'+ext);return;}
+        if(!text||text.length<30){toast('未提取到有效文本（扫描版 PDF 需 OCR）');return;}
+        $('#cm-source').value=text;
+        toast('已读取 '+f.name+'（'+text.length+' 字）');
+      }catch(err){toast('读取失败：'+err.message);}
+      finally{btn.disabled=false;btn.textContent='📎 上传素材文件（PDF/Word/txt/md）';e.target.value='';}
+    };
     const tpl=()=>{
       const subject=$('#cm-subject').value||'本学科';
       const stage=$('#cm-stage').value||'本校';
@@ -1589,35 +1650,8 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
     });
   };
   $('#btn-export-doc').onclick=()=>{persist();const d=getCurDoc();let md='# '+d.title+'\n\n';d.chapters.forEach(c=>{md+='## '+c.name+'\n\n'+c.content+'\n\n';});download(d.title+'_'+todayStr()+'.md',md,'text/markdown;charset=utf-8');};
-  const _toolHi=(k)=>{const ids={aicheck:'btn-ai-check',abstract:'btn-abstract',design:'btn-design',novelty:'btn-novelty',sizheng:'btn-sizheng',educhart:'btn-edu-chart',mindmap:'btn-mindmap'};Object.keys(ids).forEach(x=>{const b=$('#'+ids[x]);if(b)b.classList.toggle('primary',x===k);});};
-  $('#btn-ai-check').onclick=()=>{
-    _toolHi('aicheck');
-    const text=editor.value;const found=[];
-    AI_PATTERNS.forEach(p=>{const m=text.match(p.re);if(m&&m.length)found.push({word:m[0],count:m.length,tip:p.tip});});
-    const ai=scanAI(text);
-    const pctColor=ai.level==='低'?'var(--ok)':(ai.level==='中'?'var(--warn)':'var(--danger)');
-    const banner=`<div style="background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
-      <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:${pctColor}">${ai.count}</div><div class="muted" style="font-size:11px">命中处数</div></div>
-      <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:${pctColor}">${ai.rate}</div><div class="muted" style="font-size:11px">处/千字</div></div>
-      <div style="text-align:center"><div style="font-size:22px;font-weight:700;color:${pctColor}">${ai.pct}%</div><div class="muted" style="font-size:11px">命中字数占比</div></div>
-      <div style="flex:1;min-width:180px"><div style="font-weight:600;color:${pctColor}">AI 味等级：${ai.level}（估计 AIGC 疑似度 ${ai.est}%）</div>
-      <div class="muted" style="font-size:12px;line-height:1.6">本地规则估计，仅供参考；正式 AIGC 检测以学校/期刊工具（知网/维普/PaperPass）为准。</div></div>
-    </div>`;
-    const noHit='<div class="muted" style="text-align:center;padding:16px">没有发现明显 AI 高频表达 ✓<br><span style="font-size:12px">（本地规则检查，仅供参考；正式 AIGC 检测请以学校/期刊工具为准）</span></div>';
-    const list=found.length?found.map(f=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><div><span class="chip amber">${esc(f.word)} ×${f.count}</span></div><div class="muted" style="font-size:12px;margin-top:4px">${esc(f.tip)}</div></div>`).join(''):'';
-    const body=`${banner}<div class="muted" style="font-size:12px;margin-bottom:6px">① 原文标注（黄色为命中处，鼠标悬停看修改建议）</div>
-    <div style="background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:13px;line-height:1.9;max-height:200px;overflow:auto;white-space:pre-wrap">${found.length?aiHighlight(text):esc(text)}</div>
-    ${found.length?`<div class="muted" style="font-size:12px;margin:10px 0 4px">② 命中明细</div>`+list:''}
-    ${!found.length?noHit:''}
-    <div style="margin-top:10px"><button class="btn sm primary" id="ai-export">📄 导出检测报告</button></div>`;
-    modalBox({title:'AI 味检查（本地规则，仅供参考）',wide:true,body,buttons:[{label:'关闭'}]});
-    const xe=$('#ai-export');
-    if(xe)xe.onclick=()=>{
-      const d=getCurDoc();
-      const md='【AI 味检查报告】（本地规则，参考 PaperPass 报告格式）\n'+reportMeta(d,'检查范围：当前章节「'+(d?d.chapters[state.chIdx]?d.chapters[state.chIdx].name:'':'')+'」 · 命中 '+found.length+' 类模式\n\n■ 总体结论：'+(found.length?'发现 '+found.length+' 类 AI 高频表达，建议逐一改写后复检':'未发现明显 AI 高频表达 ✓')+'\n（本地规则仅供参考，正式 AIGC 检测以学校/期刊指定工具为准）\n\n■ 命中明细：\n'+(found.length?found.map(f=>'• '+f.word+' ×'+f.count+'：'+f.tip).join('\n'):'无'))+'\n\n■ 原文标注版：\n'+text.replace(/\n/g,'\n');
-      downloadReport((d&&d.title||'论文')+'_AI味检查报告',md);
-    };
-  };
+  // 工具卡点击：原按钮 id + data-act 都触发（兼容旧逻辑）
+  $$('.w-tools .lit-feat-card').forEach(card=>{card.onclick=()=>{const k=card.dataset.act;if(k==='abstract')$('#btn-abstract').click();else if(k==='novelty')$('#btn-novelty').click();else if(k==='sizheng')$('#btn-sizheng').click();else if(k==='educhart')$('#btn-edu-chart').click();else if(k==='mindmap')$('#btn-mindmap').click();else if(k==='insertecon')$('#btn-insert-econ').click();else if(k==='casemake')$('#btn-casemake').click();};});
   $('#btn-abstract').onclick=()=>{_toolHi('abstract');
     const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];
     const full=d.chapters.map(c=>'【'+c.name+'】\n'+(c.content||'')).join('\n\n');
@@ -1658,34 +1692,6 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
       }catch(e){out.innerHTML='<div class="muted">'+esc(e.message)+'</div>';}
     };
     doGen();
-  };
-  $('#btn-design').onclick=()=>{_toolHi('design');
-    modalBox({title:'研究设计引导（理论框架与假设推导）',wide:true,body:`
-    <div class="muted" style="font-size:12px;margin-bottom:10px">五步搭建论文骨架：研究问题 → 核心理论 → 变量关系 → 推导假设 → 检验方法（对应顶刊写作 v2 方法论）</div>
-    <div style="margin-bottom:8px"><label class="muted">① 研究问题</label><textarea id="ds-q" placeholder="例如：BIM 技术应用能否提升装配式建筑项目的成本控制绩效？" style="min-height:50px"></textarea></div>
-    <div style="margin-bottom:8px"><label class="muted">② 核心理论（可留空让 AI 推荐）</label><input id="ds-t" placeholder="例如：信息不对称理论 / 交易成本理论 / 技术接受模型…"></div>
-    <div style="margin-bottom:8px"><label class="muted">③ 变量关系（X 影响 Y，是否经中介/调节）</label><input id="ds-v" placeholder="例如：X=数字化投入，Y=绩效，M=组织学习"></div>
-    <div style="margin-top:10px"><button id="ds-gen" class="btn primary">生成研究设计（LLM）</button> <button id="ds-tpl" class="btn">用模板生成</button></div>
-    <div id="ds-out" style="margin-top:12px"></div>`,buttons:[{label:'关闭'}]});
-    const out=$('#ds-out');
-    const tpl=()=>{
-      const q=$('#ds-q').value.trim()||'（待补研究问题）',t=$('#ds-t').value.trim()||'（结合领域主流的解释框架）',v=$('#ds-v').value.trim()||'X→Y（含中介/调节路径）';
-      const xs=(v.split('→')[0]||'X').trim(),ys=(v.split('→')[1]||'Y').trim();
-      out.innerHTML='<div style="white-space:pre-wrap;font-size:13px;background:var(--card2);border-radius:10px;padding:12px">【研究设计（模板框架，配 LLM 可自动生成）】\n\n1. 研究问题：'+esc(q)+'\n2. 核心理论：'+esc(t)+'\n3. 变量关系：'+esc(v)+'\n4. 研究假设：\n   H1：'+esc(xs)+'对'+esc(ys)+'有显著正向影响。\n   H2：'+esc(xs)+'通过中介变量对'+esc(ys)+'产生间接影响。\n   H3：调节变量会改变'+esc(xs)+'对'+esc(ys)+'关系的强弱。\n5. 检验方法：描述统计 → 相关性 → 基准回归 → 中介/调节效应检验 → 稳健性检验。\n\n（请根据你的实际研究调整）</div><div style="margin-top:8px"><button class="btn sm" id="ds-copy">复制</button></div>';
-      const c=$('#ds-copy');if(c)c.onclick=()=>copyText(out.firstElementChild.textContent);
-    };
-    $('#ds-tpl').onclick=tpl;
-    $('#ds-gen').onclick=async()=>{
-      if(!LLM.get().enabled){toast('请先在设置配置 LLM Key');tpl();return;}
-      const q=$('#ds-q').value.trim()||'（待补）',t=$('#ds-t').value.trim(),v=$('#ds-v').value.trim();
-      const b=$('#ds-gen');b.disabled=true;b.textContent='生成中…';
-      try{
-        const r=await llmAsk('你是研究方法论专家。请基于以下信息，输出一份规范的研究设计：\n研究问题：'+q+'\n核心理论：'+(t||'由你推荐合适的理论')+'\n变量关系：'+(v||'由你合理设定')+'\n\n要求：1.确定核心理论并解释为何适用；2.界定变量（被解释/解释/控制/中介/调节）；3.推导 3-5 条研究假设（H1、H2…）；4.给出检验方法与模型；5.说明数据来源建议。\n【评审趋势参考（浙江省教科研论文）】选择理论时请参考获奖经验：评委偏爱"真正正用理论搭建教学设计骨架"的论文——推荐候选框架：UbD 逆向设计（教学评一致性）、TPACK 框架（技术整合）、SOLO 分类理论（学习成效评价）、自我决定理论 SDT（动机激发）、认知学徒制（师生互动）、C-STEAM（跨学科）。选一个与问题最匹配的理论讲透并贯穿全文，切勿堆砌多个名词装饰。用规范学术中文，分点输出。');
-        out.innerHTML='<div style="white-space:pre-wrap;font-size:13px;background:var(--card2);border-radius:10px;padding:12px">'+esc(r)+'</div><div style="margin-top:8px"><button class="btn sm" id="ds-copy2">复制</button></div>';
-        const c=$('#ds-copy2');if(c)c.onclick=()=>copyText(r);
-      }catch(e){out.innerHTML='<div class="muted">'+esc(e.message)+'</div>';}
-      b.disabled=false;b.textContent='生成研究设计（LLM）';
-    };
   };
   $('#btn-novelty').onclick=()=>{_toolHi('novelty');
     modalBox({title:'创新点设计（证据驱动）',wide:true,body:`
@@ -1728,17 +1734,19 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
     const llmOn=LLM.get().enabled;
     let sel=new Set(SIZHENG_MAP.slice(0,4).map(x=>x.key));
     modalBox({title:'课程思政元素映射（'+chName+'）',wide:true,body:`
-      <div class="muted" style="font-size:12px;margin-bottom:10px">教育部要求各课程将思想政治教育融入教学全过程。选择与本课程匹配的思政维度，AI 会结合当前章节内容生成具体融合点（也可只用下方映射参考表自行提炼）。</div>
+      <div class="muted" style="font-size:12px;margin-bottom:10px">教育部要求各课程将思想政治教育融入教学全过程。选择思政维度 + 粘贴本章内容，AI 生成具体融合点（也可只用参考表自行提炼）。</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
         ${SIZHENG_MAP.map(x=>`<label style="display:flex;gap:6px;align-items:center;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:${sel.has(x.key)?'var(--accent-soft)':'var(--card2)'};cursor:pointer;font-size:12px" data-sz="${x.key}"><input type="checkbox" value="${x.key}" ${sel.has(x.key)?'checked':''} style="width:auto"><span>${x.icon} ${x.key}</span><span class="muted" style="font-size:11px">${x.desc}</span></label>`).join('')}
       </div>
       <div class="card" style="background:var(--card2);margin-bottom:10px"><b style="font-size:13px">📖 思政融入参考（示例，按课程调整）</b>
         <div style="font-size:12px;line-height:1.8;margin-top:4px">${SIZHENG_MAP.map(x=>`<div style="padding:3px 0"><b>${x.icon} ${x.key}</b>：${esc(x.example)}</div>`).join('')}</div>
       </div>
+      <div style="margin-bottom:8px"><label class="muted" style="display:block;margin-bottom:3px">本章内容（可编辑，默认已带入当前章节）</label>
+      <textarea id="sz-content" style="min-height:100px">${esc(chContent||'')}</textarea></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
         <button class="btn primary sm" id="sz-gen" ${llmOn?'':'disabled'} title="${llmOn?'':'需在设置页配置 LLM Key'}">🤖 AI 生成「${chName}」融合点</button>
         <button class="btn sm" id="sz-copy-ref">复制思政参考表</button>
-        <span class="muted" style="font-size:11px;align-self:center">${llmOn?'AI 生成会结合当前章节内容':'未配 LLM（仅本地参考表）'}</span>
+        <span class="muted" style="font-size:11px;align-self:center">${llmOn?'AI 会结合上方粘贴的内容生成':'未配 LLM（仅本地参考表）'}</span>
       </div>
       <div id="sz-out"></div>
     `,buttons:[{label:'关闭'}]});
@@ -1756,7 +1764,7 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
       b.disabled=true;b.textContent='生成中…';
       $('#sz-out').innerHTML='<div class="muted" style="padding:10px;text-align:center">AI 生成中…</div>';
       try{
-        const r=await llmAsk('你是中职专业课课程思政设计专家。请为以下章节设计课程思政融入点。\n课程/学科：'+(DOC_TYPES[d.type]||'')+'\n章节：'+chName+'\n章节内容摘录：\n'+(chContent.slice(0,600)||'（章节暂无内容，基于章节名设计）')+'\n选中思政维度：'+[...sel].join('、')+'\n\n要求：1.每个维度给出 1-2 条具体可落地的融入点（结合本节内容与中职教学场景，说明融入方式与环节）；2.融入要自然不生硬，避免贴标签式喊口号；3.给出 1 个教学实施建议（何时融、怎么融、如何评价）；4.用规范中文分点输出。');
+        const r=await llmAsk('你是中职专业课课程思政设计专家。请为以下章节设计课程思政融入点。\n课程/学科：'+(DOC_TYPES[d.type]||'')+'\n章节：'+chName+'\n章节内容摘录：\n'+($('#sz-content').value.trim().slice(0,600)||'（未填写内容，基于章节名设计）')+'\n选中思政维度：'+[...sel].join('、')+'\n\n要求：1.每个维度给出 1-2 条具体可落地的融入点（结合本节内容与中职教学场景，说明融入方式与环节）；2.融入要自然不生硬，避免贴标签式喊口号；3.给出 1 个教学实施建议（何时融、怎么融、如何评价）；4.用规范中文分点输出。');
         $('#sz-out').innerHTML='<div style="white-space:pre-wrap;font-size:13px;background:var(--card2);border-radius:10px;padding:12px">'+esc(r)+'</div><div style="margin-top:8px"><button class="btn sm" id="sz-copy">复制</button></div>';
         const c=$('#sz-copy');if(c)c.onclick=()=>copyText(r);
       }catch(e){$('#sz-out').innerHTML='<div class="muted">'+esc(e.message)+'</div>';}
@@ -1814,19 +1822,27 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
   };
   $('#btn-mindmap').onclick=()=>{_toolHi('mindmap');
     const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];
-    const root={name:d.title,children:d.chapters.map((c,i)=>({name:c.name,note:countWords(c.content).total+' 字',jump:()=>{state.chIdx=i;go('writing',{ch:i});}}))};
     const llmOn=LLM.get().enabled;
-    modalBox({title:'论文大纲导图',wide:true,body:'<div id="mm-root"></div>'+(llmOn?'<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" id="mm-ai">AI 优化 / 生成大纲</button></div>':'<div class="muted" style="margin-top:8px">配 LLM Key 后可让 AI 优化大纲（设置页，默认 DeepSeek）</div>'),buttons:[{label:'关闭'}]});
-    renderMindMap($('#mm-root'),root);
+    const defContent=d.chapters.map(c=>c.name+(c.content?'：'+c.content.slice(0,100):'')).join('\n');
+    modalBox({title:'🧠 大纲思维导图（粘贴内容生成）',wide:true,body:`
+      <div class="muted" style="font-size:12px;margin-bottom:8px;line-height:1.6">粘贴论文/教案/素材内容，AI 按 <b>「标题 → 章节 → 小节」三层结构</b>生成思维导图（也可直接点生成，用当前文稿章节）。</div>
+      <div style="margin-bottom:8px"><label class="muted" style="display:block;margin-bottom:3px">粘贴内容</label>
+      <textarea id="mm-content" style="min-height:110px">${esc(defContent)}</textarea></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+        <button class="btn primary sm" id="mm-ai" ${llmOn?'':'disabled'} title="${llmOn?'':'需在设置页配置 LLM Key'}">🤖 生成思维导图</button>
+        <span class="muted" style="font-size:11px">${llmOn?'AI 生成大纲（按浙江字数配比优化）':'未配 LLM，暂不能生成'}</span>
+      </div>
+      <div id="mm-root"></div>
+    `,buttons:[{label:'关闭'}]});
     const b=$('#mm-ai');if(b)b.onclick=async()=>{
       b.disabled=true;b.textContent='生成中…';
       try{
-        const r=await llmAsk('请把以下论文内容整理成论文大纲，只输出 JSON，不要任何其他文字，格式：{"topic":"标题","children":[{"name":"章节名","children":[{"name":"小节名"}]}]}。\n【结构参考（浙江省教科研论文一等奖经验）】若为教科研/评奖论文，请按字数配比规划章节详略：问题的提出/引言约 15%、概念阐释与理论框架约 10%、实施策略/实践路径约 55%（主战场，应拆分为多个小节含具体做法与案例）、实施成效约 12%、结语约 4%——避免头重脚轻或实施策略单薄。\n论文内容：\n'+d.chapters.map(c=>c.name+(c.content?'：'+c.content.slice(0,80):'')).join('\n'));
+        const r=await llmAsk('请把以下内容整理成大纲思维导图，只输出 JSON，不要任何其他文字，格式：{"topic":"标题","children":[{"name":"章节名","children":[{"name":"小节名"}]}]}。\n【结构参考（浙江省教科研论文一等奖经验）】若为教科研/评奖论文，请按字数配比规划章节详略：问题的提出/引言约 15%、概念阐释与理论框架约 10%、实施策略/实践路径约 55%（主战场，应拆分为多个小节含具体做法与案例）、实施成效约 12%、结语约 4%——避免头重脚轻或实施策略单薄。\n内容：\n'+$('#mm-content').value.trim().slice(0,4000));
         const obj=safeParseJSON(r);
-        if(obj&&obj.topic){renderMindMap($('#mm-root'),{name:obj.topic,children:(obj.children||[]).map(c=>({name:c.name,note:c.children&&c.children.length?c.children.length+' 小节':'',children:(c.children||[]).map(x=>({name:x.name}))}))});toast('AI 大纲已生成（可复制参考）');}
-        else{renderMindMap($('#mm-root'),root);toast('AI 返回格式异常，已恢复当前大纲');}
-      }catch(e){renderMindMap($('#mm-root'),root);toast(e.message);}
-      b.disabled=false;b.textContent='AI 优化 / 生成大纲';
+        if(obj&&obj.topic){renderMindMap($('#mm-root'),{name:obj.topic,children:(obj.children||[]).map(c=>({name:c.name,note:c.children&&c.children.length?c.children.length+' 小节':'',children:(c.children||[]).map(x=>({name:x.name}))}))});toast('思维导图已生成');}
+        else{toast('AI 返回格式异常，请重试');}
+      }catch(e){toast(e.message);}
+      b.disabled=false;b.textContent='🤖 生成思维导图';
     };
   };
   $('#btn-insert-econ').onclick=()=>{
@@ -2873,6 +2889,30 @@ function autoWritePage(){
 }
 
 
+// ===== 文件解析（全局：文献页 / 案例素材共用）=====
+const _loadLib=url=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=()=>rej(new Error('解析库加载失败（需联网）'));document.head.appendChild(s);});
+const _parseDocx=async buf=>{
+  if(!window.JSZip)await _loadLib('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+  const zip=await window.JSZip.loadAsync(buf);
+  const xml=await zip.file('word/document.xml').async('string');
+  return xml.replace(/<w:p[^>]*>/g,'\n').replace(/<w:tab[^>]*>/g,'\t').replace(/<[^>]+>/g,'').replace(/\n{2,}/g,'\n').trim();
+};
+const _parsePdf=async buf=>{
+  if(!window.pdfjsLib){
+    await _loadLib('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+  const pdf=await window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+  let text='';
+  const n=Math.min(pdf.numPages,20);
+  for(let i=1;i<=n;i++){
+    const page=await pdf.getPage(i);
+    const tc=await page.getTextContent();
+    text+=(tc.items.map(it=>it.str).join(' '))+'\n';
+  }
+  return text.trim();
+};
+
 function literaturePage(root){
   const lits=Store.get(K.lits,[]);
   root.innerHTML=`
@@ -2935,29 +2975,6 @@ function literaturePage(root){
     </div>
   </div>`;
   $('#lit-llm-state').innerHTML=LLM.get().enabled?'<span class="llm-chip on">● LLM 已启用</span>':'<span class="llm-chip off">○ 未配 Key · 模板模式</span>';
-  // ===== PDF / Word / txt / md 上传解析 =====
-  const _loadLib=url=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=()=>rej(new Error('解析库加载失败（需联网）'));document.head.appendChild(s);});
-  const _parseDocx=async buf=>{
-    if(!window.JSZip)await _loadLib('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
-    const zip=await window.JSZip.loadAsync(buf);
-    const xml=await zip.file('word/document.xml').async('string');
-    return xml.replace(/<w:p[^>]*>/g,'\n').replace(/<w:tab[^>]*>/g,'\t').replace(/<[^>]+>/g,'').replace(/\n{2,}/g,'\n').trim();
-  };
-  const _parsePdf=async buf=>{
-    if(!window.pdfjsLib){
-      await _loadLib('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    }
-    const pdf=await window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
-    let text='';
-    const n=Math.min(pdf.numPages,20);
-    for(let i=1;i<=n;i++){
-      const page=await pdf.getPage(i);
-      const tc=await page.getTextContent();
-      text+=(tc.items.map(it=>it.str).join(' '))+'\n';
-    }
-    return text.trim();
-  };
   const _litUpload=async file=>{
     const ext=(file.name.split('.').pop()||'').toLowerCase();
     try{
@@ -3259,11 +3276,9 @@ function settingsPage(root){
     {f:'AI 率检查',s:'humanizer-academic-zh（45★）★全文级 + cn-humanizer 补充',p:'LLM 全模式识别：客套话/AI 免责/谄媚语气/模板排比/万能句式/机械节奏等 25 条模式 → AI 痕迹等级判定 + 逐句标注'},
     {f:'AI 降重',s:'aigc-reduce（479★）★全文级 · 三轮降重协议',p:'划禁改片段 → 词级替换+句级重构（减法）→ 注入书面学术特征（加法）→ Anti-AI 自检；铁律：禁止 AI 全量重写'},
     {f:'去 AIGC',s:'cn-humanizer-academic ★全文级（ranranrannervous）',p:'5 大重写策略（打破工整结构/破坏过度流畅/抽象转具体/研究者口吻/词级清扫）+ 7 条硬约束（引用守界/内容守界/字数≤1.2倍等）'},
-    {f:'检查 AI 味',s:'自有规则（AI_PATTERNS 11 条），灵感来自 humanizer 家族词表',p:'正则扫描 11 类 AI 高频表达 + 替换建议，本地免费快检，不联网'},
     {f:'AI 审稿',s:'citation-check-skill + Nature-Paper-Skills 思路 + v2 视频方法论；「毕业论文」维度依据教育部教督〔2020〕5号抽检办法；报告结构升级借鉴 academic-paper-review（字节 DeerFlow 77k★）7 模块审稿规范',p:'4 种类型×5 维度差异化打分（毕业论文=选题意义/写作安排/逻辑构建/专业能力/学术规范，官方文件对齐；评奖重实践支撑，教学案例不催参考文献）；引用核验（[n] 与参考文献比对）；投稿预检清单（按文稿类型动态生成）；期刊匹配（n-gram 画像）；报告含 7 模块：执行摘要/优点/不足（按严重度分级）/贡献评估/文献定位/可操作建议（必须改-建议改-可选）/维度评分'},
     {f:'创新点设计',s:'RW Research Skill（rw-research-novelty）★全文级',p:'证据问题卡（区分没研究/没找到/没报告/没测量/真冲突/假冲突）→ 头脑风暴 → 硬性反驳 → 新颖性四状态 → 7 维分开打分'},
-    {f:'研究设计引导',s:'v2 视频（顶刊 4-4 模板）+ Paper-Novelty-Design 思路',p:'研究问题→核心理论→变量关系→推导假设 H1-H3→检验方法 五步引导'},
-    {f:'论文大纲导图',s:'自有 + LLM 可选',p:'章节结构树状导图 + AI 优化大纲（JSON 解析渲染）'},
+    {f:'大纲思维导图',s:'LLM',p:'粘贴内容 → AI 生成三层大纲（标题/章节/小节，JSON 渲染）'},
     {f:'AI 助手',s:'LLM 对话（默认 DeepSeek）',p:'未配 Key 时走本地模板，不联网'},
     {f:'全局搜索',s:'自有实现',p:'跨模块关键词全文检索 + 点击跳转'},
     {f:'教学案例 → 论文转化器',s:'自有 + LLM 提炼；格式对齐浙江省教学案例评比要求',p:'素材（课堂实录/教案/反思/学生作品）→ 按「背景与现状/特色与创新/成果与影响/经验与启示」4 章提炼；双模式：AI 提炼（JSON 4 章可编辑）或本地模板（[待补充：XXX] 骨架，无需 Key）；一键创建案例文稿；缺失数据标 [待补充] 不编造'},
@@ -3311,7 +3326,7 @@ function settingsPage(root){
         <b>1. 论文完成度（首页）</b>：完成度环 · 章节进度网格（点击直达写作）· 今日要处理置顶（逾期一键处理）· 全部功能导航卡片（手机直达）。无需 Key。<br>
         <b>2. 文献阅读与笔记</b>：文献增删改（标题/作者/期刊/年份/DOI/笔记/标签）· 创新点挖掘 · 总结创新点 · AI 结构化笔记（关联点带 6 类型+相关度，禁空泛套话）· 🎯 AI 精读（原文引用→批判三段→一句话回答，防幻觉不编造）。<br>
         <b>3. 检索与前沿</b>：8 大数据库直达 · 4 大查重入口 · 前沿方向挖掘（新闻+痛点→方向）· 主题综述生成（背景/现状/热点/空白/启示五段式）。<br>
-        <b>4. 论文框架与写作（核心）</b>：4 类文稿模板（教科研/案例/期刊/毕业论文）· 章节编辑+自动保存 · 8 个 AI 工具（检查AI味27条本地规则/提炼摘要/研究设计/创新点9步/课程思政/数据图表/大纲导图/插入实证）· 导入导出（txt/md/docx）· 版本快照 · 案例素材→论文。<br>
+        <b>4. AI写论文（核心）</b>：4 类文稿模板（教科研/案例/期刊/毕业论文）· 章节编辑+自动保存 · AI 写全文（13 章节喂饭指令）· AI 工具（提炼摘要/创新点设计/课程思政/数据图表/思维导图/插入实证/案例素材→论文，支持上传 Word/PDF）· 导入导出（txt/md/docx）· 版本快照。<br>
         <b>5. 论文评比与投稿</b>：评比任务（浙江要求）· 投稿追踪 · 期刊/会议库 · 智能选刊（关键词匹配）。无需 Key。<br>
         <b>6. 计量分析</b>：导入→预处理→描述统计→相关/OLS 回归→导出（可插入论文）。全本地计算，无需 Key；正式投稿建议 Stata/R 复核。<br>
         <b>7. AI 降重</b>：AI 润色 · 逐句精修 · 审稿人挑刺 · AI 率检查 · AI 降重（13 字符查重原理三轮）· 去 AIGC（BERT 检测原理：连接词/句长/完整性偏差→结构级重写）；含检测原理速查。<br>
