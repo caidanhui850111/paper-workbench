@@ -1314,16 +1314,7 @@ function writingPage(root,param){
     <button id="btn-versions" class="btn sm tip" data-tip="查看历史版本快照，一键恢复">历史版本</button>
     <button id="btn-export-doc" class="btn sm tip" data-tip="导出整篇文稿为 Markdown 文件">导出</button>
   </div>
-  <div style="margin-bottom:14px;background:linear-gradient(135deg,#f0f4ff 0%,var(--card) 65%);border:1px solid #d6e4ff;border-radius:12px;padding:14px 16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px">
-      <span style="font-size:14px;font-weight:700">🤖 AI 写全文（自动生成整篇）</span>
-      <button id="btn-autowrite" class="btn primary sm" data-tip="配 Key 后用 LLM 按平台写作技巧（13 章节喂饭指令 + 浙江获奖经验）自动生成完整教科研论文全文，可编辑后一键填入下方章节">🚀 开始生成</button>
-    </div>
-    <div class="muted" style="font-size:12px;line-height:1.7">
-      输入<b>学科 / 学段 / 论文题目 / 目标字数 / 资料</b>（支持上传 Word / PDF / txt / md），AI 按 <b>13 章节喂饭指令</b>逐章生成完整初稿（封面→摘要→目录→引言→文献综述→方法→结果→讨论→结论→参考文献→致谢→附录→整合），生成后自动按章节名<b>填入下方文稿各章</b>。
-      <span style="color:var(--accent)">参考：浙江获奖经验（字数配比）+ 27 条 AI 味规避规则 · 缺数据标 [待补充]，不编造</span>
-    </div>
-  </div>
+
   <div class="write-head" style="margin-top:-4px">
     <span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span>
     <span class="chip green">章节 ${docDoneCount(doc)}/${doc.chapters.length}</span>
@@ -1427,7 +1418,14 @@ function writingPage(root,param){
   $('#btn-casemake').onclick=()=>{
     modalBox({title:'🎓 教学案例素材 → 论文（AI 提炼）',wide:true,body:`
     <div class="muted" style="font-size:12px;margin-bottom:12px;line-height:1.7">把<strong>课堂实录 / 教案片段 / 学生作品 / 教学反思</strong>等原始素材粘贴进来，AI 会按浙江省教学案例评比要求，提炼为「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构。<br><span style="color:var(--accent)">💡 素材越具体（数据、案例、学生作品、成绩对比）提炼效果越好；缺失数据 AI 会标 [待补充：XXX]，不编造。</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label class="muted" style="display:block;margin-bottom:3px">论文类型 <span style="color:var(--danger)">*</span></label>
+        <select id="aw-type" style="width:100%">
+          <option value="research">教科研论文（推荐中职教师）</option>
+          <option value="case">教学案例（4 章结构）</option>
+          <option value="journal">期刊论文（学术规范）</option>
+          <option value="graduation">毕业论文（本/硕）</option>
+        </select></div>
       <div><label class="muted" style="display:block;margin-bottom:3px">学科</label>
         <select id="cm-subject" style="width:100%">
           <option value="">不限</option>
@@ -2701,7 +2699,8 @@ const AUTOWRITE_SKILLS = [
 const AUTOWRITE_NOHIT = 'AI 味规避（平台 27 条本地规则）：禁止套话——"随着…的发展""综上所述""具有重要意义""不仅…而且""在当前…背景下""有研究表明（无出处）""众所周知""不难发现""由此可见""在当今社会""静待花开"等；程度副词堆砌（极大地/显著提升）少用；正文破折号每段≤1 处；连接词密度适中（此外/同时/另外不连用）；用数据与具体做法代替空洞评价。';
 
 function autoWritePage(){
-  modalBox({title:'🤖 AI 按 SKILL 自动写论文（教科研论文全文）',wide:true,body:`
+  modalBox({title:'🤖 AI写论文',wide:true,body:`
+    <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">4 类论文 SKILL 提示已预置，选<b>论文类型</b>（4 选 1，决定写作风格和章节重点），输入学科/学段/目标字数/题目/资料，AI 按 13 章节喂饭指令逐章生成完整初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
     <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">按平台写作技巧 + 王老师 13 章节喂饭指令 + 27 条 AI 味规避规则，输入学科/学段/题目/资料，AI 逐章自动生成完整论文初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
       <div><label class="muted" style="display:block;margin-bottom:3px">学科</label>
@@ -2730,9 +2729,9 @@ function autoWritePage(){
       </div>
     </div>
     <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <button class="btn primary" id="aw-gen">🚀 一键生成全文（逐章）</button>
+      <button class="btn primary" id="aw-gen">🚀 AI 写论文（按所选类型生成）</button>
       <button class="btn" id="aw-tpl">📋 用本地模板（无需 Key）</button>
-      <span class="muted" style="font-size:11px">约 3-6 分钟，13 章逐章生成</span>
+      <span class="muted" style="font-size:11px">13 章喂饭指令逐章生成（封面→摘要→目录→正文→致谢→附录等）</span>
     </div>
     <div id="aw-progress" style="display:none;margin:10px 0;padding:10px;background:var(--card2);border-radius:8px;font-size:12px"></div>
     <div id="aw-out"></div>
@@ -2865,13 +2864,24 @@ function autoWritePage(){
     const prog=$('#aw-progress');prog.style.display='block';
     renderEmpty();
     const lenDesc=lenClamped+' 字';
-    const meta=[subject?'学科：'+subject:'',stage?'学段：'+stage:'',topic?'论文题目：'+topic:'','目标字数：'+lenDesc+'（全文，正文 500-8000 字要求内）+ 章节按比例：引言15%/概念框架10%/实施策略55%/成效12%/结语4%'].filter(Boolean).join('\n');
+    const typeKey2=$('#aw-type').value||'research';
+    const typeName2={research:'教科研论文',case:'教学案例',journal:'期刊论文',graduation:'毕业论文（本/硕）'}[typeKey2];
+    const ratioMap={research:'引言15%/概念框架10%/实施策略55%（主战场）/成效12%/结语4%',case:'背景与现状/特色与创新/成果与影响/经验与启示（4章均分）',journal:'引言/综述/方法/结果/讨论/结论（按期刊规范，6000-8000字）',graduation:'6章正文（绪论/综述/方法/分析/讨论/结论，按目标字数 15000 平均分配）'}[typeKey2];
+    const meta=[subject?'学科：'+subject:'',stage?'学段：'+stage:'',topic?'论文题目：'+topic:'',`论文类型：${typeName2}（目标字数 ${lenDesc}，按该类型章节比例：${ratioMap}）`].filter(Boolean).join('\n');
     const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
     try{
       for(let i=0;i<AUTOWRITE_PROMPTS.length;i++){
         const s=AUTOWRITE_PROMPTS[i];
         prog.innerHTML='<div>⏳ 正在生成 <b>第 '+(i+1)+'/13 章：'+s.h+'</b>（'+s.w+'）…</div>';
-        const chPrompt='你是浙江省教育领域资深论文指导专家，熟悉浙江获奖论文风格与教科研论文写作规范。\n【论文信息】\n'+meta+'\n\n【资料来源】\n'+source.slice(0,2500)+'\n\n【本章任务·'+s.h+'（'+s.w+'）】\n'+s.p+'\n\n【写作技巧参考（必须遵守）】\n'+AUTOWRITE_SKILLS.join('\n')+'\n'+AUTOWRITE_NOHIT+'\n\n【输出要求】仅输出本章正文内容（中文），不要标题、不要解释、不要 JSON；按目标字数与比例控制篇幅；如素材缺数据用 [待补充：XXX] 标注，不编造。';
+        // 4 类论文 SKILL 提示：写作风格 + 章节配比 + 注意点
+        const _AW_SKILL_BY_TYPE={
+          research:'【浙江省教科研论文】字数配比：问题提出 15% / 概念框架 10% / 实施策略 55%（主战场应拆 3-5 小节含具体做法与案例）/ 成效 12% / 结语 4%。理论：选一个（UbD/TPACK/SOLO/SDT/认知学徒/C-STEAM）贯穿全文。原则：三真（问题真实/数据扎实/创新显著）。评审：回答"做法带来了什么改变"。',
+          case:'【浙江省教学案例】4 章结构：背景与现状 / 特色与创新 / 成果与影响 / 经验与启示。数据说话：成绩对比/学生作品/前后变化。反思与迁移价值：说明普适性。',
+          journal:'【期刊学术论文】结构：摘要→引言→文献综述→方法→结果→讨论→结论。注重：创新性贡献（区别于现有研究）、方法严谨性（可复现）、文献覆盖（近 5 年 + 经典）、讨论（不重复结果/解释 why）、学术诚信。引用：GB/T 7714 或 APA 格式。',
+          graduation:'【学位论文（本/硕）】结构：封面→诚信声明→摘要→目录→第一章 绪论→第二章 文献综述→第三章 方法→第四章 实验/分析→第五章 讨论→第六章 结论→参考文献→致谢→附录。注重：理论深度（选一个核心理论深挖）、方法系统（数据来源/工具/步骤完整）、数据可靠（统计方法/显著性）、学术贡献（区别于既有研究的增量）。'
+        }[$('#aw-type').value||'research']||_AW_SKILL_BY_TYPE.research;
+        const typeName={research:'教科研论文',case:'教学案例',journal:'期刊论文',graduation:'毕业论文（本/硕）'}[$('#aw-type').value||'research'];
+        const chPrompt='你是浙江省教育领域资深论文指导专家，本任务写作目标类型：'+typeName+'。\n【该类型写作 SKILL 提示】'+_AW_SKILL_BY_TYPE[$('#aw-type').value||'research']+'\n【论文信息】\n'+meta+'\n\n【资料来源】\n'+source.slice(0,2500)+'\n\n【本章任务·'+s.h+'（'+s.w+'）】\n'+s.p+'\n\n【通用写作技巧（必须遵守）】\n'+AUTOWRITE_SKILLS.join('\n')+'\n'+AUTOWRITE_NOHIT+'\n\n【输出要求】仅输出本章正文内容（'+typeName+'，中文），不要标题、不要解释、不要 JSON；按目标字数与比例控制篇幅；如素材缺数据用 [待补充：XXX] 标注，不编造。';
         const r=await llmAsk(chPrompt);
         const el=$('#aw-out-'+keys[i]);if(el)el.value=(r||'').replace(/^【[^】]*】/,'').trim();
         prog.innerHTML='<div style="color:var(--ok)">✓ 第 '+(i+1)+'/13 章完成：'+s.h+'</div>';
