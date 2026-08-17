@@ -3732,10 +3732,10 @@ function tipsPage(root){
       </div>`;
     });
   }
-  return `<details class="card" style="cursor:pointer;margin-bottom:10px" ${i===0?'open':''}>
-     <summary style="font-weight:600;font-size:15px;padding:4px 0">📄 ${t.title}</summary>
-     <div class="muted" style="font-size:11px;margin:4px 0 8px">来源：${t.src}</div>
-     <div style="font-size:13px;line-height:1.7;background:var(--card2);padding:10px;border-radius:6px;margin-bottom:8px">${t.intro}</div>
+  return `<details class="card" style="cursor:pointer;margin-bottom:8px">
+     <summary style="font-weight:600;font-size:14px;padding:2px 0">📄 ${t.title}</summary>
+     <div class="muted" style="font-size:11px;margin:4px 0 6px">来源：${t.src}</div>
+     <div style="font-size:12.5px;line-height:1.6;background:var(--card2);padding:8px;border-radius:6px;margin-bottom:6px">${t.intro}</div>
      ${body}
    </details>`;
   };
@@ -3743,23 +3743,15 @@ function tipsPage(root){
   <div class="pg-banner">
     <div class="pg-banner-main">
       <div class="pg-banner-title">💡 教科研论文写作技巧</div>
-      <div class="pg-banner-sub">浙江省获奖实战经验：硬性指标 / 字数配比 / 六大理论框架 / 2026 评审趋势 / 王老师 13 章喂饭指令（4 篇精华速查）</div>
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
-  <div class="card" style="margin-bottom:12px">
-    <h3>💡 浙江省论文获奖实战经验（4 篇精华）</h3>
-    <div class="muted" style="font-size:12px;margin-bottom:8px">来源：2025/2026 浙江省教育技术论文评选实战经验 · 写论文前先看几遍，写完后对照排查</div>
-    <div style="font-size:13px;background:var(--accent-soft);padding:10px;border-radius:8px;border:1px solid var(--accent);line-height:1.7">
-      💡 <b>如何使用：</b>写论文前先打开看 1-2 篇文章熟悉硬性指标和评审趋势 → 写作过程中遇到问题随时回查对应部分 → 写完后用字数配比表自查结构平衡
-    </div>
-  </div>
-  ${TIPS.map(card).join('')};
+  ${TIPS.map(card).join('')}`;
   $$('button[data-copyfeed]', root).forEach(b=>b.onclick=()=>{
     const i=+b.dataset.copyfeed;
     const s=root.querySelector('#feed-'+i);
     if(s)copyText(s.textContent).then(()=>toast('已复制第 '+(i+1)+' 节 prompt ✓'));
-  });`;
+  });
 }
 
 /* ================= 模块 10 · AI 排版 =================
