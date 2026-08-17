@@ -1338,7 +1338,7 @@ function writingPage(root,param){
       <button id="btn-versions" class="btn sm tip" data-tip="查看历史版本快照，一键恢复">历史版本</button>
       <button id="btn-export-doc" class="btn sm tip" data-tip="导出整篇文稿为 Markdown 文件">导出</button>
       <div class="spacer"></div>
-      <button id="btn-autowrite" class="btn primary tip" data-tip="按所选论文类型（教科研/案例/期刊/毕业论文）逐章生成完整初稿" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:110px;min-height:60px;padding:8px 16px;line-height:1.25"><span style="font-size:22px;line-height:1">🤖</span><span style="font-size:15px;font-weight:600">AI 写全文</span></button>
+      <button id="btn-autowrite" class="btn primary tip" data-tip="按所选论文类型（教科研/案例/期刊/毕业论文）逐章生成完整初稿" style="display:flex;align-items:center;justify-content:center;min-width:130px;min-height:60px;padding:8px 18px;font-size:19px;font-weight:700;letter-spacing:1px;line-height:1.2">AI 写全文</button>
     </div>
   </div>
   <div class="ch-list">
@@ -1435,7 +1435,9 @@ function writingPage(root,param){
   $('#doc-target').addEventListener('change',e=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];const v=parseInt(e.target.value);d.target=(v&&v>0)?v:undefined;saveDocs(docs);toast('目标字数已更新：'+(d.target||DOC_TARGETS[d.type]||30000));});
   $('#btn-new-doc').onclick=()=>{modalBox({title:'新建文稿',body:'<input id="m-doc-title" placeholder="文稿标题，如：我的教科研论文"><div class="muted" style="margin-top:6px">类型（决定默认章节结构）：<select id="m-doc-type" style="width:100%;margin-top:4px">'+DOC_TYPE_ORDER.map(k=>`<option value="${k}" ${k==='research'?'selected':''}>${DOC_TYPE_LABEL(k)}</option>`).join('')+'</select></div><div id="m-doc-preview" class="muted" style="margin-top:6px;font-size:12px">'+DOC_TYPE_PREVIEW.research+'</div>',buttons:[{label:'取消'},{label:'创建',cls:'primary',onClick:()=>{const t=$('#m-doc-type').value;const d=sampleDoc(t);d.title=$('#m-doc-title').value.trim();const ds=getDocs();ds.push(d);saveDocs(ds);state.docId=d.id;go('writing');toast('已创建新文稿');}}]});$('#m-doc-type').onchange=()=>{const pv=$('#m-doc-preview');if(pv)pv.textContent=DOC_TYPE_PREVIEW[$('#m-doc-type').value]||'';};};
   $('#btn-reset-chapters').onclick=()=>{const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];if(!d)return toast('暂无文稿');confirm2('按当前类型「'+DOC_TYPES[d.type]+'」重建章节模板（将清空所有章节内容，建议先导出备份），确认继续？',()=>{const names=d.type==='case'?CHAPTER_TEMPLATES.case:CHAPTER_TEMPLATES.research;d.chapters=names.map(name=>({id:uid(),name,content:''}));saveDocs(docs);go('writing',{ch:0});toast('已重建 '+names.length+' 章');});};
-  const _awBtn=$('#btn-autowrite');if(_awBtn)_awBtn.onclick=autoWritePage;
+  // 写论文页 AI 写全文按钮：调弹窗 + 默认选中当前 doc.type（让用户切了类型后直接用同类型）
+  const _awBtn=$('#btn-autowrite');
+  if(_awBtn)_awBtn.onclick=()=>{autoWritePage();const aw=document.getElementById('aw-type');if(aw){const m={bachelor:'graduation',master:'graduation',teaching:'research'};aw.value=m[doc.type]||doc.type||'research';}};
   $('#btn-casemake').onclick=()=>{
     modalBox({title:'🎓 教学案例素材 → 论文（AI 提炼）',wide:true,body:`
     <div class="muted" style="font-size:12px;margin-bottom:12px;line-height:1.7">把<strong>课堂实录 / 教案片段 / 学生作品 / 教学反思</strong>等原始素材粘贴进来，AI 会按浙江省教学案例评比要求，提炼为「背景与现状 / 特色与创新 / 成果与影响 / 经验与启示」4 章结构。<br><span style="color:var(--accent)">💡 素材越具体（数据、案例、学生作品、成绩对比）提炼效果越好；缺失数据 AI 会标 [待补充：XXX]，不编造。</span></div>
@@ -2750,11 +2752,18 @@ const AUTOWRITE_NOHIT = 'AI 味规避（平台 27 条本地规则）：禁止套
 function autoWritePage(){
   modalBox({title:'🤖 AI写论文',wide:true,body:`
     <div class="sec-head" style="margin-bottom:8px">
-      <span class="sec-head-l"><span class="sec-head-t">🤖 AI 写论文</span><span class="muted" style="font-size:12px;font-weight:400">（4 类论文 SKILL 提示已预置，按所选类型差异化生成）</span><span id="aw-llm-state" class="llm-state-chip"></span></span>
-      <button id="aw-gen-top" class="btn primary sm" style="margin:0;padding:5px 12px;font-size:12.5px">🚀 开始生成</button>
+      <span class="sec-head-l"><span class="sec-head-t">AI 写论文</span><span class="muted" style="font-size:12px;font-weight:400">（4 类论文 SKILL 提示已预置，按所选类型差异化生成）</span><span id="aw-llm-state" class="llm-state-chip"></span></span>
+      <button id="aw-gen-top" class="btn primary sm" style="margin:0;padding:5px 12px;font-size:12.5px">开始生成</button>
     </div>
-    <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">选<b>论文类型</b>（4 选 1，决定写作风格/章节结构/字数配比）→ 输入学科/学段/目标字数/题目/资料 → AI 按 13 章节喂饭指令逐章生成完整初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+    <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">先选<b>论文类型</b>（4 选 1，决定写作风格/章节结构/字数配比），再输入学科/学段/目标字数/题目/资料 → AI 按 13 章节喂饭指令逐章生成完整初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label class="muted" style="display:block;margin-bottom:3px">论文类型 <span style="color:var(--danger)">*</span></label>
+        <select id="aw-type" style="width:100%">
+          <option value="research">教科研论文（推荐中职教师）</option>
+          <option value="case">教学案例（4 章结构）</option>
+          <option value="journal">期刊论文（学术规范）</option>
+          <option value="graduation">毕业论文（本/硕）</option>
+        </select></div>
       <div><label class="muted" style="display:block;margin-bottom:3px">学科</label>
         <select id="aw-subject" style="width:100%">
           <option value="">不限</option><option>建筑类</option><option>电子信息类</option><option>机械类</option><option>财经商贸类</option><option>医药卫生类</option><option>学前教育</option><option>语文</option><option>数学</option><option>英语</option><option>物理</option><option>化学</option><option>生物</option><option>历史</option><option>政治</option><option>信息技术</option><option>其他</option>
@@ -2766,7 +2775,7 @@ function autoWritePage(){
         </select>
       </div>
       <div><label class="muted" style="display:block;margin-bottom:3px">目标字数（自由输入）</label>
-        <input id="aw-len" type="number" min="2000" max="30000" step="500" value="6000" style="width:100%" title="全文目标字数（字），生成时按章节比例分配">
+        <input id="aw-len" type="number" min="2000" max="30000" step="500" value="5000" style="width:100%" title="全文目标字数（字），生成时按章节比例分配">
       </div>
     </div>
     <div style="margin-bottom:10px"><label class="muted" style="display:block;margin-bottom:3px">论文题目（必填）</label>
@@ -2781,7 +2790,7 @@ function autoWritePage(){
       </div>
     </div>
     <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <button class="btn primary" id="aw-gen">🚀 AI 写论文（按所选类型生成）</button>
+      <button class="btn primary" id="aw-gen">AI 写论文（按所选类型生成）</button>
       <button class="btn" id="aw-tpl">📋 用本地模板（无需 Key）</button>
       <span class="muted" style="font-size:11px">13 章喂饭指令逐章生成（封面→摘要→目录→正文→致谢→附录等）</span>
     </div>
