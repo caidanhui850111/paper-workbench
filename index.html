@@ -1356,17 +1356,17 @@ function writingPage(root,param){
     <span class="muted">中文 ${countWords(ch.content).cn} · 英文单词 ${countWords(ch.content).en}</span>
     <span class="spacer" style="flex:1"></span>
     <div class="lit-feat-cards w-tools" style="margin-top:6px">
-      <div class="lit-feat-card sum" id="btn-abstract" data-act="abstract">
+      <div class="lit-feat-card sum" id="btn-abstract" data-act="abstract" onclick="var _b=document.getElementById(&quot;btn-abstract&quot;);if(_b&amp;&amp;typeof _b.onclick===&quot;function&quot;)_b.onclick();" style="cursor:pointer">
         <div class="lit-feat-top"><span class="lit-feat-icon">📋</span><span class="lit-feat-title">提炼摘要</span></div>
         <div class="lit-feat-desc">从全文提炼规范摘要+关键词（按类型差异化），可一键填入摘要章节。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
-      <div class="lit-feat-card gen" id="btn-novelty" data-act="novelty">
+      <div class="lit-feat-card gen" id="btn-novelty" data-act="novelty" onclick="var _b=document.getElementById(&quot;btn-novelty&quot;);if(_b&amp;&amp;typeof _b.onclick===&quot;function&quot;)_b.onclick();" style="cursor:pointer">
         <div class="lit-feat-top"><span class="lit-feat-icon">💡</span><span class="lit-feat-title">创新点设计</span></div>
         <div class="lit-feat-desc">9 步证据驱动设计：热点方向库+文献证据→硬性反驳→新颖性判定→7 维打分。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
-      <div class="lit-feat-card note" id="btn-sizheng" data-act="sizheng">
+      <div class="lit-feat-card note" id="btn-sizheng" data-act="sizheng" onclick="var _b=document.getElementById(&quot;btn-sizheng&quot;);if(_b&amp;&amp;typeof _b.onclick===&quot;function&quot;)_b.onclick();" style="cursor:pointer">
         <div class="lit-feat-top"><span class="lit-feat-icon">🇨🇳</span><span class="lit-feat-title">课程思政</span></div>
         <div class="lit-feat-desc">10 个思政维度，弹窗粘贴本章内容生成具体融合点（教育部要求融入）。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
@@ -1376,12 +1376,12 @@ function writingPage(root,param){
         <div class="lit-feat-desc">5 场景推荐图型 + WPS/Excel 作图步骤 + 本地预览图（教学数据配图）。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
-      <div class="lit-feat-card sum" id="btn-mindmap" data-act="mindmap">
+      <div class="lit-feat-card sum" id="btn-mindmap" data-act="mindmap" onclick="var _b=document.getElementById(&quot;btn-mindmap&quot;);if(_b&amp;&amp;typeof _b.onclick===&quot;function&quot;)_b.onclick();" style="cursor:pointer">
         <div class="lit-feat-top"><span class="lit-feat-icon">🧠</span><span class="lit-feat-title">大纲思维导图</span></div>
         <div class="lit-feat-desc">粘贴内容 → AI 按标题/章节/小节三层结构生成思维导图。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
       </div>
-      <div class="lit-feat-card gen" id="btn-insert-econ" data-act="insertecon">
+      <div class="lit-feat-card gen" id="btn-insert-econ" data-act="insertecon" onclick="var _b=document.getElementById(&quot;btn-insert-econ&quot;);if(_b&amp;&amp;typeof _b.onclick===&quot;function&quot;)_b.onclick();" style="cursor:pointer">
         <div class="lit-feat-top"><span class="lit-feat-icon">📈</span><span class="lit-feat-title">插入实证分析</span></div>
         <div class="lit-feat-desc">把「计量分析」跑好的描述统计/回归表一键插入当前章节。</div>
         <div class="lit-feat-go">进入操作 ↗</div>
@@ -1650,8 +1650,7 @@ ${stage}${subject}学生现状：[待补充：班级人数、学习基础、典�
     });
   };
   $('#btn-export-doc').onclick=()=>{persist();const d=getCurDoc();let md='# '+d.title+'\n\n';d.chapters.forEach(c=>{md+='## '+c.name+'\n\n'+c.content+'\n\n';});download(d.title+'_'+todayStr()+'.md',md,'text/markdown;charset=utf-8');};
-  // 工具卡点击：原按钮 id + data-act 都触发（兼容旧逻辑）
-  $$('.w-tools .lit-feat-card').forEach(card=>{card.onclick=()=>{const k=card.dataset.act;if(k==='abstract')$('#btn-abstract').click();else if(k==='novelty')$('#btn-novelty').click();else if(k==='sizheng')$('#btn-sizheng').click();else if(k==='educhart')$('#btn-edu-chart').click();else if(k==='mindmap')$('#btn-mindmap').click();else if(k==='insertecon')$('#btn-insert-econ').click();else if(k==='casemake')$('#btn-casemake').click();};});
+  // 工具卡点击：onclick 在卡片 HTML 模板中内联（避免绑定时机问题）
   $('#btn-abstract').onclick=()=>{_toolHi('abstract');
     const docs=getDocs();const d=docs.find(x=>x.id===state.docId)||docs[0];
     const full=d.chapters.map(c=>'【'+c.name+'】\n'+(c.content||'')).join('\n\n');
