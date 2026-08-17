@@ -1135,7 +1135,7 @@ function progressPage(root){
       <span class="chip green">已完成 ${done} 章</span>
       <span class="chip amber">剩余约 ${remain} 字</span>
     </div>
-    <svg class="dash-ring" width="72" height="72" viewBox="0 0 72 72">
+    <svg class="dash-ring" width="36" height="36" viewBox="0 0 72 72">
       <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="7"/>
       <circle cx="36" cy="36" r="30" fill="none" stroke="#7aa5ff" stroke-width="7" stroke-linecap="round"
         stroke-dasharray="${2*Math.PI*30}" stroke-dashoffset="${2*Math.PI*30*(1-pct/100)}" transform="rotate(-90 36 36)"/>
@@ -1154,15 +1154,6 @@ function progressPage(root){
         <div class="ch-wc">${cw} 字${cw>0?' · 已写':''}</div>
       </div>`;
     }).join('')}
-  </div>
-  <div class="card" style="margin-top:14px">
-    <h3>写作建议</h3>
-    <div class="muted" style="font-size:13px;line-height:1.8">
-      ① 按"摘要 → 绪论 → 文献综述 → 方法 → 实验 → 讨论 → 结论"顺序推进；<br>
-      ② 每章先看右上角「写作要点」再动笔；<br>
-      ③ 文献综述建议边读文献边记笔记，在「文献阅读与笔记」模块沉淀素材；<br>
-      ④ 实证部分用「计量分析」模块跑通初稿，正式投稿前用 Stata/R 复核。
-    </div>
   </div>
   <div class="card" style="margin-top:14px">
     <h3>🧭 全部功能导航 <span class="muted" style="font-size:12px;font-weight:400">（手机端快捷入口，点击直达）</span></h3>
@@ -3031,19 +3022,29 @@ function settingsPage(root){
   ];
   root.innerHTML=`
   <div class="card" style="margin-bottom:12px">
-    <h3>🤖 LLM 配置（可选）</h3>
-    <div class="muted" style="font-size:12px;margin-bottom:10px">默认推荐 DeepSeek（国内合规、便宜、OpenAI 兼容）；不配 Key 时所有 AI 功能使用本地模板，完全离线可用。<br><b style="color:var(--warn)">隐私：</b>Key 仅存浏览器本地；调用 LLM 时内容会发送到所选服务商，请勿输入敏感数据。</div>
+    <h3 style="font-size:14px">🤖 LLM 配置（智能体API设置）</h3>
+    <div class="muted" style="font-size:11px;margin-bottom:8px;line-height:1.6">默认推荐 DeepSeek（国内合规、便宜、OpenAI 兼容）；不配 Key 时所有 AI 功能使用本地模板，完全离线可用。<br><b style="color:var(--warn)">隐私：</b>Key 仅存浏览器本地；调用 LLM 时内容会发送到所选服务商，请勿输入敏感数据。</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
-      <div><label class="muted">服务商</label><select id="set-prov"><option value="deepseek" ${cfg.provider==='deepseek'?'selected':''}>DeepSeek（推荐）</option><option value="openai" ${cfg.provider==='openai'?'selected':''}>OpenAI</option><option value="zhipu" ${cfg.provider==='zhipu'?'selected':''}>智谱 GLM</option><option value="qwen" ${cfg.provider==='qwen'?'selected':''}>通义千问</option><option value="custom" ${cfg.provider==='custom'?'selected':''}>自定义</option></select></div>
-      <div><label class="muted">API Key</label><input id="set-key" type="password" value="${esc(cfg.apiKey)}" placeholder="sk-..."></div>
-      <div><label class="muted">Base URL</label><input id="set-base" value="${esc(cfg.baseUrl)}" placeholder="默认 https://api.deepseek.com/v1"></div>
-      <div><label class="muted">模型</label><input id="set-model" value="${esc(cfg.model)}" placeholder="deepseek-chat"></div>
+      <div><label class="muted" style="font-size:11px">服务商</label><select id="set-prov"><option value="deepseek" ${cfg.provider==='deepseek'?'selected':''}>DeepSeek（推荐）</option><option value="openai" ${cfg.provider==='openai'?'selected':''}>OpenAI</option><option value="zhipu" ${cfg.provider==='zhipu'?'selected':''}>智谱 GLM</option><option value="qwen" ${cfg.provider==='qwen'?'selected':''}>通义千问</option><option value="custom" ${cfg.provider==='custom'?'selected':''}>自定义</option></select></div>
+      <div><label class="muted" style="font-size:11px">API Key</label><input id="set-key" type="password" value="${esc(cfg.apiKey)}" placeholder="sk-..."></div>
+      <div><label class="muted" style="font-size:11px">连接地址（Base URL）</label><input id="set-base" value="${esc(cfg.baseUrl)}" placeholder="默认 https://api.deepseek.com/v1"></div>
+      <div><label class="muted" style="font-size:11px">模型</label><input id="set-model" value="${esc(cfg.model)}" placeholder="deepseek-chat"></div>
     </div>
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-      <button id="set-test" class="btn">测试连接</button>
-      <button id="set-save" class="btn primary">保存配置</button>
-      <span class="muted" id="set-state">${cfg.enabled?'已启用':'未启用（模板模式）'}</span>
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+      <button id="set-test" class="btn" style="font-size:12px">测试连接</button>
+      <button id="set-save" class="btn primary" style="font-size:12px">保存配置</button>
+      <span class="muted" id="set-state" style="font-size:11px">${cfg.enabled?'已启用':'未启用（模板模式）'}</span>
     </div>
+    <details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;font-weight:500;color:var(--accent)">📖 设置说明（点开看）</summary>
+      <div class="muted" style="font-size:11px;line-height:1.7;margin-top:6px;padding:8px 10px;background:var(--card2);border-radius:6px">
+        <b>1. DeepSeek（推荐）</b>：注册 platform.deepseek.com → 控制台 API Keys → 创建 key（新用户有免费额度），连接地址默认 <code>https://api.deepseek.com/v1</code>，模型 <code>deepseek-chat</code>。<br>
+        <b>2. OpenAI</b>：platform.openai.com → API keys，连接地址 <code>https://api.openai.com/v1</code>，模型如 <code>gpt-4o-mini</code>，需海外网络。<br>
+        <b>3. 智谱 GLM</b>：open.bigmodel.cn → API Key，连接地址 <code>https://open.bigmodel.cn/api/paas/v4</code>，模型 <code>glm-4-flash</code>（国内便宜）。<br>
+        <b>4. 通义千问</b>：dashscope.console.aliyun.com → API Key，连接地址 <code>https://dashscope.aliyuncs.com/compatible-mode/v1</code>，模型 <code>qwen-turbo</code>。<br>
+        <b>5. 自定义</b>：任何 OpenAI 兼容协议的服务（含本地 Ollama / LM Studio / 第三方代理），连接地址填实际地址即可。<br>
+        <b>6. 隐私与安全</b>：Key 仅存你浏览器 localStorage（不会上传到任何服务器）；调用时内容会发到对应服务商，请勿输入敏感个人信息；不配 Key 也能用 27 条本地规则检查/字数统计/结构模板等离线功能。
+      </div>
+    </details>
   </div>
   <div class="card" style="margin-bottom:12px">
     <h3>外观</h3>
