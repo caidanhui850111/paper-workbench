@@ -3128,13 +3128,13 @@ function frontierPage(root){
     <div class="muted" style="font-size:12px;margin-bottom:8px">基于方向关键词 + 最新新闻（可粘贴链接），生成 3-5 个值得研究的前沿方向</div>
     <div style="display:grid;grid-template-columns:1fr 1.4fr;gap:6px">
       <input id="fr-key" placeholder="方向关键词，如：智能建造 / 数字化转型">
-      <textarea id="fr-news" placeholder="最新国家/国际大新闻（粘贴文字或链接）" style="line-height:1.4;padding:7px 10px;resize:vertical"></textarea>
+      <textarea id="fr-news" placeholder="最新国家/国际大新闻（粘贴文字或链接）" rows="1" style="height:34px;line-height:1.2;padding:8px 10px;resize:vertical"></textarea>
     </div>
     <div id="fr-out" style="margin-top:8px"></div>
   </div>
   <div class="card" style="margin-top:10px">
     <h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;justify-content:space-between">
-      <span style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span>🧭 主题综述生成</span><span class="muted" style="font-size:12px;font-weight:400">（借鉴 Paper-Agent 方法论 · 配 LLM Key 用大模型，未配用模板）</span></span>
+      <span style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span>🧭 主题综述生成</span><span class="muted" style="font-size:12px;font-weight:400">（借鉴 Paper-Agent 方法论 · 配 LLM Key 用大模型，未配用模板）</span><span id="fr-review-llm" class="llm-state-chip"></span></span>
       <button id="fr-review" class="btn primary sm" style="margin:0;padding:5px 12px;font-size:12.5px">🚀 生成主题综述</button>
     </h3>
     <div class="muted" style="font-size:12px;margin-bottom:8px;line-height:1.65"><b>主题综述</b>是对某研究主题的「背景→现状→热点→空白→启示」五段梳理，用于回答「这个方向还值不值得做、有什么机会」。<br><span style="font-size:11px"><b>与文献综述的区别</b>：<b>文献综述</b>梳理具体已读文献（"前人做了什么"），<b>主题综述</b>梳理一个研究方向的完整图景与切入点（"这个领域还能怎么做"）。</span></div>
@@ -3145,6 +3145,7 @@ function frontierPage(root){
   // LLM 状态 chip
   const _frCfg=LLM.get();
   $('#fr-llm-state').innerHTML=_frCfg.enabled?'<span class="llm-chip on">● LLM 已启用</span>':'<span class="llm-chip off">○ 未配 Key（点此配）</span>';
+  $('#fr-review-llm').innerHTML=_frCfg.enabled?'<span class="llm-chip on">● LLM 已启用</span>':'<span class="llm-chip off">○ 未配 Key（点此配）</span>';
   $('#fr-gen').onclick=async()=>{
     const key=$('#fr-key').value.trim();
     const news=$('#fr-news').value.trim();
@@ -3152,7 +3153,7 @@ function frontierPage(root){
     const out=$('#fr-out');out.innerHTML='<div class="muted">生成中…</div>';
     try{
       let res;
-      if(LLM.get().enabled){res=await llmAsk(`方向关键词：${key}\n国家/国际大新闻：${$('#fr-news').value.slice(0,1000)}\n企业/社会痛点：${$('#fr-pain').value.slice(0,1000)}\n\n请基于以上信息，生成 3-5 个值得研究的前沿方向，每个方向给出：名称 + 研究问题 + 可行理由。`,'你是学术前沿趋势分析专家。');}
+      if(LLM.get().enabled){res=await llmAsk(`方向关键词：${key||'（未填）'}\n最新新闻（可含链接）：${news.slice(0,1500)||'（未填）'}\n\n请基于关键词和新闻中提到的趋势/事件，生成 3-5 个值得研究的前沿方向，每个方向给出：方向名称 + 研究问题 + 可行理由（结合政策/趋势/数据）。`,'你是学术前沿趋势分析专家。');}
       if(!res){
         const k=key||'该方向';
         res=`基于「${k}」的前沿方向建议（模板生成，配 LLM Key 可深度分析）：\n\n① ${k}与新一代人工智能融合研究——探索大模型/智能体在该领域的应用场景与边界；\n② 数据驱动的${k}评价体系构建——解决传统评价主观性强的问题；\n③ 政策工具视角下${k}的演化与效应评估——衔接宏观政策与微观实践；\n④ 交叉学科视角的${k}创新——引入其他学科理论解释该领域难题；\n⑤ 可持续发展导向的${k}路径优化——响应双碳与高质量发展战略。`;
