@@ -301,7 +301,7 @@ table.data td.l,table.data th.l{text-align:left}
     <button id="hamburger" class="btn tip" aria-label="菜单" data-tip="打开全部功能菜单（10 个模块）">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span id="hb-label" style="display:none">菜单</span>
     </button>
-    <div class="brand" style="flex:1;text-align:center;font-size:26px;font-weight:700;color:var(--text);white-space:nowrap;letter-spacing:2px">论文写作辅助平台 v1</div>
+    <div class="brand" style="flex:1;text-align:center;font-size:26px;font-weight:700;color:var(--text);white-space:nowrap;letter-spacing:2px">论文写作辅助平台 v1.0</div>
     <select id="layout-select" title="页面风格" style="width:auto;min-height:38px;padding:0 10px;border-radius:999px;font-size:13px;flex:0 0 auto">
       <option value="standard">标准风格</option>
       <option value="compact">紧凑风格</option>
@@ -3821,10 +3821,10 @@ function tipsPage(root){
       </div>`;
     });
   }
-  return `<details class="card" style="cursor:pointer;margin-bottom:8px">
-     <summary style="font-weight:600;font-size:14px;padding:2px 0">📄 ${t.title}</summary>
-     <div class="muted" style="font-size:11px;margin:4px 0 6px">来源：${t.src}</div>
-     <div style="font-size:12.5px;line-height:1.6;background:var(--card2);padding:8px;border-radius:6px;margin-bottom:6px">${t.intro}</div>
+  return `<details class="card" style="cursor:pointer;margin-bottom:5px;padding:4px 12px">
+     <summary style="font-weight:600;font-size:13px;padding:0;line-height:1.4">📄 ${t.title}</summary>
+     <div class="muted" style="font-size:11px;margin:3px 0 5px">来源：${t.src}</div>
+     <div style="font-size:12.5px;line-height:1.6;background:var(--card2);padding:7px;border-radius:6px;margin-bottom:5px">${t.intro}</div>
      ${body}
    </details>`;
   };
