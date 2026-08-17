@@ -101,13 +101,15 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 #drawer .nav-item{display:flex;align-items:center;gap:10px;min-height:50px;padding:0 12px;border-radius:10px;font-size:15px;color:var(--muted);width:100%;text-align:left;margin-bottom:2px}
 #drawer .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
 /* ---------- 完成度 ---------- */
-.dash{background:linear-gradient(135deg,#1e2547 0%,#28305e 45%,#3b2f6b 100%);color:#fff;border-radius:18px;padding:22px;position:relative;overflow:hidden;margin-bottom:16px}
+.dash{background:linear-gradient(135deg,#1e2547 0%,#28305e 45%,#3b2f6b 100%);color:#fff;border-radius:18px;padding:22px;position:relative;overflow:hidden;margin-bottom:16px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
 .dash::after{content:"";position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05)}
 .dash .dash-label{font-size:13px;opacity:.75}
 .dash .dash-num{font-size:52px;font-weight:700;line-height:1.1}
 .dash .dash-sub{font-size:13px;opacity:.85;margin-top:4px}
 .dash .dash-ring{position:absolute;right:24px;top:24px}
-.dash .dash-badges{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.dash .dash-badges{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.dash-left{flex:0 0 auto;min-width:120px}
+.dash-right{flex:1;min-width:0}
 .ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:var(--gap)}
 .ch-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius-s);padding:12px;cursor:pointer;transition:all .15s}
 .ch-card:hover{border-color:var(--accent);transform:translateY(-1px)}
@@ -1127,13 +1129,17 @@ function progressPage(root){
   const remain=Math.max(0,target-wc);
   root.innerHTML=`
   <div class="dash">
-    <div class="dash-label">论文完成度</div>
-    <div class="dash-num">${pct}%</div>
-    <div class="dash-sub">${done}/${total} 章节已撰写 · 总字数 ${wc} · 目标 ${target}</div>
-    <div class="dash-badges">
-      <span class="chip blue">${DOC_TYPES[doc.type]||doc.type}</span>
-      <span class="chip green">已完成 ${done} 章</span>
-      <span class="chip amber">剩余约 ${remain} 字</span>
+    <div class="dash-left">
+      <div class="dash-label">论文完成度</div>
+      <div class="dash-num">${pct}%</div>
+    </div>
+    <div class="dash-right">
+      <div class="dash-sub">${done}/${total} 章节已撰写 · 总字数 ${wc} · 目标 ${target}</div>
+      <div class="dash-badges">
+        <span class="chip blue">${DOC_TYPES[doc.type]||doc.type}</span>
+        <span class="chip green">已完成 ${done} 章</span>
+        <span class="chip amber">剩余约 ${remain} 字</span>
+      </div>
     </div>
     <svg class="dash-ring" width="36" height="36" viewBox="0 0 72 72">
       <circle cx="36" cy="36" r="30" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="7"/>
