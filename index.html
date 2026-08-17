@@ -3114,17 +3114,17 @@ function frontierPage(root){
       <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/>
     </svg>
   </div>
-  <div class="card" style="margin-bottom:12px">
-    <h3 style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px"><span>官方数据库检索入口</span><span class="muted" style="font-size:11.5px;font-weight:400">点击跳转官方数据库（新窗口打开），检索后可将结果粘贴回本工作台</span></h3>
+  <div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,var(--accent-soft) 0%,var(--card) 60%)">
+    <h3 style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px"><span>📚 官方数据库检索入口</span><span class="muted" style="font-size:11.5px;font-weight:400">点击跳转官方数据库（新窗口打开），检索后可将结果粘贴回本工作台</span></h3>
     <div class="db-row db-cn-row"><div class="db-group-title db-cn"><span class="db-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(120 12 12)"/></svg></span><span>中文数据库（4）</span></div><div class="db-cards-inline">${FRONTIER_CN_LINKS.map(l=>`<a class="db-card db-cn" href="${l.url}" target="_blank" rel="noopener">${l.icon||'<span class="db-dot">●</span>'} <span>${l.name}</span></a>`).join('')}</div></div>
     <div class="db-row db-en-row"><div class="db-group-title db-en"><span class="db-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20"/></svg></span><span>英文数据库（4）</span></div><div class="db-cards-inline">${FRONTIER_EN_LINKS.map(l=>`<a class="db-card db-en" href="${l.url}" target="_blank" rel="noopener">${l.icon||'<span class="db-dot">●</span>'} <span>${l.name}</span></a>`).join('')}</div></div>
 
   </div>
-  <div class="card" style="margin-top:12px">
-    <h3 style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px"><span>官方查重入口</span><span class="muted" style="font-size:11.5px;font-weight:400">论文定稿前建议先查重，优先使用学校/学院渠道（付费，按需使用）</span></h3>
+  <div class="card" style="margin-bottom:12px;background:linear-gradient(135deg,var(--warn-soft) 0%,var(--card) 60%)">
+    <h3 style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px"><span>✅ 官方查重入口</span><span class="muted" style="font-size:11.5px;font-weight:400">论文定稿前建议先查重，优先使用学校/学院渠道（付费，按需使用）</span></h3>
     <div class="db-row db-plag-row"><div class="db-group-title db-plag"><span class="db-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span>查重服务（4）</span></div><div class="db-cards-inline">${FRONTIER_PLAGIARISM_LINKS.map(l=>`<a class="db-card db-plag" href="${l.url}" target="_blank" rel="noopener">${l.icon||'<span class="db-dot">●</span>'} <span>${l.name}</span></a>`).join('')}</div></div>
   </div>
-  <div class="card">
+  <div class="card" style="background:linear-gradient(135deg,#f3efff 0%,var(--card) 60%)">
     <h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;justify-content:space-between">
       <span style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span>🚀 前沿方向挖掘</span><span class="muted" style="font-size:12px;font-weight:400">（配 LLM Key 用大模型，未配采用本地模板）</span><span id="fr-llm-state" class="llm-state-chip"></span></span>
       <button id="fr-gen" class="btn primary sm" style="margin:0;padding:5px 12px;font-size:12.5px">🚀 生成前沿方向</button>
@@ -3136,7 +3136,7 @@ function frontierPage(root){
     </div>
     <div id="fr-out" style="margin-top:8px"></div>
   </div>
-  <div class="card" style="margin-top:10px">
+  <div class="card" style="background:linear-gradient(135deg,var(--ok-soft) 0%,var(--card) 60%)">
     <h3 style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;justify-content:space-between">
       <span style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><span>🧭 主题综述生成</span><span class="muted" style="font-size:12px;font-weight:400">（借鉴 Paper-Agent 方法论 · 配 LLM Key 用大模型，未配用模板）</span><span id="fr-review-llm" class="llm-state-chip"></span></span>
       <button id="fr-review" class="btn primary sm" style="margin:0;padding:5px 12px;font-size:12.5px">🚀 生成主题综述</button>
