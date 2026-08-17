@@ -1321,7 +1321,7 @@ function writingPage(root,param){
   </div>
   <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:6px;padding:8px 12px">
     <div class="sec-head" style="margin:0">
-      <span class="sec-head-l"><span class="sec-head-t">🛠 顶部功能区（内容选择和 AI 写全文）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 目标字数 / 新建/导入/重置/版本/导出 / AI 写全文）</span></span>
+      <span class="sec-head-l"><span class="sec-head-t">1、顶部功能区（内容选择和 AI 写全文）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 目标字数 / 新建/导入/重置/版本/导出 / AI 写全文）</span></span>
       <span class="sec-head-r" style="display:flex;align-items:center;gap:10px;font-size:12px"><span class="chip blue">${DOC_TYPE_LABEL(doc.type)}</span><span class="chip green">章节 ${docDoneCount(doc)}/${doc.chapters.length}</span><span class="chip gray">总字数 ${wc}</span><span class="muted" id="save-state">每 1.2 秒自动保存</span></span>
     </div>
     <div class="write-head">
@@ -1342,7 +1342,7 @@ function writingPage(root,param){
   <!-- 章节编辑区：白底卡片 + sec-head + 章节 tabs + 增删按钮 + 字数 -->
   <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:8px;padding:10px 12px">
     <div class="sec-head" style="margin:0">
-      <span class="sec-head-l"><span class="sec-head-t">🛠 章节编辑区</span><span class="muted" style="font-size:12px;font-weight:400">（点击切换章节 · 新增/删除 · 实时字数统计）</span></span>
+      <span class="sec-head-l"><span class="sec-head-t">2、章节编辑区</span><span class="muted" style="font-size:12px;font-weight:400">（点击切换章节 · 新增/删除 · 实时字数统计）</span></span>
     </div>
     <div class="ch-list">
       ${doc.chapters.map((c,i)=>{const cw=countWords(c.content).total;return `<button class="ch-tab ${i===state.chIdx?'active':''}" data-i="${i}">${esc(c.name)}<span class="wc">${cw}</span></button>`;}).join('')}
@@ -1371,7 +1371,7 @@ function writingPage(root,param){
   <!-- 辅助功能区：白底卡片 + sec-head + 7 张功能卡 -->
   <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:10px;padding:10px 12px">
     <div class="sec-head" style="margin:0">
-      <span class="sec-head-l"><span class="sec-head-t">🛠 辅助功能区</span><span class="muted" style="font-size:12px;font-weight:400">（AI 工具集 · 7 张功能卡，点开弹窗操作）</span></span>
+      <span class="sec-head-l"><span class="sec-head-t">3、辅助功能区</span><span class="muted" style="font-size:12px;font-weight:400">（AI 工具集 · 7 张功能卡，点开弹窗操作）</span></span>
     </div>
     <div class="lit-feat-cards w-tools" style="margin-top:0">
       <div class="lit-feat-card sum" id="btn-abstract" data-act="abstract">
@@ -2910,7 +2910,7 @@ function autoWritePage(){
     </div>
     <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
       <button class="btn primary" id="aw-gen">AI 写论文（按所选类型生成）</button>
-      <span class="muted" style="font-size:11px">教科研 8 章 · 毕业论文 13 章 · 期刊 8 章 · 案例 5 章（按所选类型差异化）</span>
+      <span class="muted" style="font-size:11px">教科研 8 章 · 毕业论文 8 章 · 期刊 8 章 · 案例 4 章（按所选类型差异化）</span>
     </div>
     <div id="aw-progress" style="display:none;margin:10px 0;padding:10px;background:var(--card2);border-radius:8px;font-size:12px"></div>
     <div id="aw-out"></div>
@@ -2942,62 +2942,46 @@ function autoWritePage(){
     $('#aw-flist').textContent='已附加 '+files.length+' 个文件内容';
   };
 
+  const _awPrompts=()=>AUTOWRITE_PROMPTS[$('#aw-type')?.value||'research']||AUTOWRITE_PROMPTS.research;
+  const _awTypeName=t=>({research:'教科研论文',case:'教学案例',journal:'期刊论文',graduation:'毕业论文'})[t]||t;
   const renderEmpty=()=>{
-    const titles=['封面','中英文摘要','目录','引言/绪论','文献综述','理论框架与研究方法','研究结果与分析','讨论','结论与建议','参考文献','致谢','附录','整合说明'];
-    const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
-    let html='<div class="muted" style="font-size:12px;margin:8px 0">13 个章节编辑区（生成中会逐章填充）：</div>';
-    keys.forEach((k,i)=>{
-      html+=`<div style="margin-bottom:8px"><label class="muted">${titles[i]}</label><textarea id="aw-out-${k}" style="min-height:${i===6?200:90};font-size:13px;line-height:1.7"></textarea></div>`;
+    const ps=_awPrompts();
+    let html='<div class="muted" style="font-size:12px;margin:8px 0">'+ps.length+' 个章节编辑区（按「'+_awTypeName($('#aw-type')?.value||'research')+'」结构，生成中逐章填充）：</div>';
+    ps.forEach((s,i)=>{
+      html+=`<div style="margin-bottom:8px"><label class="muted">${esc(s.h)}（${esc(s.w)}）</label><textarea id="aw-out-${i}" style="min-height:${i===Math.floor(ps.length/2)?200:90};font-size:13px;line-height:1.7"></textarea></div>`;
     });
     html+=`<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="aw-create" disabled>📄 创建文稿并打开（生成完成后可用）</button><button class="btn" id="aw-regen" style="display:none">🔄 重新生成</button></div>`;
     $('#aw-out').innerHTML=html;
+    const _at=document.getElementById('aw-type');
+    if(_at)_at.onchange=()=>{
+      renderEmpty();
+      const l=$('#aw-len');
+      const defs={research:5000,case:3000,journal:8000,graduation:15000};
+      if(l){const cur=parseInt(l.value)||0;const def=defs[_at.value]||5000;if(cur===5000||cur===6000)l.value=def;}
+    };
     $('#aw-create').onclick=()=>{
       const title=$('#aw-topic').value.trim();
-      const names=['一、封面','二、中英文摘要','三、目录','四、引言','五、文献综述','六、理论框架与研究方法','七、研究结果与分析','八、讨论','九、结论与建议','十、参考文献','十一、致谢','十二、附录','十三、整合说明'];
-      const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
-      // 13 章 → 期望章节名映射（关键词匹配；封面/目录不填正文，整合说明追加）
-      const map=[
-        null, // cover 跳过
-        ['摘要','摘 要'],
-        null, // toc 跳过
-        ['引言','绪论','问题的提出'],
-        ['文献综述','文献回顾'],
-        ['方法','研究方法','理论框架与研究方法','理论框架'],
-        ['结果','研究结果','研究结果与分析','结果与分析'],
-        ['讨论'],
-        ['结论','结论与建议','结论与讨论'],
-        ['参考文献'],
-        ['致谢'],
-        ['附录'],
-        null  // integration 追加为新章节
-      ];
+      const ps=_awPrompts();
+      const _norm=n=>String(n||'').replace(/\s/g,'').replace(/^第[一二三四五六七八九十]+章/,'').replace(/[（(][^）)]*[)）]/g,'');
       const ds=getDocs();
       const d=ds.find(x=>x.id===state.docId)||ds[0];
       if(!d)return toast('未找到当前文档');
       if(title)d.title=title;
       let matched=0,added=0;
-      keys.forEach((k,i)=>{
-        const content=$('#aw-out-'+k).value.trim();
+      [...document.querySelectorAll('#aw-out textarea')].forEach((ta,i)=>{
+        const content=ta.value.trim();
         if(!content)return;
-        const alts=map[i];
-        if(alts===null){
-          // 封面/目录/整合说明 → 整合说明追加为新章节，其余丢弃
-          if(k==='integration'){
-            d.chapters.push({id:uid(),name:names[i],content});
-            added++;
-          }
-          return;
-        }
-        // 找匹配的章节
+        const gName=ps[i]?.h||('章节'+(i+1));
+        const g=_norm(gName);
         const idx=d.chapters.findIndex(ch=>{
-          const n=(ch.name||'').replace(/\s/g,'');
-          return alts.some(a=>n.includes(a.replace(/\s/g,'')));
+          const p=_norm(ch.name||'');
+          return g&&p&&(g.includes(p)||p.includes(g));
         });
         if(idx>=0){
           d.chapters[idx].content=(d.chapters[idx].content||'')+(d.chapters[idx].content?'\n\n':'')+content;
           matched++;
         }else{
-          d.chapters.push({id:uid(),name:names[i],content});
+          d.chapters.push({id:uid(),name:gName,content});
           added++;
         }
       });
@@ -3008,6 +2992,7 @@ function autoWritePage(){
     };
     $('#aw-regen').onclick=()=>$('#aw-gen').click();
   };
+  renderEmpty(); // 打开弹窗即渲染编辑区（按当前类型）+ 绑定 aw-type 切换
 
   const tpl=()=>{
     const title=$('#aw-topic').value.trim()||'论文题目';
@@ -3051,9 +3036,8 @@ function autoWritePage(){
     const typeName2={research:'教科研论文',case:'教学案例',journal:'期刊论文',graduation:'毕业论文（本/硕）'}[typeKey2];
     const ratioMap={research:'引言15%/概念框架10%/实施策略55%（主战场）/成效12%/结语4%',case:'背景与现状/特色与创新/成果与影响/经验与启示（4章均分）',journal:'引言/综述/方法/结果/讨论/结论（按期刊规范，6000-8000字）',graduation:'6章正文（绪论/综述/方法/分析/讨论/结论，按目标字数 15000 平均分配）'}[typeKey2];
     const meta=[subject?'学科：'+subject:'',stage?'学段：'+stage:'',topic?'论文题目：'+topic:'',`论文类型：${typeName2}（目标字数 ${lenDesc}，按该类型章节比例：${ratioMap}）`].filter(Boolean).join('\n');
-    const keys=['cover','abstract','toc','intro','literature','method','results','discussion','conclusion','references','acknowledgement','appendix','integration'];
     try{
-      // 按所选论文类型取对应章节列表（教科研/毕业 13 章 · 期刊 8 章 · 案例 5 章）
+      // 按所选论文类型取对应章节列表（教科研 8 章 · 毕业 8 章 · 期刊 8 章 · 案例 4 章）
       const typePrompts=AUTOWRITE_PROMPTS[typeKey2]||AUTOWRITE_PROMPTS.research;
       for(let i=0;i<typePrompts.length;i++){
         const s=typePrompts[i];
@@ -3068,10 +3052,10 @@ function autoWritePage(){
         const typeName={research:'教科研论文',case:'教学案例',journal:'期刊论文',graduation:'毕业论文（本/硕）'}[$('#aw-type').value||'research'];
         const chPrompt='你是浙江省教育领域资深论文指导专家，本任务写作目标类型：'+typeName+'。\n【该类型写作 SKILL 提示】'+_AW_SKILL_BY_TYPE[$('#aw-type').value||'research']+'\n【论文信息】\n'+meta+'\n\n【资料来源】\n'+source.slice(0,2500)+'\n\n【本章任务·'+s.h+'（'+s.w+'）】\n'+s.p+'\n\n【通用写作技巧（必须遵守）】\n'+AUTOWRITE_SKILLS.join('\n')+'\n'+AUTOWRITE_NOHIT+'\n\n【输出要求】仅输出本章正文内容（'+typeName+'，中文），不要标题、不要解释、不要 JSON；按目标字数与比例控制篇幅；如素材缺数据用 [待补充：XXX] 标注，不编造。';
         const r=await llmAsk(chPrompt);
-        const el=$('#aw-out-'+keys[i]);if(el)el.value=(r||'').replace(/^【[^】]*】/,'').trim();
-        prog.innerHTML='<div style="color:var(--ok)">✓ 第 '+(i+1)+'/13 章完成：'+s.h+'</div>';
+        const el=$('#aw-out-'+i);if(el)el.value=(r||'').replace(/^【[^】]*】/,'').trim();
+        prog.innerHTML='<div style="color:var(--ok)">✓ 第 '+(i+1)+'/'+typePrompts.length+' 章完成：'+s.h+'</div>';
       }
-      prog.innerHTML+='<div style="color:var(--ok);margin-top:6px">✅ 全部 13 章生成完毕！可编辑后点「创建文稿并打开」</div>';
+      prog.innerHTML+='<div style="color:var(--ok);margin-top:6px">✅ 全部 '+typePrompts.length+' 章生成完毕！可编辑后点「创建文稿并打开」</div>';
       const c=$('#aw-create');if(c)c.disabled=false;
       $('#aw-regen').style.display='inline-flex';
       btn.disabled=false;btn.textContent='🚀 一键生成全文（逐章）';
