@@ -1148,6 +1148,23 @@ function progressPage(root){
         stroke-dasharray="${2*Math.PI*30}" stroke-dashoffset="${2*Math.PI*30*(1-pct/100)}" transform="rotate(-90 36 36)"/>
     </svg>
   </div>
+  
+  <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+    <h3 style="font-size:15px;font-weight:600">章节进度</h3>
+    <span class="muted">点击章节前往写作 · 点亮的船段 = 已撰写</span>
+  </div>
+  <div class="ch-grid">
+    ${doc.chapters.map((c,i)=>{
+      const cw=countWords(c.content).total;
+      const dot=cw>0?'done':(i===state.chIdx?'now':'todo');
+      return `<div class="ch-card" data-i="${i}">
+        <div><span class="dot ${dot}"></span><span class="ch-name">${esc(c.name)}</span></div>
+        <div class="ch-wc">${cw} 字${cw>0?' · 已写':''}</div>
+      </div>`;
+    }).join('')}
+  </div>
+  
+
   <div class="card" style="margin-top:10px;padding:12px 14px">
     <div style="font-size:13px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px"><span>🔧 智能体 API 设置</span><span class="muted" style="font-size:11px;font-weight:400">默认 DeepSeek（推荐）；不配 Key 时 AI 功能用本地模板</span></div>
     <div class="muted" style="font-size:10px;line-height:1.5;margin-bottom:8px"><b style="color:var(--warn)">隐私：</b>Key 仅存浏览器本地；调用 LLM 时内容会发到对应服务商，请勿输入敏感数据。</div>
@@ -1172,29 +1189,6 @@ function progressPage(root){
         <b>6. 隐私与安全</b>：Key 仅存你浏览器 localStorage（不会上传到任何服务器）；调用时内容会发到对应服务商，请勿输入敏感个人信息；不配 Key 也能用 27 条本地规则检查/字数统计/结构模板等离线功能。
       </div>
     </details>
-  </div>
-  <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-    <h3 style="font-size:15px;font-weight:600">章节进度</h3>
-    <span class="muted">点击章节前往写作 · 点亮的船段 = 已撰写</span>
-  </div>
-  <div class="ch-grid">
-    ${doc.chapters.map((c,i)=>{
-      const cw=countWords(c.content).total;
-      const dot=cw>0?'done':(i===state.chIdx?'now':'todo');
-      return `<div class="ch-card" data-i="${i}">
-        <div><span class="dot ${dot}"></span><span class="ch-name">${esc(c.name)}</span></div>
-        <div class="ch-wc">${cw} 字${cw>0?' · 已写':''}</div>
-      </div>`;
-    }).join('')}
-  </div>
-  <div class="card" style="margin-top:14px">
-    <h3>写作建议</h3>
-    <div class="muted" style="font-size:13px;line-height:1.8">
-      ① 按"摘要 → 绪论 → 文献综述 → 方法 → 实验 → 讨论 → 结论"顺序推进；<br>
-      ② 每章先看右上角「写作要点」再动笔；<br>
-      ③ 文献综述建议边读文献边记笔记，在「文献阅读与笔记」模块沉淀素材；<br>
-      ④ 实证部分用「计量分析」模块跑通初稿，正式投稿前用 Stata/R 复核。
-    </div>
   </div>
   <div class="card" style="margin-top:14px">
     <h3>🧭 全部功能导航 <span class="muted" style="font-size:12px;font-weight:400">（手机端快捷入口，点击直达）</span></h3>
