@@ -210,7 +210,7 @@ table.data td.l,table.data th.l{text-align:left}
 #toast.show{opacity:1}
 @media (min-width:1100px){ #detail{display:block;width:300px;border-left:1px solid var(--line);background:var(--card);padding:14px;position:sticky;top:57px;height:calc(100vh - 57px);overflow-y:auto} #app{grid-template-columns:220px 1fr 300px} #topbar{grid-column:1/4} }
 @media (max-width:1099px){ #app{grid-template-columns:220px 1fr} #topbar{grid-column:1/3} }
-@media (max-width:767px){
+@media (max-width:767px){.lit-layout{grid-template-columns:1fr !important}}@media (max-width:767px){
   #app{grid-template-columns:1fr} #topbar{grid-column:1/2} #sidebar{display:none}
   #search-input{width:130px} .page-title{font-size:14px}
   #content{padding:12px} .dash-num{font-size:42px}
@@ -2819,6 +2819,8 @@ function literaturePage(root){
     <h3 style="font-size:15px;font-weight:600">📚 我的文献 <span class="chip gray">${lits.length} 篇</span></h3>
     <button id="lit-add" class="btn primary sm">+ 新增文献</button>
   </div>
+  <div class="lit-layout" style="display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1.4fr);gap:14px;align-items:start">
+    <div class="lit-left">
   <div class="card" style="margin-bottom:12px;background:var(--ok-soft);border-color:var(--ok)">
     <h3 style="color:var(--ok)">💡 创新点挖掘</h3>
     <div class="muted" style="font-size:12px;margin-bottom:8px">粘贴论文笔记 / 摘要 / 链接内容，生成可用创新点（配 LLM Key 用大模型，未配用模板）</div>
@@ -2833,6 +2835,9 @@ function literaturePage(root){
     <div id="lit-q" style="margin-top:8px;display:none"><input id="lit-q-input" placeholder="针对这篇文献提一个具体问题，如：这个方法能用到我的课堂上吗？"></div>
     <div id="lit-mine-out" style="margin-top:10px"></div>
   </div>
+    </div>
+    <div class="lit-right">
+  <h3 style="font-size:14px;font-weight:600;margin:0 0 10px">📖 文献列表</h3>
   <div id="lit-list">${lits.map(l=>`
     <div class="lit-item">
       <div class="l-title">${esc(l.title)}</div>
@@ -2843,7 +2848,9 @@ function literaturePage(root){
         <button class="btn sm" data-edit="${l.id}">编辑</button>
         <button class="btn sm" data-del="${l.id}">删除</button>
       </div>
-    </div>`).join('')||'<div class="empty"><div class="big">📖</div>还没有文献，点「+ 新增文献」添加</div>'}</div>`;
+    </div>`).join('')||'<div class="empty"><div class="big">📖</div>还没有文献，点「+ 新增文献」添加</div>'}</div>
+    </div>
+  </div>`;
   $('#lit-llm-state').textContent=LLM.get().enabled?'LLM 已启用':'未配 Key，使用本地模板';
   $('#lit-add').onclick=()=>modalBox({title:'新增文献',body:'<input id="m-lt" placeholder="论文标题"><input id="m-la" placeholder="作者" style="margin-top:8px"><input id="m-lv" placeholder="期刊/会议" style="margin-top:8px"><input id="m-ly" type="number" placeholder="年份" style="margin-top:8px"><input id="m-ld" placeholder="DOI" style="margin-top:8px"><textarea id="m-ln" placeholder="阅读笔记" style="margin-top:8px;min-height:70px"></textarea><input id="m-ltag" placeholder="标签，逗号分隔" style="margin-top:8px">',buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{const ls=Store.get(K.lits,[]);ls.unshift({id:uid(),title:$('#m-lt').value||'未命名文献',authors:$('#m-la').value,venue:$('#m-lv').value,year:$('#m-ly').value,doi:$('#m-ld').value,notes:$('#m-ln').value,tags:$('#m-ltag').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean)});Store.set(K.lits,ls);literaturePage(root);}}]});
   $$('[data-del]',root).forEach(b=>b.onclick=()=>confirm2('删除这篇文献？',()=>{Store.set(K.lits,Store.get(K.lits,[]).filter(x=>x.id!==b.dataset.del));literaturePage(root);}));
