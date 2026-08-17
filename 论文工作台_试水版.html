@@ -3821,10 +3821,10 @@ function tipsPage(root){
       </div>`;
     });
   }
-  return `<details class="card" style="cursor:pointer;margin-bottom:8px">
-     <summary style="font-weight:600;font-size:14px;padding:2px 0">📄 ${t.title}</summary>
-     <div class="muted" style="font-size:11px;margin:4px 0 6px">来源：${t.src}</div>
-     <div style="font-size:12.5px;line-height:1.6;background:var(--card2);padding:8px;border-radius:6px;margin-bottom:6px">${t.intro}</div>
+  return `<details class="card" style="cursor:pointer;margin-bottom:5px;padding:4px 12px">
+     <summary style="font-weight:600;font-size:13px;padding:0;line-height:1.4">📄 ${t.title}</summary>
+     <div class="muted" style="font-size:11px;margin:3px 0 5px">来源：${t.src}</div>
+     <div style="font-size:12.5px;line-height:1.6;background:var(--card2);padding:7px;border-radius:6px;margin-bottom:5px">${t.intro}</div>
      ${body}
    </details>`;
   };
