@@ -1193,7 +1193,7 @@ function progressPage(root){
       c.provider=prov.value;c.apiKey=key.value.trim();
       c.baseUrl=base.value.trim()||(prov.value==='deepseek'?'https://api.deepseek.com/v1':prov.value==='openai'?'https://api.openai.com/v1':prov.value==='zhipu'?'https://open.bigmodel.cn/api/paas/v4':prov.value==='qwen'?'https://dashscope.aliyuncs.com/compatible-mode/v1':'');
       c.model=model.value.trim()||(prov.value==='deepseek'?'deepseek-chat':prov.value==='openai'?'gpt-4o-mini':prov.value==='zhipu'?'glm-4-flash':prov.value==='qwen'?'qwen-turbo':'deepseek-chat');
-      c.enabled=!!c.apiKey;LLM.set(c);saveLLM(c);
+      c.enabled=!!c.apiKey;LLM.save(c);
       base.value=c.baseUrl;model.value=c.model;
       state.textContent=c.enabled?'✅ 已启用（'+c.provider+'/'+c.model+'）':'○ 未启用（请填 API Key）';
       toast(c.enabled?'已启用 LLM ✓':'已保存，但未填 Key，模板模式');
@@ -3064,29 +3064,9 @@ function settingsPage(root){
   ];
   root.innerHTML=`
   <div class="card" style="margin-bottom:12px">
-    <h3 style="font-size:14px">🤖 LLM 配置（智能体API设置）</h3>
-    <div class="muted" style="font-size:11px;margin-bottom:8px;line-height:1.6">默认推荐 DeepSeek（国内合规、便宜、OpenAI 兼容）；不配 Key 时所有 AI 功能使用本地模板，完全离线可用。<br><b style="color:var(--warn)">隐私：</b>Key 仅存浏览器本地；调用 LLM 时内容会发送到所选服务商，请勿输入敏感数据。</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
-      <div><label class="muted" style="font-size:11px">服务商</label><select id="set-prov"><option value="deepseek" ${cfg.provider==='deepseek'?'selected':''}>DeepSeek（推荐）</option><option value="openai" ${cfg.provider==='openai'?'selected':''}>OpenAI</option><option value="zhipu" ${cfg.provider==='zhipu'?'selected':''}>智谱 GLM</option><option value="qwen" ${cfg.provider==='qwen'?'selected':''}>通义千问</option><option value="custom" ${cfg.provider==='custom'?'selected':''}>自定义</option></select></div>
-      <div><label class="muted" style="font-size:11px">API Key</label><input id="set-key" type="password" value="${esc(cfg.apiKey)}" placeholder="sk-..."></div>
-      <div><label class="muted" style="font-size:11px">连接地址（Base URL）</label><input id="set-base" value="${esc(cfg.baseUrl)}" placeholder="默认 https://api.deepseek.com/v1"></div>
-      <div><label class="muted" style="font-size:11px">模型</label><input id="set-model" value="${esc(cfg.model)}" placeholder="deepseek-chat"></div>
-    </div>
-    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
-      <button id="set-test" class="btn" style="font-size:12px">测试连接</button>
-      <button id="set-save" class="btn primary" style="font-size:12px">保存配置</button>
-      <span class="muted" id="set-state" style="font-size:11px">${cfg.enabled?'已启用':'未启用（模板模式）'}</span>
-    </div>
-    <details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;font-weight:500;color:var(--accent)">📖 设置说明（点开看）</summary>
-      <div class="muted" style="font-size:11px;line-height:1.7;margin-top:6px;padding:8px 10px;background:var(--card2);border-radius:6px">
-        <b>1. DeepSeek（推荐）</b>：注册 platform.deepseek.com → 控制台 API Keys → 创建 key（新用户有免费额度），连接地址默认 <code>https://api.deepseek.com/v1</code>，模型 <code>deepseek-chat</code>。<br>
-        <b>2. OpenAI</b>：platform.openai.com → API keys，连接地址 <code>https://api.openai.com/v1</code>，模型如 <code>gpt-4o-mini</code>，需海外网络。<br>
-        <b>3. 智谱 GLM</b>：open.bigmodel.cn → API Key，连接地址 <code>https://open.bigmodel.cn/api/paas/v4</code>，模型 <code>glm-4-flash</code>（国内便宜）。<br>
-        <b>4. 通义千问</b>：dashscope.console.aliyun.com → API Key，连接地址 <code>https://dashscope.aliyuncs.com/compatible-mode/v1</code>，模型 <code>qwen-turbo</code>。<br>
-        <b>5. 自定义</b>：任何 OpenAI 兼容协议的服务（含本地 Ollama / LM Studio / 第三方代理），连接地址填实际地址即可。<br>
-        <b>6. 隐私与安全</b>：Key 仅存你浏览器 localStorage（不会上传到任何服务器）；调用时内容会发到对应服务商，请勿输入敏感个人信息；不配 Key 也能用 27 条本地规则检查/字数统计/结构模板等离线功能。
-      </div>
-    </details>
+    <h3 style="font-size:14px">💡 智能体 API 设置</h3>
+    <div class="muted" style="font-size:11px;line-height:1.6">LLM API 配置已整合到<b>「论文完成度和 API 设置」</b>页（首页顶部），在此页可直接编辑保存；不配 Key 时所有 AI 功能使用本地模板，完全离线可用。</div>
+    <div class="muted" style="font-size:11px;margin-top:6px">当前状态：<b style="color:var(--ok)">${cfg.enabled?'✅ 已启用（'+esc(cfg.provider||'')+'/'+esc(cfg.model||'')+'）':'○ 未启用（模板模式）'}</b> · Key 仅存浏览器本地。</div>
   </div>
   <div class="card" style="margin-bottom:12px">
     <h3>外观</h3>
@@ -3198,8 +3178,6 @@ function settingsPage(root){
   </div>`;
   const apply=()=>{applyTheme();$$('[data-theme]',root).forEach(b=>b.classList.toggle('active',b.dataset.theme===st.theme));};
   $$('[data-theme]',root).forEach(b=>b.onclick=()=>{st.theme=b.dataset.theme;Settings.save(st);apply();});
-  $('#set-save').onclick=()=>{cfg.provider=$('#set-prov').value;cfg.apiKey=$('#set-key').value.trim();cfg.baseUrl=$('#set-base').value.trim();cfg.model=$('#set-model').value.trim()||'deepseek-chat';cfg.enabled=!!cfg.apiKey;LLM.save(cfg);$('#set-state').textContent=cfg.enabled?'已启用':'未启用（模板模式）';toast('配置已保存'+(cfg.enabled?'，LLM 已启用':'，未启用'));};
-  $('#set-test').onclick=async()=>{cfg.apiKey=$('#set-key').value.trim();cfg.baseUrl=$('#set-base').value.trim();cfg.model=$('#set-model').value.trim()||'deepseek-chat';LLM.save(cfg);const s=$('#set-state');s.textContent='测试中…';try{const r=await llmAsk('你好，请回复"连接正常"四个字。');s.textContent=r.includes('连接正常')?'连接正常 ✓':('返回：'+r.slice(0,20));toast('连接测试完成');}catch(e){s.textContent='连接失败：'+e.message;toast('连接失败');}};
   $('#set-export').onclick=()=>{download('职教辅助论文写作平台备份_'+todayStr()+'.json',JSON.stringify(Store.all(),null,2),'application/json');toast('备份已导出');};
   $('#set-import').onclick=()=>$('#set-import-file').click();
   $('#set-import-file').onchange=e=>{const f=e.target.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const data=JSON.parse(rd.result);let n=0;Object.entries(data).forEach(([k,v])=>{if(k.startsWith('paperwb_')){localStorage.setItem(k,JSON.stringify(v));n++;}});toast('已导入 '+n+' 组数据');settingsPage(root);}catch(err){toast('文件格式错误');}};rd.readAsText(f);};
