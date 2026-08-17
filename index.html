@@ -1123,6 +1123,7 @@ function applyTheme(){document.documentElement.dataset.theme=Settings.get().them
 /* ================= 模块 1 · 论文完成度 ================= */
 function progressPage(root){
   const doc=getCurDoc();if(!doc){root.innerHTML='<div class="empty">暂无文稿</div>';return;}
+  const cfg=LLM.get();
   const wc=docTotalWc(doc),done=docDoneCount(doc),total=CHAPTERS.length;
   const pct=Math.round(done/total*100);
   const target=doc.target||DOC_TARGETS[doc.type]||30000;
@@ -1130,7 +1131,7 @@ function progressPage(root){
   root.innerHTML=`
   <div class="dash">
     <div class="dash-left">
-      <div class="dash-label">论文完成度</div>
+      <div class="dash-label">论文完成度和 API 设置</div>
       <div class="dash-num">${pct}%</div>
     </div>
     <div class="dash-right">
@@ -1146,6 +1147,21 @@ function progressPage(root){
       <circle cx="36" cy="36" r="30" fill="none" stroke="#7aa5ff" stroke-width="7" stroke-linecap="round"
         stroke-dasharray="${2*Math.PI*30}" stroke-dashoffset="${2*Math.PI*30*(1-pct/100)}" transform="rotate(-90 36 36)"/>
     </svg>
+  </div>
+  <div class="card" style="margin-top:10px;padding:12px 14px">
+    <div style="font-size:13px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:8px"><span>🔧 智能体 API 设置</span><span class="muted" style="font-size:11px;font-weight:400">默认 DeepSeek（推荐）；不配 Key 时 AI 功能用本地模板</span></div>
+    <div class="muted" style="font-size:10px;line-height:1.5;margin-bottom:8px"><b style="color:var(--warn)">隐私：</b>Key 仅存浏览器本地；调用 LLM 时内容会发到对应服务商，请勿输入敏感数据。</div>
+    <div style="display:grid;grid-template-columns:1fr 1.4fr 1.4fr 1fr;gap:8px;margin-bottom:8px">
+      <div><label class="muted" style="font-size:10px;display:block;margin-bottom:2px">服务商</label><select id="pw-llm-prov" style="font-size:12px;min-height:30px"><option value="deepseek" ${cfg.provider==='deepseek'?'selected':''}>DeepSeek（推荐）</option><option value="openai" ${cfg.provider==='openai'?'selected':''}>OpenAI</option><option value="zhipu" ${cfg.provider==='zhipu'?'selected':''}>智谱 GLM</option><option value="qwen" ${cfg.provider==='qwen'?'selected':''}>通义千问</option><option value="custom" ${cfg.provider==='custom'?'selected':''}>自定义</option></select></div>
+      <div><label class="muted" style="font-size:10px;display:block;margin-bottom:2px">API Key</label><input id="pw-llm-key" type="password" value="${esc(cfg.apiKey)}" placeholder="sk-..." style="font-size:12px;min-height:30px"></div>
+      <div><label class="muted" style="font-size:10px;display:block;margin-bottom:2px">连接地址（Base URL）</label><input id="pw-llm-base" value="${esc(cfg.baseUrl)}" placeholder="默认 https://api.deepseek.com/v1" style="font-size:12px;min-height:30px"></div>
+      <div><label class="muted" style="font-size:10px;display:block;margin-bottom:2px">模型</label><input id="pw-llm-model" value="${esc(cfg.model)}" placeholder="deepseek-chat" style="font-size:12px;min-height:30px"></div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+      <button id="pw-llm-test" class="btn" style="font-size:11px;min-height:28px;padding:0 10px">测试连接</button>
+      <button id="pw-llm-save" class="btn primary" style="font-size:11px;min-height:28px;padding:0 10px">保存配置</button>
+      <span class="muted" id="pw-llm-state" style="font-size:10px">${cfg.enabled?'✅ 已启用':'○ 未启用（模板模式）'}</span>
+    </div>
   </div>
   <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <h3 style="font-size:15px;font-weight:600">章节进度</h3>
@@ -1169,6 +1185,26 @@ function progressPage(root){
   </div>`;
   $$('.ch-card',root).forEach(el=>el.onclick=()=>{state.chIdx=+el.dataset.i;go('writing',{ch:+el.dataset.i});});
   $$('[data-gonav]',root).forEach(b=>b.onclick=()=>go(b.dataset.gonav));
+  // 论文完成度页内嵌 LLM 设置事件
+  const prov=$('#pw-llm-prov'),key=$('#pw-llm-key'),base=$('#pw-llm-base'),model=$('#pw-llm-model'),state=$('#pw-llm-state');
+  if(prov){
+    $('#pw-llm-save').onclick=()=>{
+      const c=LLM.get();
+      c.provider=prov.value;c.apiKey=key.value.trim();
+      c.baseUrl=base.value.trim()||(prov.value==='deepseek'?'https://api.deepseek.com/v1':prov.value==='openai'?'https://api.openai.com/v1':prov.value==='zhipu'?'https://open.bigmodel.cn/api/paas/v4':prov.value==='qwen'?'https://dashscope.aliyuncs.com/compatible-mode/v1':'');
+      c.model=model.value.trim()||(prov.value==='deepseek'?'deepseek-chat':prov.value==='openai'?'gpt-4o-mini':prov.value==='zhipu'?'glm-4-flash':prov.value==='qwen'?'qwen-turbo':'deepseek-chat');
+      c.enabled=!!c.apiKey;LLM.set(c);saveLLM(c);
+      base.value=c.baseUrl;model.value=c.model;
+      state.textContent=c.enabled?'✅ 已启用（'+c.provider+'/'+c.model+'）':'○ 未启用（请填 API Key）';
+      toast(c.enabled?'已启用 LLM ✓':'已保存，但未填 Key，模板模式');
+    };
+    $('#pw-llm-test').onclick=async()=>{
+      const c={provider:prov.value,apiKey:key.value.trim(),baseUrl:base.value.trim()||'https://api.deepseek.com/v1',model:model.value.trim()||'deepseek-chat'};
+      if(!c.apiKey)return toast('请先填 API Key');
+      state.textContent='⏳ 测试中…';
+      try{const r=await fetch(c.baseUrl+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.apiKey},body:JSON.stringify({model:c.model,messages:[{role:'user',content:'hi'}],max_tokens:5})});state.textContent=r.ok?'✅ 测试通过（HTTP '+r.status+'）':'❌ 失败 HTTP '+r.status;toast(r.ok?'LLM 连接成功 ✓':'连接失败：'+r.status);}catch(e){state.textContent='❌ '+e.message;toast('连接失败');}
+    };
+  }
 }
 
 /* ================= 模块 4 · 论文框架与写作 ================= */
