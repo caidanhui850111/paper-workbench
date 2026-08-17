@@ -1073,7 +1073,7 @@ function matchScore(tokens,j){
 
 /* ================= 路由与导航 ================= */
 const NAV=[
- {id:'progress',name:'论文完成度',icon:ICONS.progress,desc:'总览各文稿写作进度：章节完成情况、总字数、目标字数差距，点击章节直达写作'},
+ {id:'progress',name:'论文完成度和 API 设置',icon:ICONS.progress,desc:'总览各文稿写作进度 + 智能体 API 设置（配 Key 即用 AI，未配则本地模板离线可用）'},
  {id:'literature',name:'文献阅读与笔记',icon:ICONS.lit,desc:'管理文献条目；创新点挖掘、结构化笔记（AI 精读）、多篇文献对比'},
  {id:'frontier',name:'检索与前沿',icon:ICONS.frontier,desc:'官方数据库/查重入口直达；前沿方向挖掘；主题综述生成（背景→现状→空白→启示）'},
  {id:'writing',name:'AI写论文',icon:ICONS.write,desc:'核心写作区：分类型模板（教科研/案例/期刊/毕业论文）、章节编辑、AI 工具（提炼摘要/研究设计/创新点/课程思政/数据图表/大纲导图）'},
@@ -1131,7 +1131,7 @@ function progressPage(root){
   root.innerHTML=`
   <div class="dash">
     <div class="dash-left">
-      <div class="dash-label">论文完成度和 API 设置</div>
+      <div class="dash-label">论文完成度</div>
       <div class="dash-num">${pct}%</div>
     </div>
     <div class="dash-right">
@@ -1160,8 +1160,18 @@ function progressPage(root){
     <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
       <button id="pw-llm-test" class="btn" style="font-size:11px;min-height:28px;padding:0 10px">测试连接</button>
       <button id="pw-llm-save" class="btn primary" style="font-size:11px;min-height:28px;padding:0 10px">保存配置</button>
-      <span class="muted" id="pw-llm-state" style="font-size:10px">${cfg.enabled?'✅ 已启用':'○ 未启用（模板模式）'}</span>
     </div>
+    <div id="pw-llm-state" style="font-size:11px;margin-top:6px;line-height:1.6">当前状态：<b style="color:${cfg.enabled?'var(--ok)':'var(--muted)'}">${cfg.enabled?'✅ 已启用（'+esc(cfg.provider||'')+'/'+esc(cfg.model||'')+'）':'○ 未启用（模板模式）'}</b>${cfg.enabled?' · Key 仅存浏览器本地。':''}</div>
+    <details style="margin-top:6px"><summary style="cursor:pointer;font-size:11px;font-weight:500;color:var(--accent)">📖 设置说明书（点开看）</summary>
+      <div class="muted" style="font-size:11px;line-height:1.7;margin-top:6px;padding:8px 10px;background:var(--card2);border-radius:6px">
+        <b>1. DeepSeek（推荐）</b>：注册 platform.deepseek.com → 控制台 API Keys → 创建 key（新用户有免费额度），连接地址默认 <code>https://api.deepseek.com/v1</code>，模型 <code>deepseek-chat</code>。<br>
+        <b>2. OpenAI</b>：platform.openai.com → API keys，连接地址 <code>https://api.openai.com/v1</code>，模型如 <code>gpt-4o-mini</code>，需海外网络。<br>
+        <b>3. 智谱 GLM</b>：open.bigmodel.cn → API Key，连接地址 <code>https://open.bigmodel.cn/api/paas/v4</code>，模型 <code>glm-4-flash</code>（国内便宜）。<br>
+        <b>4. 通义千问</b>：dashscope.console.aliyun.com → API Key，连接地址 <code>https://dashscope.aliyuncs.com/compatible-mode/v1</code>，模型 <code>qwen-turbo</code>。<br>
+        <b>5. 自定义</b>：任何 OpenAI 兼容协议的服务（含本地 Ollama / LM Studio / 第三方代理），连接地址填实际地址即可。<br>
+        <b>6. 隐私与安全</b>：Key 仅存你浏览器 localStorage（不会上传到任何服务器）；调用时内容会发到对应服务商，请勿输入敏感个人信息；不配 Key 也能用 27 条本地规则检查/字数统计/结构模板等离线功能。
+      </div>
+    </details>
   </div>
   <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
     <h3 style="font-size:15px;font-weight:600">章节进度</h3>
@@ -1205,7 +1215,7 @@ function progressPage(root){
       cc.model=llmModel.value.trim()||(llmProv.value==='deepseek'?'deepseek-chat':llmProv.value==='openai'?'gpt-4o-mini':llmProv.value==='zhipu'?'glm-4-flash':llmProv.value==='qwen'?'qwen-turbo':'deepseek-chat');
       cc.enabled=!!cc.apiKey;LLM.save(cc);
       llmBase.value=cc.baseUrl;llmModel.value=cc.model;
-      llmState.textContent=cc.enabled?'✅ 已启用（'+cc.provider+'/'+cc.model+'）':'○ 未启用（请填 API Key）';
+      llmState.innerHTML=cc.enabled?'当前状态：<b style="color:var(--ok)">✅ 已启用（'+cc.provider+'/'+cc.model+'）</b> · Key 仅存浏览器本地。':'当前状态：<b style="color:var(--muted)">○ 未启用（请填 API Key）</b>';
       toast(cc.enabled?'已启用 LLM ✓':'已保存，但未填 Key，模板模式');
     };
     $('#pw-llm-test').onclick=async()=>{
@@ -3073,11 +3083,6 @@ function settingsPage(root){
     {f:'主题综述生成',s:'Paper-Agent 方法论简化版（多智能体综述流程落地为单 LLM 结构化输出）',p:'输入主题 → 按「背景意义/研究现状/热点趋势/研究空白/研究启示」五段生成领域综述；提示不编造具体文献'}
   ];
   root.innerHTML=`
-  <div class="card" style="margin-bottom:12px">
-    <h3 style="font-size:14px">💡 智能体 API 设置</h3>
-    <div class="muted" style="font-size:11px;line-height:1.6">LLM API 配置已整合到<b>「论文完成度和 API 设置」</b>页（首页顶部），在此页可直接编辑保存；不配 Key 时所有 AI 功能使用本地模板，完全离线可用。</div>
-    <div class="muted" style="font-size:11px;margin-top:6px">当前状态：<b style="color:var(--ok)">${cfg.enabled?'✅ 已启用（'+esc(cfg.provider||'')+'/'+esc(cfg.model||'')+'）':'○ 未启用（模板模式）'}</b> · Key 仅存浏览器本地。</div>
-  </div>
   <div class="card" style="margin-bottom:12px">
     <h3>外观</h3>
     <div class="set-row"><div><div class="lbl">主题</div><div class="desc">深浅色切换，护眼模式</div></div>
