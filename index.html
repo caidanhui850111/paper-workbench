@@ -2831,6 +2831,8 @@ function literaturePage(root){
     <div class="muted" style="font-size:13px;line-height:1.6">粘一段论文笔记/摘要，配合左侧 4 个功能卡做深度分析，右侧汇总文献清单。</div>
   </div>
   <div style="display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <button id="lit-upload" class="btn sm" title="上传 PDF / Word / txt / md 文件，自动提取文本并建文献条目（需联网加载解析库）">📄 上传 PDF/Word</button>
+    <input type="file" id="lit-file" accept=".pdf,.docx,.doc,.txt,.md" style="display:none">
     <button id="lit-add" class="btn primary sm">+ 新增文献 <span class="chip gray" style="margin-left:6px">${lits.length} 篇</span></button>
   </div>
   <div class="lit-layout" style="display:grid;grid-template-columns:3fr 2fr;gap:14px;align-items:start">
@@ -2888,6 +2890,52 @@ function literaturePage(root){
     </div>
   </div>`;
   $('#lit-llm-state').textContent=LLM.get().enabled?'LLM 已启用':'未配 Key，使用本地模板';
+  // ===== PDF / Word / txt / md 上传解析 =====
+  const _loadLib=url=>new Promise((res,rej)=>{const s=document.createElement('script');s.src=url;s.onload=res;s.onerror=()=>rej(new Error('解析库加载失败（需联网）'));document.head.appendChild(s);});
+  const _parseDocx=async buf=>{
+    if(!window.JSZip)await _loadLib('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js');
+    const zip=await window.JSZip.loadAsync(buf);
+    const xml=await zip.file('word/document.xml').async('string');
+    return xml.replace(/<w:p[^>]*>/g,'\n').replace(/<w:tab[^>]*>/g,'\t').replace(/<[^>]+>/g,'').replace(/\n{2,}/g,'\n').trim();
+  };
+  const _parsePdf=async buf=>{
+    if(!window.pdfjsLib){
+      await _loadLib('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    const pdf=await window.pdfjsLib.getDocument({data:new Uint8Array(buf)}).promise;
+    let text='';
+    const n=Math.min(pdf.numPages,20);
+    for(let i=1;i<=n;i++){
+      const page=await pdf.getPage(i);
+      const tc=await page.getTextContent();
+      text+=(tc.items.map(it=>it.str).join(' '))+'\n';
+    }
+    return text.trim();
+  };
+  const _litUpload=async file=>{
+    const ext=(file.name.split('.').pop()||'').toLowerCase();
+    try{
+      let text='';
+      if(ext==='txt'||ext==='md')text=(await file.text()).trim();
+      else if(ext==='docx')text=await _parseDocx(await file.arrayBuffer());
+      else if(ext==='pdf')text=await _parsePdf(await file.arrayBuffer());
+      else{toast('不支持的文件类型：.'+ext);return;}
+      if(!text||text.length<30){toast('未提取到有效文本（可能是扫描版 PDF，需 OCR）');return;}
+      // 自动建文献条目（标题=文件名，笔记=全文）并填入创新点输入框
+      const title=file.name.replace(/\.(pdf|docx|doc|txt|md)$/i,'').trim()||'导入文献';
+      const ls=Store.get(K.lits,[]);
+      ls.unshift({id:uid(),title,authors:'',venue:'',year:'',doi:'',notes:text,tags:['本地导入'],readMinutes:Math.max(1,Math.round(text.length/400))});
+      Store.set(K.lits,ls);
+      $('#lit-mine').value=text.slice(0,3500);
+      literaturePage(root);
+      modalBox({title:'✅ 导入成功',body:'<div style="font-size:13px;line-height:1.8">已自动创建文献条目：<b>'+esc(title)+'</b><br>提取文本 '+text.length+' 字（PDF 取前 20 页）。<br><br><span class="muted">文本已自动填入上方输入框，可直接用下方 4 个功能卡做分析；完整全文存在该条目的「笔记」里，点文献行可查看。</span></div>',buttons:[{label:'知道了'}]});
+    }catch(e){
+      toast('解析失败：'+e.message);
+    }
+  };
+  $('#lit-upload').onclick=()=>$('#lit-file').click();
+  $('#lit-file').onchange=e=>{const f=e.target.files[0];if(f)_litUpload(f);e.target.value='';};
   $('#lit-add').onclick=()=>modalBox({title:'新增文献',body:'<input id="m-lt" placeholder="论文标题"><input id="m-la" placeholder="作者" style="margin-top:8px"><input id="m-lv" placeholder="期刊/会议" style="margin-top:8px"><input id="m-ly" type="number" placeholder="年份" style="margin-top:8px"><input id="m-ld" placeholder="DOI" style="margin-top:8px"><textarea id="m-ln" placeholder="阅读笔记" style="margin-top:8px;min-height:70px"></textarea><input id="m-ltag" placeholder="标签，逗号分隔" style="margin-top:8px">',buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{const ls=Store.get(K.lits,[]);ls.unshift({id:uid(),title:$('#m-lt').value||'未命名文献',authors:$('#m-la').value,venue:$('#m-lv').value,year:$('#m-ly').value,doi:$('#m-ld').value,notes:$('#m-ln').value,tags:$('#m-ltag').value.split(/[,，]/).map(s=>s.trim()).filter(Boolean)});Store.set(K.lits,ls);literaturePage(root);}}]});
   $$('[data-del]',root).forEach(b=>b.onclick=()=>confirm2('删除这篇文献？',()=>{Store.set(K.lits,Store.get(K.lits,[]).filter(x=>x.id!==b.dataset.del));literaturePage(root);}));
   $$('[data-edit]',root).forEach(b=>b.onclick=()=>{const l=Store.get(K.lits,[]).find(x=>x.id===b.dataset.edit);if(!l)return;modalBox({title:'编辑笔记',body:'<textarea id="m-ln2" style="min-height:120px">'+esc(l.notes||'')+'</textarea>',buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{l.notes=$('#m-ln2').value;Store.set(K.lits,Store.get(K.lits,[]).map(x=>x.id===l.id?l:x));literaturePage(root);}}]});});
