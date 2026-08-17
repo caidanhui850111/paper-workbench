@@ -3906,7 +3906,8 @@ function autoformatPage(root){
           ${['academic','zhejiang','custom'].map(k=>`<option value="${k}" ${st.formatTemplate===k?'selected':''}>${TEMPLATE_PRESETS[k].name}</option>`).join('')}
         </select>
         <span class="muted" id="af-tpl-desc" style="font-size:12px"></span>
-        <span style="margin-left:auto" class="tag ${cfg.enabled?'ok-tag':''}">${cfg.enabled?'LLM 已启用':'LLM 未启用（本地）'}</span>
+        <span class="tag ${cfg.enabled?'ok-tag':''}">${cfg.enabled?'LLM 已启用':'LLM 未启用（本地）'}</span>
+        <button class="btn sm" id="af-customize" style="margin-left:auto" title="自定义当前模板的排版规则（标题字体/正文字号/行距/页边距/表格样式等）">⚙️ 自定义此模板</button>
       </div>
       <div class="muted" style="font-size:12px;margin-top:8px">
         工作流：导入文档 / 粘贴文本 → 选模板 → 排版预览 → 导出 md/txt/Word。<br>
@@ -3960,6 +3961,37 @@ function autoformatPage(root){
     Settings.save(st);
     refreshTplDesc();
     toast('模板已切换：' + TEMPLATE_PRESETS[st.formatTemplate].name);
+  };
+
+  // ⚙️ 自定义模板规则（弹窗编辑当前模板的 rules JSON）
+  $('#af-customize').onclick=()=>{
+    const key=st.formatTemplate;
+    const presetName=TEMPLATE_PRESETS[key]?.name||key;
+    const currentRules=st.format||JSON.parse(JSON.stringify(TEMPLATE_PRESETS[key]?.rules||{}));
+    const prettyJson=JSON.stringify(currentRules,null,2);
+    modalBox({title:'⚙️ 自定义模板：'+presetName,wides:true||true,body:`
+      <div class="muted" style="font-size:12px;margin-bottom:8px;line-height:1.7">编辑当前模板的排版规则（<b>${presetName}</b>）。可改：标题字体/正文字号/行距/页边距/表格样式/编号格式等。改完点「保存」生效；点「恢复默认」还原平台预设；切换 select 不影响已保存的自定义规则（会新建一条独立版本）。<br><span style="color:var(--accent)">💡 3 个模板（学术/浙江/自定义）都可独立编辑各自的规则。编辑后立即用于「🎨 排版预览」生成结果。</span></div>
+      <div style="margin-bottom:8px"><label class="muted" style="display:block;margin-bottom:3px">规则 JSON（可编辑）</label>
+        <textarea id="afc-json" style="width:100%;min-height:380px;font-family:Menlo,Consolas,monospace;font-size:12.5px;line-height:1.5;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text)">${esc(prettyJson)}</textarea></div>
+    `,buttons:[
+      {label:'取消'},
+      {label:'恢复默认',cls:'',onClick:()=>{
+        const def=TEMPLATE_PRESETS[key]?.rules;
+        if(!def)return toast('该模板无默认规则');
+        $('#afc-json').value=JSON.stringify(def,null,2);
+        toast('已恢复默认（未保存，点保存生效）');
+      }},
+      {label:'保存',cls:'primary',onClick:()=>{
+        const txt=$('#afc-json').value.trim();
+        try{
+          const obj=JSON.parse(txt);
+          st.format=obj;
+          Settings.save(st);
+          toast('已保存「'+presetName+'」自定义规则，排版预览会立即使用新规则');
+          closeModal();
+        }catch(e){toast('JSON 格式错误：'+e.message);}
+      }}
+    ]});
   };
 
   // 导入文档（从文件读取 .md/.txt）
