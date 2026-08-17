@@ -87,7 +87,7 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 #topbar .spacer{flex:1}
 #search-input{width:220px;min-height:38px;padding:7px 12px;border-radius:999px;font-size:14px}
 #today-btn{flex:0 0 auto}
-#sidebar{background:var(--card);border-right:1px solid var(--line);padding:12px 8px;overflow-y:auto;position:sticky;top:57px;height:calc(100vh - 57px)}
+#sidebar{background:var(--card);border-right:1px solid var(--line);padding:4px 8px;overflow-y:auto;position:sticky;top:57px;height:calc(100vh - 57px)}
 #sidebar .nav-item{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px;border-radius:10px;font-size:14px;color:var(--muted);width:100%;text-align:left;margin-bottom:2px}
 #sidebar .nav-item:hover{background:var(--card2);color:var(--text)}
 #sidebar .nav-item.active{background:var(--accent-soft);color:var(--accent);font-weight:600}
@@ -122,8 +122,11 @@ select{appearance:none;-webkit-appearance:none;background-image:url("data:image/
 .ch-card .ch-name{font-size:13px;font-weight:500}
 .ch-card .ch-wc{font-size:12px;color:var(--muted);margin-top:2px}
 /* ---------- 写作 ---------- */
-.write-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
-.write-head .spacer{flex:1}
+  .write-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+  .write-head .spacer{flex:1}
+  /* 顶部功能区元素统一字号 14px（btn sm 原本 13px 提上来与 input/select 一致） */
+  .write-head>input,.write-head>select{font-size:14px;min-height:36px;padding:4px 10px}
+  .write-head>.btn{font-size:14px;padding:6px 12px}
 .ch-list{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:12px}
 .ch-tab{flex:0 0 auto;min-height:40px;padding:8px 14px;border-radius:999px;background:var(--card2);border:1px solid var(--line);font-size:13px;color:var(--muted)}
 .ch-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
@@ -1317,8 +1320,12 @@ function writingPage(root,param){
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
+  <div class="sec-head" style="margin-bottom:6px">
+    <span class="sec-head-l"><span class="sec-head-t">🛠 顶部功能区（内容选择）</span><span class="muted" style="font-size:12px;font-weight:400">（论文类型 / 标题 / 目标字数，以及新建/导入/重置/版本/导出等操作）</span></span>
+  </div>
   <div class="toolbar-card">
   <div class="write-head">
+    <button id="btn-autowrite" class="btn primary sm tip" data-tip="按所选论文类型（教科研/案例/期刊/毕业论文）逐章生成完整初稿">🤖 AI 写全文</button>
     <select id="doc-type" style="width:auto" title="切换本文稿的类型（变化不会自动重建章节）">
       ${DOC_TYPE_ORDER.map(k=>`<option value="${k}" ${doc.type===k?'selected':''}>🏷 ${DOC_TYPE_LABEL(k)}</option>`).join('')}
     </select>
@@ -2747,8 +2754,11 @@ const AUTOWRITE_NOHIT = 'AI 味规避（平台 27 条本地规则）：禁止套
 
 function autoWritePage(){
   modalBox({title:'🤖 AI写论文',wide:true,body:`
-    <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">4 类论文 SKILL 提示已预置，选<b>论文类型</b>（4 选 1，决定写作风格和章节重点），输入学科/学段/目标字数/题目/资料，AI 按 13 章节喂饭指令逐章生成完整初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
-    <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">按平台写作技巧 + 王老师 13 章节喂饭指令 + 27 条 AI 味规避规则，输入学科/学段/题目/资料，AI 逐章自动生成完整论文初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
+    <div class="sec-head" style="margin-bottom:8px">
+      <span class="sec-head-l"><span class="sec-head-t">🤖 AI 写论文</span><span class="muted" style="font-size:12px;font-weight:400">（4 类论文 SKILL 提示已预置，按所选类型差异化生成）</span><span id="aw-llm-state" class="llm-state-chip"></span></span>
+      <button id="aw-gen-top" class="btn primary sm" style="margin:0;padding:5px 12px;font-size:12.5px">🚀 开始生成</button>
+    </div>
+    <div class="muted" style="font-size:12px;margin-bottom:10px;line-height:1.7">选<b>论文类型</b>（4 选 1，决定写作风格/章节结构/字数配比）→ 输入学科/学段/目标字数/题目/资料 → AI 按 13 章节喂饭指令逐章生成完整初稿，生成后可在下方编辑每章，确认后一键创建文稿进入写作页。<br><span style="color:var(--accent)">💡 资料越具体（数据、案例、学生作品、成绩对比）生成效果越好；缺数据 AI 会标 [待补充：XXX]；需在「设置与说明」启用 LLM Key。</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
       <div><label class="muted" style="display:block;margin-bottom:3px">学科</label>
         <select id="aw-subject" style="width:100%">
@@ -2785,6 +2795,12 @@ function autoWritePage(){
   `,buttons:[{label:'关闭'}]});
 
   let extraSource='';
+  // LLM 状态 chip（仿检索页 fr-llm-state）+ 顶部"开始生成"按钮触发原 aw-gen
+  const _awCfg=LLM.get();
+  const _chipEl=document.getElementById('aw-llm-state');
+  if(_chipEl)_chipEl.innerHTML=_awCfg.enabled?'<span class="llm-chip on">● LLM 已启用</span>':'<span class="llm-chip off">○ 未配 Key（点此配）</span>';
+  const _genTop=document.getElementById('aw-gen-top');
+  if(_genTop)_genTop.onclick=()=>{const b=document.getElementById('aw-gen');if(b)b.click();};
   $('#aw-upbtn').onclick=()=>$('#aw-files').click();
   $('#aw-files').onchange=async e=>{
     const files=[...e.target.files];if(!files.length)return;
