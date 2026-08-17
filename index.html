@@ -1178,6 +1178,15 @@ function progressPage(root){
     }).join('')}
   </div>
   <div class="card" style="margin-top:14px">
+    <h3>写作建议</h3>
+    <div class="muted" style="font-size:13px;line-height:1.8">
+      ① 按"摘要 → 绪论 → 文献综述 → 方法 → 实验 → 讨论 → 结论"顺序推进；<br>
+      ② 每章先看右上角「写作要点」再动笔；<br>
+      ③ 文献综述建议边读文献边记笔记，在「文献阅读与笔记」模块沉淀素材；<br>
+      ④ 实证部分用「计量分析」模块跑通初稿，正式投稿前用 Stata/R 复核。
+    </div>
+  </div>
+  <div class="card" style="margin-top:14px">
     <h3>🧭 全部功能导航 <span class="muted" style="font-size:12px;font-weight:400">（手机端快捷入口，点击直达）</span></h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-top:8px">
       ${NAV.map(n=>`<button class="btn tip" data-gonav="${n.id}" data-tip="${esc(n.desc||'')}" style="justify-content:flex-start;text-align:left;height:auto;min-height:52px;padding:8px 12px;line-height:1.4">${n.icon}<span style="flex:1">${esc(n.name)}</span><span style="color:var(--muted);font-size:11px">›</span></button>`).join('')}
@@ -1186,23 +1195,24 @@ function progressPage(root){
   $$('.ch-card',root).forEach(el=>el.onclick=()=>{state.chIdx=+el.dataset.i;go('writing',{ch:+el.dataset.i});});
   $$('[data-gonav]',root).forEach(b=>b.onclick=()=>go(b.dataset.gonav));
   // 论文完成度页内嵌 LLM 设置事件
-  const prov=$('#pw-llm-prov'),key=$('#pw-llm-key'),base=$('#pw-llm-base'),model=$('#pw-llm-model'),state=$('#pw-llm-state');
-  if(prov){
+  const llmProv=$('#pw-llm-prov');
+  if(llmProv){
+    const llmKey=$('#pw-llm-key'),llmBase=$('#pw-llm-base'),llmModel=$('#pw-llm-model'),llmState=$('#pw-llm-state');
     $('#pw-llm-save').onclick=()=>{
-      const c=LLM.get();
-      c.provider=prov.value;c.apiKey=key.value.trim();
-      c.baseUrl=base.value.trim()||(prov.value==='deepseek'?'https://api.deepseek.com/v1':prov.value==='openai'?'https://api.openai.com/v1':prov.value==='zhipu'?'https://open.bigmodel.cn/api/paas/v4':prov.value==='qwen'?'https://dashscope.aliyuncs.com/compatible-mode/v1':'');
-      c.model=model.value.trim()||(prov.value==='deepseek'?'deepseek-chat':prov.value==='openai'?'gpt-4o-mini':prov.value==='zhipu'?'glm-4-flash':prov.value==='qwen'?'qwen-turbo':'deepseek-chat');
-      c.enabled=!!c.apiKey;LLM.save(c);
-      base.value=c.baseUrl;model.value=c.model;
-      state.textContent=c.enabled?'✅ 已启用（'+c.provider+'/'+c.model+'）':'○ 未启用（请填 API Key）';
-      toast(c.enabled?'已启用 LLM ✓':'已保存，但未填 Key，模板模式');
+      const cc=LLM.get();
+      cc.provider=llmProv.value;cc.apiKey=llmKey.value.trim();
+      cc.baseUrl=llmBase.value.trim()||(llmProv.value==='deepseek'?'https://api.deepseek.com/v1':llmProv.value==='openai'?'https://api.openai.com/v1':llmProv.value==='zhipu'?'https://open.bigmodel.cn/api/paas/v4':llmProv.value==='qwen'?'https://dashscope.aliyuncs.com/compatible-mode/v1':'');
+      cc.model=llmModel.value.trim()||(llmProv.value==='deepseek'?'deepseek-chat':llmProv.value==='openai'?'gpt-4o-mini':llmProv.value==='zhipu'?'glm-4-flash':llmProv.value==='qwen'?'qwen-turbo':'deepseek-chat');
+      cc.enabled=!!cc.apiKey;LLM.save(cc);
+      llmBase.value=cc.baseUrl;llmModel.value=cc.model;
+      llmState.textContent=cc.enabled?'✅ 已启用（'+cc.provider+'/'+cc.model+'）':'○ 未启用（请填 API Key）';
+      toast(cc.enabled?'已启用 LLM ✓':'已保存，但未填 Key，模板模式');
     };
     $('#pw-llm-test').onclick=async()=>{
-      const c={provider:prov.value,apiKey:key.value.trim(),baseUrl:base.value.trim()||'https://api.deepseek.com/v1',model:model.value.trim()||'deepseek-chat'};
-      if(!c.apiKey)return toast('请先填 API Key');
-      state.textContent='⏳ 测试中…';
-      try{const r=await fetch(c.baseUrl+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.apiKey},body:JSON.stringify({model:c.model,messages:[{role:'user',content:'hi'}],max_tokens:5})});state.textContent=r.ok?'✅ 测试通过（HTTP '+r.status+'）':'❌ 失败 HTTP '+r.status;toast(r.ok?'LLM 连接成功 ✓':'连接失败：'+r.status);}catch(e){state.textContent='❌ '+e.message;toast('连接失败');}
+      const cc={provider:llmProv.value,apiKey:llmKey.value.trim(),baseUrl:llmBase.value.trim()||'https://api.deepseek.com/v1',model:llmModel.value.trim()||'deepseek-chat'};
+      if(!cc.apiKey)return toast('请先填 API Key');
+      llmState.textContent='⏳ 测试中…';
+      try{const r=await fetch(cc.baseUrl+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+cc.apiKey},body:JSON.stringify({model:cc.model,messages:[{role:'user',content:'hi'}],max_tokens:5})});llmState.textContent=r.ok?'✅ 测试通过（HTTP '+r.status+'）':'❌ 失败 HTTP '+r.status;toast(r.ok?'LLM 连接成功 ✓':'连接失败：'+r.status);}catch(e){llmState.textContent='❌ '+e.message;toast('连接失败');}
     };
   }
 }
@@ -3676,6 +3686,8 @@ function toggleToday(){
 /* ================= 初始化 ================= */
 function applyLayout(){const st=Settings.get();const l=st.layout||'standard';document.documentElement.dataset.layout=l;const sel=$('#layout-select');if(sel)sel.value=l;}
 function init(){
+  /* 调试：捕获 init 抛错显示到 #content */
+  try{
   /* 版本检测：浏览器缓存了旧版平台时提示强制刷新（治缓存问题的关键） */
   try{
     const savedV=localStorage.getItem('wb_version');
@@ -3694,6 +3706,7 @@ function init(){
   const hp=location.hash.replace('#/','').replace('#','');
   const hpClean=hp.replace(/^\//,'');
   go(NAV.find(n=>n.id===hpClean)?hpClean:'progress');
+  }catch(e){const c=$('#content');if(c)c.innerHTML='<div class="empty" style="padding:20px;color:var(--danger);font-size:13px">⚠️ 页面初始化错误<br><pre style="font-size:11px;background:var(--card2);padding:10px;border-radius:6px;white-space:pre-wrap;margin-top:8px">'+e.stack+'</pre></div>';}
 }
 init();
 </script>
