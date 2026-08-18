@@ -2495,6 +2495,12 @@ function contestTab(root){
 function csModal(root,cs){
   const docs=getDocs()||[];
   modalBox({title:cs?'编辑评比':'新增评比',wide:true,body:`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;padding:8px 10px;background:var(--accent-soft);border:1px dashed var(--accent);border-radius:8px;flex-wrap:wrap">
+      <input type="file" id="cs-file" accept=".txt,.md,.docx,.doc,.pdf" style="display:none">
+      <button class="btn sm" id="cs-upbtn">📄 上传评比通知（Word/PDF/txt/md）</button>
+      <button class="btn sm" id="cs-ai-extract" title="把通知全文发给 LLM 提取关键信息（需在设置与说明配 LLM Key）">🤖 AI 智能提取</button>
+      <span class="muted" id="cs-upstate" style="font-size:11px">上传后自动提取名称/类型/截止/字数/备注填入下方，请核对</span>
+    </div>
     <input id="cs-name" placeholder="评比名称，如：2026 台州市中职教师教学论文评比" value="${cs?esc(cs.name):''}">
     <div class="muted" style="margin-top:6px">类型（对应审稿标准，评审分开）：<select id="cs-type" style="width:100%;margin-top:4px">${Object.entries(CONTEST_TYPES).map(([k,v])=>`<option value="${k}" ${cs&&cs.type===k?'selected':''}>${v}</option>`).join('')}</select></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
@@ -2514,6 +2520,66 @@ function csModal(root,cs){
     else{list.push({id:uid(),...data,createdAt:Date.now(),updatedAt:Date.now()});}
     Store.set(K.contests,list);contestTab(root);toast('已保存评比任务');
   }}]});
+
+  // —— 上传评比通知 → 解析 → 自动提取填入 ——
+  const _parseAnyFile=async f=>{
+    if(/\.(txt|md)$/i.test(f.name))return await f.text();
+    const buf=await f.arrayBuffer();
+    if(/\.docx?$/i.test(f.name))return await _parseDocx(buf);
+    if(/\.pdf$/i.test(f.name))return await _parsePdf(buf);
+    return '';
+  };
+  const _extractRules=text=>{
+    const out={};
+    const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+    if(lines[0])out.name=lines[0].replace(/^(关于|关于开展|关于举办)/,'').replace(/(的)?通知$/,'').trim().slice(0,60)||lines[0];
+    out.type=/教学案例|优秀案例|案例评比/.test(text)?'case':/毕业论文|学位论文/.test(text)?'graduation':'research';
+    const dm=text.match(/(?:截止|截至|于)?\s*(20\d{2})\s*年\s*(\d{1,2})\s*月\s*(\d{1,2})\s*日/);
+    if(dm)out.deadline=dm[1]+'-'+String(+dm[2]).padStart(2,'0')+'-'+String(+dm[3]).padStart(2,'0');
+    const wm2=text.match(/(\d(?:\.\d)?)\s*万字/);
+    const wm=text.match(/(?:不(?:超过|多于|高于|少于))?\s*(\d{3,5})\s*字/);
+    if(wm2)out.wordReq=String(Math.round(parseFloat(wm2[1])*10000));
+    else if(wm)out.wordReq=wm[1];
+    const mt=text.match(/[^。\n]{0,20}(?:一式|盲审|匿名|电子稿|材料)[^。\n]{0,30}/g);
+    if(mt)out.note=mt.slice(0,3).join('；').slice(0,120);
+    return out;
+  };
+  $('#cs-upbtn').onclick=()=>$('#cs-file').click();
+  $('#cs-file').onchange=async e=>{
+    const f=e.target.files[0];if(!f)return;
+    $('#cs-upstate').textContent='正在解析「'+f.name+'」…';
+    try{
+      const text=await _parseAnyFile(f);
+      if(!text||text.length<10){$('#cs-upstate').textContent='⚠️ 未能提取到文本（PDF 可能是扫描件，可手动填写）';return;}
+      const ex=_extractRules(text);
+      if(ex.name)$('#cs-name').value=ex.name;
+      if(ex.type&&!cs)$('#cs-type').value=ex.type;
+      if(ex.deadline)$('#cs-dl').value=ex.deadline;
+      if(ex.wordReq)$('#cs-wr').value=ex.wordReq;
+      if(ex.note){const n=$('#cs-note');if(!n.value)n.value=ex.note;}
+      $('#cs-upstate').textContent='✅ 已自动提取填入，请核对后保存'+(ex.type==='case'?'（识别为教学案例）':ex.type==='graduation'?'（识别为毕业论文）':'（识别为教学论文）');
+      window._csText=text;
+    }catch(err){$('#cs-upstate').textContent='⚠️ 解析失败：'+err.message;}
+  };
+  // AI 智能提取（需 LLM Key，比本地规则更准）
+  $('#cs-ai-extract').onclick=async()=>{
+    const text=window._csText;
+    if(!text)return toast('请先上传评比通知文档');
+    const cfg=LLM.get();
+    if(!cfg.enabled)return toast('未配 LLM Key：可先用「上传」按钮的本地规则提取');
+    $('#cs-upstate').textContent='🤖 AI 正在提取…';
+    try{
+      const r=await llmAsk('你是教育行政评比通知解析助手。从下面通知中提取：评比名称（完整标题）、论文类型（只能是 教学论文/教学案例/毕业论文 之一）、截止日期（YYYY-MM-DD）、字数要求（纯数字）、备注（材料/盲审等要求 50 字内）。只输出 JSON：{"name":"","type":"","deadline":"","wordReq":"","note":""}。\n\n通知全文：\n'+text.slice(0,3000));
+      const j=JSON.parse((r||'').replace(/```json|```/g,'').trim());
+      if(!j||typeof j!=='object')throw new Error('返回格式错误');
+      if(j.name)$('#cs-name').value=j.name;
+      if(j.type&&!cs){const map={教学论文:'research',教学案例:'case',毕业论文:'graduation',案例:'case'};const v=map[j.type]||j.type;if(['research','case','graduation','journal'].includes(v))$('#cs-type').value=v;}
+      if(j.deadline)$('#cs-dl').value=j.deadline;
+      if(j.wordReq)$('#cs-wr').value=String(j.wordReq).replace(/[^0-9]/g,'');
+      if(j.note){const n=$('#cs-note');if(!n.value)n.value=j.note;}
+      $('#cs-upstate').textContent='✅ AI 提取完成，请核对后保存';
+    }catch(err){$('#cs-upstate').textContent='⚠️ AI 提取失败，可改用本地规则提取（'+(err.message||err)+'）';}
+  };
 }
 function journalLib(root){
   const journals=Store.get(K.journals,[]);
