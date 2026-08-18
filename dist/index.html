@@ -945,7 +945,7 @@ function reviewPage(root){
   <div class="pg-banner">
     <div class="pg-banner-main">
       <div class="pg-banner-title">🔬 AI 审稿</div>
-      <div class="pg-banner-sub">按类型（教科研/教学案例/期刊/毕业论文）五维差异化审稿，输出 7 模块报告（执行摘要/优点/不足/贡献/文献定位/分级建议/维度评分），可导出</div>
+      <div class="pg-banner-sub">按论文类型五维差异化审稿，输出 7 模块报告（执行摘要/优点/不足/贡献/分级建议），可导出</div>
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
@@ -1315,7 +1315,7 @@ function writingPage(root,param){
   <div class="pg-banner">
     <div class="pg-banner-main">
       <div class="pg-banner-title">✍️ AI 写论文</div>
-      <div class="pg-banner-sub">分类型模板（教科研/教学案例/期刊/毕业论文）+ 章节编辑自动保存 + 7 大 AI 工具（提炼摘要/创新点/课程思政/数据图表/思维导图/插入实证/案例素材→论文）</div>
+      <div class="pg-banner-sub">按所选类型生成完整初稿（教科研 8 章 · 毕业 8 章 · 期刊 8 章 · 案例 4 章），生成后可逐章编辑</div>
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
@@ -1368,10 +1368,10 @@ function writingPage(root,param){
   <div class="w-editor">
     <textarea id="ch-editor" placeholder="在此撰写「${esc(ch.name)}」…">${esc(ch.content)}</textarea>
   </div>
-  <!-- 辅助功能区：白底卡片 + sec-head + 7 张功能卡 -->
+  <!-- 辅助功能区：白底卡片 + sec-head + 8 张功能卡 -->
   <div class="toolbar-card" style="flex-direction:column;align-items:stretch;gap:10px;padding:10px 12px">
     <div class="sec-head" style="margin:0">
-      <span class="sec-head-l"><span class="sec-head-t">3、辅助功能区</span><span class="muted" style="font-size:12px;font-weight:400">（AI 工具集 · 7 张功能卡，点开弹窗操作）</span></span>
+      <span class="sec-head-l"><span class="sec-head-t">3、辅助功能区</span><span class="muted" style="font-size:12px;font-weight:400">（提炼摘要 / 创新点设计 / 课程思政 / 数据图表 / 思维导图绘制 / 插入实证 / 案例素材↔论文 · 8 张卡，点开弹窗操作）</span></span>
     </div>
     <div class="lit-feat-cards w-tools" style="margin-top:0">
       <div class="lit-feat-card sum" id="btn-abstract" data-act="abstract">
@@ -2260,7 +2260,7 @@ function deredupPage(root){
   <div class="pg-banner">
     <div class="pg-banner-main">
       <div class="pg-banner-title">✂️ AI 降重与去 AI 味</div>
-      <div class="pg-banner-sub">六大工具一站式处理论文文本（AI 润色/逐句精修/审稿人挑刺/AI 率检查/AI 降重/去 AIGC），含 2026 实测检测原理速查</div>
+      <div class="pg-banner-sub">六大工具一站式处理论文文本（AI 润色/逐句精修/审稿人挑刺/AI 率检查/AI 降重/去 AIGC）</div>
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
@@ -2613,7 +2613,7 @@ function econometricsPage(root){
   <div class="pg-banner">
     <div class="pg-banner-main">
       <div class="pg-banner-title">📈 计量分析</div>
-      <div class="pg-banner-sub">导入数据 → 预处理 → 描述统计/相关 → OLS 回归 → 导出；全浏览器本地计算，可一键插入论文（教师问卷/成绩数据分析）</div>
+      <div class="pg-banner-sub">导入数据 → 预处理 → 描述统计/相关 → OLS 回归 → 导出，可一键插入论文（教师问卷/成绩数据分析）</div>
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
@@ -3302,7 +3302,7 @@ function frontierPage(root){
   <div class="lit-banner" style="margin-bottom:14px">
     <div class="lit-banner-main">
       <div class="lit-banner-title">🔭 检索与前沿</div>
-      <div class="lit-banner-sub">官方数据库/查重入口直达；前沿方向挖掘（关键词+新闻 → AI 生成 3-5 方向）；主题综述生成（背景→现状→热点→空白→启示）</div>
+      <div class="lit-banner-sub">官方数据库/查重入口直达 · 前沿方向挖掘 · 主题综述生成</div>
     </div>
     <svg class="lit-banner-ring" width="56" height="56" viewBox="0 0 36 36">
       <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/>
@@ -3889,10 +3889,6 @@ function autoformatPage(root){
         <span class="tag ${cfg.enabled?'ok-tag':''}">${cfg.enabled?'LLM 已启用':'LLM 未启用（本地）'}</span>
         <button class="btn sm" id="af-customize" style="margin-left:auto" title="自定义当前模板的排版规则（标题字体/正文字号/行距/页边距/表格样式等）">⚙️ 自定义此模板</button>
       </div>
-      <div class="muted" style="font-size:12px;margin-top:8px">
-        工作流：导入文档 / 粘贴文本 → 选模板 → 排版预览 → 导出 md/txt/Word。<br>
-        <b>Word 转换</b>：浏览器端无法直接生成 .docx；点导出 Word 会生成结构化 md，由你在对话中说"转 Word"由 agent 用 docx-editor-cn 完成。
-      </div>
     </div>
 
     <div class="card" style="margin-bottom:12px">
@@ -3911,7 +3907,7 @@ function autoformatPage(root){
         <button class="btn primary" id="af-format">🎨 排版预览</button>
         <button class="btn" id="af-export-md">⬇ 导出 .md</button>
         <button class="btn" id="af-export-txt">⬇ 导出 .txt</button>
-        <button class="btn" id="af-export-word">⬇ 导出 Word（结构化 md）</button>
+        <button class="btn" id="af-export-word" data-tip="浏览器端无法直接生成 .docx；导出结构化 md 后，可在对话中说「转 Word」由助手完成转换">⬇ 导出 Word（结构化 md）</button>
         <button class="btn" id="af-copy" style="margin-left:auto">📋 复制排版结果</button>
       </div>
       <div id="af-preview-wrap" style="margin-top:12px;display:none">
