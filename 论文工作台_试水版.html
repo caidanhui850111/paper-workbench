@@ -949,8 +949,8 @@ function reviewPage(root){
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
-  <div class="card" style="max-width:780px;margin:0 auto;margin-bottom:12px">
-    <h3>审稿素材</h3>
+  <div class="card" style="margin-bottom:12px">
+    <div class="sec-head" style="margin:0 0 2px"><span class="sec-head-l"><span class="sec-head-t">📋 审稿素材</span><span class="muted" style="font-size:12px;font-weight:400">（审工作台文稿 / 导入外部文档，不依赖平台已有内容）</span></span></div>
     <div class="muted" style="font-size:12px;margin-bottom:10px">可审工作台里的文稿，也可自己导入外部文档（粘贴/上传），不依赖平台已有内容。</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
       <button id="rv-copyall" class="btn sm">复制全文（工作台文稿）</button>
@@ -967,8 +967,8 @@ function reviewPage(root){
       </div>
     </div>
   </div>
-  <div class="card" style="max-width:880px;margin:0 auto">
-    <h3>AI 审稿打分</h3>
+  <div class="card">
+    <div class="sec-head" style="margin:0 0 2px"><span class="sec-head-l"><span class="sec-head-t">🔬 AI 审稿打分</span><span class="muted" style="font-size:12px;font-weight:400">（7 模块报告：执行摘要/优点/不足/贡献/分级建议 + 自动引用核验/投稿预检/格式自查/期刊匹配）</span></span></div>
     <div class="muted" style="font-size:12px;line-height:1.7;margin-bottom:14px">让 AI 以专业审稿人身份，按不同评审标准审稿并提修改意见${llmOn?'（已配 LLM，将用大模型专业审稿）':'（未配 LLM，先用本地规则审稿；配 Key 更专业）'}；结果自动附带引用核验、投稿预检、格式自查与期刊匹配。</div>
 
     <div style="margin-bottom:12px">
