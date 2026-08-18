@@ -2385,7 +2385,7 @@ function submissionPage(root){
   <div class="pg-banner">
     <div class="pg-banner-main">
       <div class="pg-banner-title">🏆 论文评比与投稿</div>
-      <div class="pg-banner-sub">评比任务管理（对齐浙江省评比要求）· 投稿追踪 · 期刊/会议库 · 智能选刊（关键词匹配）</div>
+      <div class="pg-banner-sub">管理 4 类任务：评比任务 / 投稿追踪 / 期刊库 / 智能选刊</div>
     </div>
     <svg class="pg-banner-ring" width="56" height="56" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="3"/><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3" stroke-dasharray="20 75" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>
   </div>
@@ -2397,9 +2397,16 @@ function submissionPage(root){
     <button class="tab-btn" data-t="4">智能选刊</button>
   </div>
   </div>
+  <div id="sub-desc" style="margin-bottom:8px"></div>
   <div id="sub-body"></div>`;
   $$('.tab-btn',root).forEach(b=>b.onclick=()=>{state.subTab=+b.dataset.t;$$('.tab-btn',root).forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSubTab();});
-  const renderSubTab=()=>{const b=$('#sub-body');if(state.subTab===1)contestTab(b);else if(state.subTab===2)subTrack(b);else if(state.subTab===3)journalLib(b);else smartPick(b);};
+  const SUB_DESC={
+    1:{icon:'🏆',t:'评比任务',d:'管理省/市/区论文案例评比：记录截止、字数、进度、材料；临近/逾期自动进「今日要处理」'},
+    2:{icon:'📮',t:'投稿追踪',d:'记录想投 → 已投 → 审稿 → 录用/拒稿全流程；最近截稿提醒'},
+    3:{icon:'📚',t:'期刊/会议库',d:'导入期刊历年录用目录 → 自动构建主题画像；支持批量导入/删除'},
+    4:{icon:'🎯',t:'智能选刊',d:'输入论文标题/摘要/关键词，按期刊画像精准匹配推荐'}
+  };
+  const renderSubTab=()=>{const b=$('#sub-body');const _d=SUB_DESC[state.subTab]||SUB_DESC[1];const _sd=$('#sub-desc');if(_sd)_sd.innerHTML=`<div class="sec-head" style="margin:0"><span class="sec-head-l"><span class="sec-head-t">${_d.icon} ${_d.t}</span><span class="muted" style="font-size:12px;font-weight:400">${_d.d}</span></span></div>`;if(state.subTab===1)contestTab(b);else if(state.subTab===2)subTrack(b);else if(state.subTab===3)journalLib(b);else smartPick(b);};
   const _initTab=root.querySelector('.tab-btn[data-t="'+state.subTab+'"]');if(_initTab)_initTab.classList.add('active');
   renderSubTab();
 }
@@ -2410,8 +2417,13 @@ function subTrack(root){
   const COLORS={想投:'blue',已投:'amber',审稿中:'amber',修改中:'blue',录用:'green',拒稿:'red'};
   root.innerHTML=`
   <div class="card" style="margin-bottom:12px">
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      ${STATUS.map(s=>`<span class="chip ${COLORS[s]}">${s} ${count(s)}</span>`).join('')}
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <span class="muted" style="font-size:11px">前期</span>
+      ${['想投','已投','审稿中'].map(s=>`<span class="chip ${COLORS[s]}">${s} ${count(s)}</span>`).join('')}
+      <span class="muted" style="font-size:11px;margin-left:4px">中期</span>
+      ${['修改中'].map(s=>`<span class="chip ${COLORS[s]}">${s} ${count(s)}</span>`).join('')}
+      <span class="muted" style="font-size:11px;margin-left:4px">后期</span>
+      ${['录用','拒稿'].map(s=>`<span class="chip ${COLORS[s]}">${s} ${count(s)}</span>`).join('')}
     </div>
     <div class="muted" style="margin-top:8px">最近截稿：${subs.filter(s=>s.deadline).sort((a,b)=>a.deadline<b.deadline?-1:1)[0]?.deadline||'暂无'}</div>
   </div>
@@ -2482,7 +2494,7 @@ function contestTab(root){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
-        <button class="btn sm cs-review" data-id="${c.id}">去审稿</button>
+        <button class="btn sm primary cs-review" data-id="${c.id}">去审稿</button>
         <button class="btn sm danger cs-del" data-id="${c.id}">删除</button>
       </div>
     </div>`;}).join('')
@@ -2595,11 +2607,11 @@ function journalLib(root){
   <div class="card" style="background:var(--warn-soft);border-color:var(--warn);font-size:13px;margin-bottom:12px">
     <b>说明：</b>导入某期刊历年每期录用目录后，系统自动构建该期刊的主题画像，选刊时按画像做精准匹配。
     <span class="muted">（纯前端无法自动抓取知网，请粘贴或上传目录文本；xlsx/docx 请先在 WPS/Excel 另存为 CSV）</span>
-    <div style="margin-top:8px;background:var(--card);border-radius:10px;padding:10px 12px"><b style="font-size:12px">什么时候导入真实目录？</b><ul style="font-size:12px;padding-left:18px;margin-top:4px;color:var(--muted);line-height:1.9">
-      <li><b>定选题前</b>：导入目标领域 2-3 本核心期刊近 1-3 年目录 → 看它们都在收什么主题 → 找研究空位定选题；</li>
-      <li><b>投稿决策前</b>：导入心仪期刊的目录 → 用「智能选刊」测匹配度 → 决定投哪本更稳；</li>
-      <li><b>更新频率</b>：建议每半年补一次最新目录，画像保持新鲜（近期期数权重更高）。</li>
-    </ul></div>
+    <div style="margin-top:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div style="background:var(--card);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.7"><b>📥 定选题前</b><br><span class="muted">导入目标 2-3 本核心期刊近 1-3 年目录 → 看它们都在收什么主题 → 找研究空位定选题</span></div>
+      <div style="background:var(--card);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.7"><b>🔍 投稿决策前</b><br><span class="muted">导入心仪期刊目录 → 用「智能选刊」测匹配度 → 决定投哪本更稳</span></div>
+      <div style="background:var(--card);border-radius:10px;padding:10px 12px;font-size:12px;line-height:1.7"><b>🆕 更新频率</b><br><span class="muted">建议每半年补一次最新目录，画像保持新鲜（近期期数权重更高）</span></div>
+    </div>
   </div>
   <div id="j-list">${journals.map(j=>{
     const prof=journalProfile(j);const items=Object.entries(prof).slice(0,8);const max=items.length?items[0][1]:1;
@@ -2646,7 +2658,8 @@ function smartPick(root){
     <textarea id="pk-text" placeholder="例如：本文研究装配式建筑全生命周期造价管理，基于 2018-2024 年建筑企业数据，分析 BIM 技术应用对成本控制的影响…" style="min-height:120px"></textarea>
     <div style="margin-top:10px"><button id="pk-btn" class="btn primary">推荐期刊</button></div>
   </div>
-  <div id="pk-result"></div>`;
+  <div id="pk-result"></div>
+  <div class="card" style="margin-top:12px;background:var(--warn-soft);border-color:var(--warn);font-size:12px;line-height:1.8"><b>💡 使用提示：</b>先到「期刊/会议库」导入 2-3 本目标期刊的历年录用目录 → 系统自动构建主题画像 → 在这里输入论文摘要/关键词即可测匹配度。<span class="muted">配 LLM Key 后可启用深度分析。</span></div>`;
   $('#pk-btn').onclick=()=>{
     const text=$('#pk-text').value;if(!text.trim())return toast('请先输入论文内容');
     const tokens=paperTokens(text);
@@ -2698,7 +2711,7 @@ function econometricsPage(root){
 function econImport(root){
   root.innerHTML=`
   <div class="card">
-    <h3>步骤 1 · 导入数据</h3>
+    <div class="sec-head" style="margin:0"><span class="sec-head-l"><span class="sec-head-t">📥 步骤 1 · 导入数据</span><span class="muted" style="font-size:12px;font-weight:400">（粘贴/上传 CSV、TSV、Word 表格 → 解析为数据集）</span></span></div>
     <div class="muted" style="font-size:12px;margin-bottom:10px">支持 CSV / TSV / 空格分隔 / Word 表格粘贴：首行为变量名，其后每一行一条观测</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <button id="ei-sample" class="btn sm">填入示例数据</button>
@@ -2729,7 +2742,7 @@ function econImport(root){
 function econPreprocess(root,ds){
   root.innerHTML=`
   <div class="card">
-    <h3>步骤 2 · 数据预处理 <span class="chip blue" style="margin-left:6px">${esc(ds.name)}</span></h3>
+    <div class="sec-head" style="margin:0"><span class="sec-head-l"><span class="sec-head-t">🧹 步骤 2 · 数据预处理</span><span class="muted" style="font-size:12px;font-weight:400">（缺失值 / 异常值 / 标准化，按需处理）</span></span><span class="sec-head-r"><span class="chip blue">${esc(ds.name)}</span></span></div>
     <div class="set-row"><div><div class="lbl">缺失值处理</div><div class="desc">当前缺失：${ds.rows.filter(r=>numericCols(ds).some(c=>r[c]==='')).length} 行</div></div>
       <div class="seg"><button data-op="mm">均值填充</button><button data-op="md">中位数填充</button></div></div>
     <div class="set-row"><div><div class="lbl">异常值处理</div><div class="desc">对数值列按 1% 分位缩尾（winsorize）</div></div>
@@ -2755,7 +2768,7 @@ function econDesc(root,ds){
   const stats=cols.map(c=>{const v=colVals(ds,c);return{c,v,n:v.length,miss:ds.rows.length-v.length,m:mean(v),sd:sd(v),mn:Math.min(...v),p25:quantile(v,.25),med:median(v),p75:quantile(v,.75),mx:Math.max(...v)};});
   const corr=cols.map(c1=>cols.map(c2=>pearson(colVals(ds,c1),colVals(ds,c2))));
   root.innerHTML=`
-  <div class="card"><h3>步骤 3 · 描述性统计与相关分析 <span class="chip blue">${esc(ds.name)}</span></h3>
+  <div class="card"><div class="sec-head" style="margin:0"><span class="sec-head-l"><span class="sec-head-t">📊 步骤 3 · 描述性统计与相关分析</span><span class="muted" style="font-size:12px;font-weight:400">（变量均值 / 标准差 / 相关系数矩阵）</span></span><span class="sec-head-r"><span class="chip blue">${esc(ds.name)}</span></span></div>
     <div class="table-wrap"><table class="data"><tr><th class="l">变量</th><th>N</th><th>缺失</th><th>均值</th><th>标准差</th><th>最小</th><th>p25</th><th>中位数</th><th>p75</th><th>最大</th></tr>
     ${stats.map(s=>`<tr><td class="l">${esc(s.c)}</td><td>${s.n}</td><td>${s.miss}</td><td>${s.m.toFixed(3)}</td><td>${s.sd.toFixed(3)}</td><td>${s.mn.toFixed(3)}</td><td>${s.p25.toFixed(3)}</td><td>${s.med.toFixed(3)}</td><td>${s.p75.toFixed(3)}</td><td>${s.mx.toFixed(3)}</td></tr>`).join('')}
     </table></div>
@@ -2800,7 +2813,7 @@ function econDesc(root,ds){
 function econModel(root,ds){
   const cols=numericCols(ds);
   root.innerHTML=`
-  <div class="card"><h3>步骤 4 · 建模估计（OLS） <span class="chip blue">${esc(ds.name)}</span></h3>
+  <div class="card"><div class="sec-head" style="margin:0"><span class="sec-head-l"><span class="sec-head-t">📈 步骤 4 · 建模估计（OLS）</span><span class="muted" style="font-size:12px;font-weight:400">（设定因变量与解释变量，最小二乘回归）</span></span><span class="sec-head-r"><span class="chip blue">${esc(ds.name)}</span></span></div>
     <div class="muted" style="font-size:12px;margin-bottom:10px">在浏览器本地完成 OLS 估计；公式：Y = β0 + β1X1 + … + ε</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px">
       <div><label class="muted">被解释变量 Y</label><select id="em-y">${cols.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
@@ -2836,7 +2849,7 @@ function econModel(root,ds){
 function econExport(root,ds){
   const md=genEconMarkdown(ds);
   root.innerHTML=`
-  <div class="card"><h3>步骤 5 · 结果导出</h3>
+  <div class="card"><div class="sec-head" style="margin:0"><span class="sec-head-l"><span class="sec-head-t">📤 步骤 5 · 结果导出</span><span class="muted" style="font-size:12px;font-weight:400">（表格 / LaTeX → 一键插入论文）</span></span></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
       <button id="ex-md" class="btn">复制 Markdown</button>
       <button id="ex-csv" class="btn">下载处理后数据 CSV</button>
