@@ -2398,8 +2398,9 @@ function submissionPage(root){
   </div>
   </div>
   <div id="sub-body"></div>`;
-  $$('.tab-btn',root).forEach(b=>b.onclick=()=>{state.subTab=+b.dataset.t;renderSubTab();});
+  $$('.tab-btn',root).forEach(b=>b.onclick=()=>{state.subTab=+b.dataset.t;$$('.tab-btn',root).forEach(x=>x.classList.remove('active'));b.classList.add('active');renderSubTab();});
   const renderSubTab=()=>{const b=$('#sub-body');if(state.subTab===1)contestTab(b);else if(state.subTab===2)subTrack(b);else if(state.subTab===3)journalLib(b);else smartPick(b);};
+  const _initTab=root.querySelector('.tab-btn[data-t="'+state.subTab+'"]');if(_initTab)_initTab.classList.add('active');
   renderSubTab();
 }
 function subTrack(root){
