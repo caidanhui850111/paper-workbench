@@ -11,7 +11,7 @@
 | 方式 | 链接 / 操作 | 适合 |
 |---|---|---|
 | ① 在线使用（推荐） | https://caidanhui850111.github.io/paper-workbench/ | 手机 / 电脑日常用，GitHub Pages 公开托管，无需登录 |
-| ② 在线使用（备用） | https://596c2e531c424c318e454da4f961a02f.bj4.agentos-app.net | 国内加速备用链接（CloudStudio） |
+| ② 在线使用（备用） | 暂维护中（更新后恢复） | 原国内加速备用链接（CloudStudio） |
 | ③ 本地离线 | 下载 `index.html` 双击打开 | 无网环境、数据完全本地 |
 
 > 手机使用：浏览器打开 → 右上角「···」→「添加到主屏幕」→ 像 APP 一样用。
@@ -249,7 +249,7 @@
 ### 版本管理
 - 代码托管 GitHub：https://github.com/caidanhui850111/paper-workbench
 - 在线托管 GitHub Pages（永久公开）：https://caidanhui850111.github.io/paper-workbench/
-- 备用 CloudStudio（临时）：https://596c2e531c424c318e454da4f961a02f.bj4.agentos-app.net
+- 备用 CloudStudio（临时）：暂维护中（更新后恢复）
 - 更新流程：改 `论文工作台_试水版.html` → 同步 `index.html` → `git push` → GitHub Pages 自动更新，链接不变
 - 同事访问：https://caidanhui850111.github.io/paper-workbench/
 
