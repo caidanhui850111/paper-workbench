@@ -10,8 +10,8 @@
 
 | 方式 | 链接 / 操作 | 适合 |
 |---|---|---|
-| ① 在线使用（推荐） | https://caidanhui850111.github.io/paper-workbench/ | 手机 / 电脑日常用，GitHub Pages 公开托管，无需登录 |
-| ② 在线使用（备用） | 暂维护中（更新后恢复） | 原国内加速备用链接（CloudStudio） |
+| ① 在线使用（推荐） | https://paper-workbench-caidanhui-d7g6xmyycae8f6862.webapps.tcloudbase.com/ | 手机 / 电脑日常用，腾讯云 CloudBase 国内直连，无需登录 |
+| ② 在线使用（备用） | https://caidanhui-d7g6xmyycae8f6862-1464332842.tcloudbaseapp.com/paper-workbench/ | 腾讯云静态托管备用链接 |
 | ③ 本地离线 | 下载 `index.html` 双击打开 | 无网环境、数据完全本地 |
 
 > 手机使用：浏览器打开 → 右上角「···」→「添加到主屏幕」→ 像 APP 一样用。
@@ -247,17 +247,17 @@
 - 微信内置浏览器可用，建议右上角"在浏览器打开"更稳定
 
 ### 版本管理
-- 代码托管 GitHub：https://github.com/caidanhui850111/paper-workbench
-- 在线托管 GitHub Pages（永久公开）：https://caidanhui850111.github.io/paper-workbench/
-- 备用 CloudStudio（临时）：暂维护中（更新后恢复）
-- 更新流程：改 `论文工作台_试水版.html` → 同步 `index.html` → `git push` → GitHub Pages 自动更新，链接不变
-- 同事访问：https://caidanhui850111.github.io/paper-workbench/
+- 代码托管 GitHub（公开）：https://github.com/caidanhui850111/paper-workbench
+- 在线托管（主）：腾讯云 CloudBase Git 自动部署 → https://paper-workbench-caidanhui-d7g6xmyycae8f6862.webapps.tcloudbase.com/ （push 自动更新）
+- 在线托管（备）：CloudBase 静态托管 → https://caidanhui-d7g6xmyycae8f6862-1464332842.tcloudbaseapp.com/paper-workbench/
+- 更新流程：改 `index.html` → `git push` → CloudBase 自动重新部署，链接不变
+- 同事访问：https://paper-workbench-caidanhui-d7g6xmyycae8f6862.webapps.tcloudbase.com/
 
 ---
 
 ## 🔒 隐私与合规提醒
 
-- **公网可访问**：GitHub Pages 是公开链接，任何人拿到都能打开（页面无真实隐私数据，示例为占位）
+- **公网可访问**：在线链接是公开的，任何人拿到都能打开（页面无真实隐私数据，示例为占位）
 - **数据在浏览器**：用户数据在各自 localStorage，不在服务器（这点安全）
 - **AI 数据流向**：配 Key 后，输入的文本会发送给对应服务商（DeepSeek）处理——**不要在页面里输入敏感个人信息**
 - **学术诚信**：AI 生成内容仅供辅助参考，最终论文须本人审校；检测数据以学校/期刊指定工具为准
