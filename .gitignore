@@ -6,3 +6,7 @@ node_modules/
 Thumbs.db
 _pt2*.js
 _pt2*.js
+
+# 本地备份与设计样稿（不入库，避免误推公开仓库）
+备份_*/
+样稿_*.html
