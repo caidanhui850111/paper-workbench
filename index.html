@@ -2616,6 +2616,44 @@ function subTrack(root){
 const CONTEST_STAGES=['选题','初稿','修改','定稿','提交'];
 const CONTEST_TYPES={research:'教学论文',case:'教学案例',graduation:'毕业论文'};
 const CONTEST_MATERIALS=['论文/案例电子稿','承诺书（盖章）','查重报告','AIGC 检测报告','参评汇总表','评审活页','其他材料'];
+/* ==== 内置评比通知库：已核实的省市/长三角/全国评比（含到期日与通知要点，离线可用）==== */
+const CONTEST_LIB=[
+{id:'lib1',name:'黄浦杯·长三角城市群“人工智能时代的新教研”征文',level:'长三角（省级以上）',org:'上海教科院普教所牵头，台州经市教科院推荐',type:'research',wordReq:'5000',deadline:'2027-05-31',hint:'每年4-6月各地推荐',urgent:false,src:'https://szteacher.suzhou.edu.cn/',
+notice:'【2026年“黄浦杯”长三角城市群“人工智能时代的新教研”征文】\n主办：长三角城市群教育科研协作共同体、上海市教科院普教所、上海市黄浦区教育局、《上海教育科研》编辑部\n台州：长共体联盟城市，经台州市教科院组织推荐（2025年台州19篇获奖）\n选材范围：①教研学理研究 ②区域教研创新 ③校本教研创新 ④教研保障机制 ⑤教研伦理\n要求：5000字左右；含摘要、关键词、参考文献；未公开发表；查重<15-20%\n时间：各地4-6月组织推荐，上海终评\n注意：这是“教研”主题——要写“AI如何改变教研”，不是纯教学应用。'},
+{id:'lib2',name:'台州市教育技术应用和实验教学等论文活动',level:'台州市级',org:'台州市教育技术与信息中心',type:'research',wordReq:'6000',deadline:'2027-04-18',hint:'每年3-5月（教师上报）',urgent:false,src:'https://jyj.zjtz.gov.cn/art/2025/2/17/art_1229046956_58929415.html',
+notice:'【台州市教育技术应用和实验教学等论文活动】\n范围（含中职）：信息技术与教学融合创新；数字教育资源开发与应用；人工智能助力教育教学改革实践；师生信息素养；教育网络管理安全；教育环境与装备等\n要求：题目+摘要(200-350字)+关键词(3-5)+正文+参考文献；4000-6000字；原创、未参加市级以上评奖；需提交查重报告(PDF)\n报送：台州智慧教育云平台 brain.tzedu.net.cn → 活动广场\n时间（2025参考）：教师上报4/7-4/18；县级推荐5/7-5/16\n最对口：AI融合建筑识图、AI+3D交互资源开发。'},
+{id:'lib3',name:'台州市中小学(幼)教师论文评审',level:'台州市级',org:'台州市教育教学研究院',type:'research',wordReq:'6000',deadline:'2027-04-10',hint:'每年1月发通知、4月上送',urgent:false,src:'https://zjjcmspublic.oss-cn-hangzhou-zwynet-d01-a.internet.cloud.zj.gov.cn/jcms_files/jcms1/web3490/site/attach/0/1c64ff5edb124e799266daf1adaa499d.pdf',
+notice:'【台州市中小学(幼)教师论文评审】（台教研院〔2025〕5号）\n与建筑专业对口类别：\n· 第二类：职教专业课\n· 第四类：精准教学（重点关注人工智能技能在教育教学中的应用）、职教综合（职业教育、“三教”改革、中高职一体化建设）\n要求：Word、A4、每页38行、标题三号黑体、正文五号宋体、不署名；≤6000字；作者≤2人；每位作者限1篇；查重>30%取消\n上送：分学科发给教研员（职教专业课/综合 → 翁娇 wj@tzedu.org）\n时间（2025）：通知1/16发 → 上送4/10前 → 网络上传4/30前 → 6月下旬公示'},
+{id:'lib4',name:'路桥区教育科研小课题（结题+课题论文评比）',level:'路桥区级',org:'路桥区教科所',type:'research',wordReq:'3000',deadline:'2026-12-31',hint:'每年6月、12月两次集中结题',urgent:false,src:'https://www.luqiao.gov.cn/',
+notice:'【路桥区教育科研小课题 结题 + 课题论文评比】\n形式：小课题结题时同步组织课题论文评比\n要求：结题材料含研究论文（2000-5000字）；获奖论文发获奖证书；区级二等奖以上可直接结题\n时间：区教科所每年两次集中结题——6月、12月（最近窗口：2026年12月）\n流程：提前向学校教科室报审结题，再由学校集中报区教科所'},
+{id:'lib5',name:'（进行中）台州市2026年优秀教育科研论文评比',level:'台州市级',org:'台州市教科院',type:'research',wordReq:'6000',deadline:'2026-09-14',hint:'2025-2026省市教科规划课题论文',urgent:true,src:'https://zs.tzvcst.edu.cn/ky/detail/151290',
+notice:'【台州市2026年优秀教育科研论文评比】⚠️ 9月14日截止（进行中）\n范围：2025-2026年省市教科规划课题、未公开发表的论文；其他课题论文、已在市级以上获奖的不得参评\n要求：Word/PDF、A4、≤6000字（A4约5页）；标题3号、正文5号；不出现姓名/单位/课题；匿名评审；每项课题1篇、作者≤2人；不带附件\n报送：电子稿，文档命名“姓名+论文主标题”，由各县市区/学校集中发送'},
+{id:'lib6',name:'（进行中）全国师生数字素养提升实践活动·职业教育专项',level:'全国',org:'教育部教育技术与资源发展中心（中央电教馆）',type:'case',wordReq:'',deadline:'2026-09-15',hint:'全国平台7/15-9/15',urgent:true,src:'https://huodong.ncet.edu.cn/',
+notice:'【全国师生数字素养提升实践活动·职业教育专项】⚠️ 9月15日截止（进行中）\n面向教师：职业教育实践性教学案例、职业教育数字教材（样章）\n面向学校：人工智能+职业教育典型应用场景案例 ←（适合 AI 识图工具 / AI+3D 交互）\n时间：全国平台7/15-9/15；中职组经设区市7/30前推荐（浙江每市3件）\n提示：浙江中职组走省教育技术中心 → 设区市推荐，不接受个人报送'}
+];
+function buildLibHtml(){
+  return `<div class="card" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+      <h3 style="font-size:15px;font-weight:600">📚 内置评比通知库</h3>
+      <span class="muted" style="font-size:12px">已内置 ${CONTEST_LIB.length} 项 · 点「查看通知」看要点</span>
+    </div>
+    <div class="muted" style="font-size:12px;margin:8px 0 10px;line-height:1.7">这里只需要两样：<b>评比文件</b>（点开看要点/原始链接）＋ <b>几号到期</b>。已核实的台州市/长三角/全国评比都在下面。</div>
+    ${CONTEST_LIB.map(it=>{
+      const urgent=it.urgent;
+      return `<div class="sub-card" style="align-items:flex-start">
+        <div class="chip ${urgent?'red':'blue'}">${urgent?'进行中':esc(it.level)}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px">${esc(it.name)}</div>
+          <div class="muted" style="font-size:12px;line-height:1.7">${esc(it.org)} · 字数 ${esc(it.wordReq||'—')}${it.hint?' · 窗口：'+esc(it.hint):''}</div>
+          <div style="margin-top:5px"><span class="chip ${urgent?'red':'amber'}" style="font-size:11px">⏰ 到期 ${esc(it.deadline)}</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+          <button class="btn sm lib-view" data-id="${it.id}">📄 查看通知</button>
+          <button class="btn sm primary lib-add" data-id="${it.id}">＋加入我的任务</button>
+        </div>
+      </div>`;}).join('')}
+  </div>`;
+}
 function checkStatusChip(label,rate,th){
   if(rate==null||rate===''||!th)return'';
   const ok=rate<=th;
@@ -2626,6 +2664,7 @@ function contestTab(root){
   const list=Store.get(K.contests,[]);
   const today=todayStr();
   const sorted=[...list].sort((a,b)=>(a.deadline||'9999').localeCompare(b.deadline||'9999'));
+  const libHtml=buildLibHtml();
   root.innerHTML=`
   <div class="card" style="margin-bottom:12px;font-size:13px">
     <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -2653,18 +2692,25 @@ function contestTab(root){
         </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        ${c.noticeText?`<button class="btn sm cs-notice" data-id="${c.id}">📄 通知</button>`:''}
         <button class="btn sm primary cs-review" data-id="${c.id}">去审稿</button>
         <button class="btn sm danger cs-del" data-id="${c.id}">删除</button>
       </div>
     </div>`;}).join('')
-  :'<div class="empty"><div class="big">🏆</div>还没有评比任务<br>点「+ 新增评比」把省/市/区评比管起来</div>'}`;
+  :'<div class="empty"><div class="big">🏆</div>还没有评比任务<br>点「+ 新增评比」把省/市/区评比管起来</div>'}
+  ${libHtml}`;
   $('#btn-add-cs').onclick=()=>csModal(root,null);
   $$('.cs-del',root).forEach(b=>b.onclick=()=>{const c=list.find(x=>x.id===b.dataset.id);confirm2('确认删除评比「'+c.name+'」？',()=>{Store.set(K.contests,list.filter(x=>x.id!==c.id));contestTab(root);});});
   $$('.cs-stage',root).forEach(b=>b.onclick=()=>{const c=list.find(x=>x.id===b.dataset.id);c.stage=b.dataset.s;c.updatedAt=Date.now();Store.set(K.contests,list);contestTab(root);toast('进度更新为「'+b.dataset.s+'」');});
   $$('.cs-review',root).forEach(b=>b.onclick=()=>{const c=list.find(x=>x.id===b.dataset.id);state._rvPreset={type:c.type,target:parseInt((c.wordReq||'').replace(/[^0-9]/g,''))||0};go('review');toast('已按「'+CONTEST_TYPES[c.type]+'」标准预填审稿');});
+  $$('.cs-notice',root).forEach(b=>b.onclick=()=>{const c=list.find(x=>x.id===b.dataset.id);if(!c||!c.noticeText)return;modalBox({title:'📄 '+c.name,wide:true,body:'<pre style="white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height:1.75;max-height:58vh;overflow:auto;margin:0">'+esc(c.noticeText)+'</pre>',buttons:[{label:'关闭'}]});});
+  // 内置评比通知库：查看通知 / 加入我的任务
+  $$('.lib-view',root).forEach(b=>b.onclick=()=>{const it=CONTEST_LIB.find(x=>x.id===b.dataset.id);if(!it)return;modalBox({title:'📄 '+it.name,wide:true,body:'<pre style="white-space:pre-wrap;word-break:break-word;font-size:12.5px;line-height:1.75;max-height:58vh;overflow:auto;margin:0">'+esc(it.notice)+'</pre><div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><a class="btn sm" href="'+esc(it.src)+'" target="_blank" rel="noopener">🔗 打开原始通知</a><span class="muted" style="font-size:11px">⏰ 到期：'+esc(it.deadline)+'</span></div>',buttons:[{label:'关闭'}]});});
+  $$('.lib-add',root).forEach(b=>b.onclick=()=>{const it=CONTEST_LIB.find(x=>x.id===b.dataset.id);if(!it)return;const l2=Store.get(K.contests,[]);if(l2.some(c=>c.name===it.name))return toast('已在你的评比任务中');l2.push({id:uid(),name:it.name,type:it.type,deadline:it.deadline,wordReq:it.wordReq,stage:'选题',docId:'',note:(it.hint?it.hint+'；':'')+it.level,materials:[],done:false,noticeText:it.notice,createdAt:Date.now(),updatedAt:Date.now()});Store.set(K.contests,l2);contestTab(root);toast('已加入「我的评比任务」');});
 }
 function csModal(root,cs){
   const docs=getDocs()||[];
+  window._csText=(cs&&cs.noticeText)||'';
   modalBox({title:cs?'编辑评比':'新增评比',wide:true,body:`
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;padding:8px 10px;background:var(--accent-soft);border:1px dashed var(--accent);border-radius:8px;flex-wrap:wrap">
       <input type="file" id="cs-file" accept=".txt,.md,.docx,.doc,.pdf" style="display:none">
@@ -2686,7 +2732,7 @@ function csModal(root,cs){
     <div style="margin-top:6px"><label class="muted">备注（盲审、材料等其他要求）</label><input id="cs-note" value="${cs?esc(cs.note||''):''}" style="width:100%;margin-top:4px"></div>
   `,buttons:[{label:'取消'},{label:'保存',cls:'primary',onClick:()=>{
     const list=Store.get(K.contests,[]);
-    const data={name:$('#cs-name').value||'未命名评比',type:$('#cs-type').value,deadline:$('#cs-dl').value,wordReq:$('#cs-wr').value.trim(),stage:$('#cs-stage').value,docId:$('#cs-doc').value,materials:$$('.cs-mat').filter(x=>x.checked).map(x=>x.value),note:$('#cs-note').value.trim(),done:!!(cs&&cs.done)};
+    const data={name:$('#cs-name').value||'未命名评比',type:$('#cs-type').value,deadline:$('#cs-dl').value,wordReq:$('#cs-wr').value.trim(),stage:$('#cs-stage').value,docId:$('#cs-doc').value,materials:$$('.cs-mat').filter(x=>x.checked).map(x=>x.value),note:$('#cs-note').value.trim(),done:!!(cs&&cs.done),noticeText:(window._csText||'')};
     if(cs){Object.assign(cs,data);cs.updatedAt=Date.now();}
     else{list.push({id:uid(),...data,createdAt:Date.now(),updatedAt:Date.now()});}
     Store.set(K.contests,list);contestTab(root);toast('已保存评比任务');
